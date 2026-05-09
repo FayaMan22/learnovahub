@@ -119,6 +119,34 @@ class QuizResult(db.Model):
     user = db.relationship("User", backref="quiz_results")
     lesson = db.relationship("Lesson", backref="quiz_results")
 
+class Payment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id"),
+        nullable=False
+    )
+
+    amount = db.Column(db.Float, nullable=False)
+
+    status = db.Column(
+        db.String(30),
+        default="pending"
+    )
+
+    payment_method = db.Column(
+        db.String(50),
+        default="payfast"
+    )
+
+    subscription_type = db.Column(
+        db.String(50),
+        nullable=False
+    )
+
+    user = db.relationship("User", backref="payments")
+
 @app.route("/")
 def home():
     return {
@@ -339,6 +367,31 @@ def get_my_quiz_results():
         })
 
     return jsonify(result_list), 200
+
+@app.route("/payments/create", methods=["POST"])
+@jwt_required()
+def create_payment():
+
+    user_id = get_jwt_identity()
+    data = request.get_json()
+
+    amount = data.get("amount")
+    subscription_type = data.get("subscription_type")
+
+    payment = Payment(
+        user_id=user_id,
+        amount=amount,
+        subscription_type=subscription_type,
+        status="pending"
+    )
+
+    db.session.add(payment)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Payment created successfully",
+        "payment_id": payment.id
+    }), 201
 
 @app.route("/admin/users/<int:user_id>/subscription", methods=["PATCH"])
 def update_subscription(user_id):

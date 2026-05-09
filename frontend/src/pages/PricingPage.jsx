@@ -1,4 +1,37 @@
+import axios from "axios";
+
 export default function PricingPage() {
+  function handleSubscriptionPayment() {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Please login first before subscribing.");
+      return;
+    }
+
+    axios
+      .post(
+        "https://learnovahub.onrender.com/payments/create",
+        {
+          amount: 149,
+          subscription_type: "monthly",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((response) => {
+        alert(
+          `Payment record created. Payment ID: ${response.data.payment_id}`
+        );
+      })
+      .catch(() => {
+        alert("Failed to start payment.");
+      });
+  }
+
   return (
     <section className="pricing-page">
       <h1>Choose Your Learning Plan</h1>
@@ -35,7 +68,9 @@ export default function PricingPage() {
             <li>Learner support</li>
           </ul>
 
-          <button>Join Now</button>
+          <button onClick={handleSubscriptionPayment}>
+            Subscribe Monthly
+          </button>
         </div>
 
         <div className="pricing-card">
