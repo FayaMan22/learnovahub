@@ -11,7 +11,7 @@ export default function QuizPage() {
 
   useEffect(() => {
     axios
-      .get(`http://127.0.0.1:5000/lessons/${id}/quiz`)
+      .get(`https://learnovahub.onrender.com//lessons/${id}/quiz`)
       .then((response) => {
         setQuestions(response.data);
       })
@@ -42,7 +42,7 @@ export default function QuizPage() {
 
     axios
       .post(
-        "http://127.0.0.1:5000/quiz-results",
+        "https://learnovahub.onrender.com//quiz-results",
         {
           lesson_id: id,
           score: total,

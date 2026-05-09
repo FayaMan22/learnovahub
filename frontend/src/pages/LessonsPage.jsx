@@ -8,7 +8,7 @@ export default function LessonsPage() {
 
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:5000/lessons")
+      .get("https://learnovahub.onrender.com//lessons")
       .then((response) => {
         setLessons(response.data);
       })

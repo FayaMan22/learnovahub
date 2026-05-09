@@ -27,7 +27,7 @@ export default function RegisterPage() {
     }
 
     axios
-      .post("http://127.0.0.1:5000/register", {
+      .post("https://learnovahub.onrender.com//register", {
         full_name: formData.full_name,
         email: formData.email,
         password: formData.password,

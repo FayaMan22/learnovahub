@@ -20,7 +20,7 @@ export default function AdminPage() {
 
   function fetchUsers() {
     axios
-      .get("http://127.0.0.1:5000/admin/users")
+      .get("https://learnovahub.onrender.com//admin/users")
       .then((response) => {
         setUsers(response.data);
       })
@@ -42,7 +42,7 @@ export default function AdminPage() {
     e.preventDefault();
 
     axios
-      .post("http://127.0.0.1:5000/admin/lessons", lessonData)
+      .post("https://learnovahub.onrender.com//admin/lessons", lessonData)
       .then((response) => {
         setMessage(response.data.message);
 
@@ -62,7 +62,7 @@ export default function AdminPage() {
 
   function activateSubscription(userId) {
     axios
-      .patch(`http://127.0.0.1:5000/admin/users/${userId}/subscription`, {
+      .patch(`https://learnovahub.onrender.com//admin/users/${userId}/subscription`, {
         is_subscribed: true,
         subscription_type: "monthly",
       })
@@ -76,7 +76,7 @@ export default function AdminPage() {
 
   function deactivateSubscription(userId) {
     axios
-      .patch(`http://127.0.0.1:5000/admin/users/${userId}/subscription`, {
+      .patch(`https://learnovahub.onrender.com//admin/users/${userId}/subscription`, {
         is_subscribed: false,
         subscription_type: null,
       })

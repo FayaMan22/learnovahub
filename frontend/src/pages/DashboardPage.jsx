@@ -11,7 +11,7 @@ export default function DashboardPage() {
     const token = localStorage.getItem("token");
 
     axios
-      .get("http://127.0.0.1:5000/my-quiz-results", {
+      .get("https://learnovahub.onrender.com//my-quiz-results", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

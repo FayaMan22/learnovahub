@@ -23,7 +23,7 @@ export default function LoginPage() {
     e.preventDefault();
 
     axios
-      .post("http://127.0.0.1:5000/login", formData)
+      .post("https://learnovahub.onrender.com//login", formData)
       .then((response) => {
         localStorage.setItem("token", response.data.token);
         const userData = response.data.user;
