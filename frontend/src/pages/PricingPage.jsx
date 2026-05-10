@@ -13,7 +13,7 @@ export default function PricingPage() {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:5000/payments/payfast-data",
+        "https://learnovahub.onrender.com/payments/payfast-data",
         {
           amount: 149,
           subscription_type: "monthly",

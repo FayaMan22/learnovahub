@@ -42,7 +42,7 @@ export default function QuizPage() {
 
     axios
       .post(
-        "https://learnovahub.onrender.com//quiz-results",
+        "https://learnovahub.onrender.com/quiz-results",
         {
           lesson_id: id,
           score: total,
