@@ -19,6 +19,9 @@ import LessonsPage from "./pages/LessonsPage";
 import AdminPage from "./pages/AdminPage";
 import LessonDetailPage from "./pages/LessonDetailPage";
 import QuizPage from "./pages/QuizPage";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage.jsx";
+import PaymentCancelledPage from "./pages/PaymentCancelledPage.jsx";
+import ProgressPage from "./pages/ProgressPage.jsx";
 
 
 const router = createBrowserRouter([
@@ -68,6 +71,22 @@ const router = createBrowserRouter([
           <AdminRoute>
             <AdminPage />
           </AdminRoute>
+        ),
+      },
+      {
+        path: "payment-success",
+        element: <PaymentSuccessPage />,
+      },
+      {
+        path: "payment-cancelled",
+        element: <PaymentCancelledPage />,
+      },
+      {
+        path: "progress",
+        element: (
+          <ProtectedRoute>
+            <ProgressPage />
+          </ProtectedRoute>
         ),
       },
     ],

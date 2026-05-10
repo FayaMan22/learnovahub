@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function DashboardPage() {
+  const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
 
   const [quizResults, setQuizResults] = useState([]);
@@ -59,7 +61,9 @@ export default function DashboardPage() {
             interactive video lessons.
           </p>
 
-          <button>View Lessons</button>
+          <button onClick={() => navigate("/lessons")}>
+            View Lessons
+          </button>
         </div>
 
         <div className="dashboard-card">
@@ -69,7 +73,9 @@ export default function DashboardPage() {
             auto-marked quizzes and exercises.
           </p>
 
-          <button>Start Quiz</button>
+          <button onClick={() => navigate("/lessons/1/quiz")}>
+            Start Quiz
+          </button>
         </div>
 
         <div className="dashboard-card">
@@ -79,7 +85,9 @@ export default function DashboardPage() {
             materials for practice.
           </p>
 
-          <button>Download</button>
+          <button onClick={() => navigate("/lessons")}>
+            Download
+          </button>
         </div>
 
         <div className="dashboard-card">
@@ -89,7 +97,9 @@ export default function DashboardPage() {
             and quiz performance.
           </p>
 
-          <button>View Progress</button>
+          <button onClick={() => navigate("/progress")}>
+            View Progress
+          </button>
         </div>
         <section className="results-section">
           <h2>My Quiz Results</h2>

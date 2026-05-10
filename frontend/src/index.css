@@ -740,3 +740,85 @@ main {
     font-size: 1.1rem;
   }
 }
+
+.payment-page {
+  min-height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 8%;
+}
+
+.payment-card {
+  max-width: 500px;
+  text-align: center;
+  background: white;
+  padding: 40px;
+  border-radius: 18px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.payment-card h1 {
+  margin-bottom: 20px;
+}
+
+.success-card h1 {
+  color: #16a34a;
+}
+
+.cancelled-card h1 {
+  color: #dc2626;
+}
+
+.payment-card p {
+  color: #475569;
+  line-height: 1.7;
+}
+
+.progress-page {
+  padding: 60px 8%;
+}
+
+.progress-page h1 {
+  margin-bottom: 30px;
+  color: #0f172a;
+}
+
+.progress-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 25px;
+  margin-bottom: 40px;
+}
+
+.progress-card,
+.progress-result {
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.progress-card h2 {
+  color: #2563eb;
+  font-size: 2rem;
+}
+
+.progress-card p,
+.progress-result p {
+  color: #475569;
+}
+
+.progress-list h2 {
+  margin-bottom: 20px;
+  color: #0f172a;
+}
+
+.progress-result {
+  margin-bottom: 15px;
+}
+
+.progress-result h3 {
+  color: #2563eb;
+  margin-bottom: 8px;
+}

@@ -1,7 +1,9 @@
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function PricingPage() {
-  function handleSubscriptionPayment() {
+  const navigate = useNavigate();
+  async function handleSubscriptionPayment() {
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -9,9 +11,9 @@ export default function PricingPage() {
       return;
     }
 
-    axios
-      .post(
-        "https://learnovahub.onrender.com/payments/create",
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:5000/payments/payfast-data",
         {
           amount: 149,
           subscription_type: "monthly",
@@ -21,15 +23,30 @@ export default function PricingPage() {
             Authorization: `Bearer ${token}`,
           },
         }
-      )
-      .then((response) => {
-        alert(
-          `Payment record created. Payment ID: ${response.data.payment_id}`
-        );
-      })
-      .catch(() => {
-        alert("Failed to start payment.");
+      );
+
+      const { payfast_url, payfast_data } = response.data;
+
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = payfast_url;
+
+      Object.entries(payfast_data).forEach(([key, value]) => {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
+        input.value = value;
+
+        form.appendChild(input);
       });
+
+      document.body.appendChild(form);
+      form.submit();
+
+    } catch (error) {
+      console.log(error);
+      alert("Failed to start PayFast payment.");
+    }
   }
 
   return (
@@ -52,7 +69,9 @@ export default function PricingPage() {
             <li>Basic topic previews</li>
           </ul>
 
-          <button>Start Free</button>
+          <button onClick={() => navigate("/lessons")}>
+            Start Free
+          </button>
         </div>
 
         <div className="pricing-card featured-plan">
@@ -85,7 +104,13 @@ export default function PricingPage() {
             <li>Memo explanations</li>
           </ul>
 
-          <button>Get Booster</button>
+          <button
+            onClick={() =>
+              alert("Exam Booster package coming soon.")
+            }
+          >
+            Get Booster
+          </button>
         </div>
       </div>
     </section>

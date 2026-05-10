@@ -6,6 +6,8 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 from dotenv import load_dotenv
 import os
 import bcrypt
+from urllib.parse import urlencode, quote_plus
+import hashlib
 
 load_dotenv()
 
@@ -393,6 +395,76 @@ def create_payment():
         "payment_id": payment.id
     }), 201
 
+@app.route("/payments/payfast-data", methods=["POST"])
+@jwt_required()
+def create_payfast_data():
+
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+
+    data = request.get_json()
+    amount = data.get("amount", 149)
+    subscription_type = data.get("subscription_type", "monthly")
+
+    payment = Payment(
+        user_id=user_id,
+        amount=amount,
+        subscription_type=subscription_type,
+        status="pending"
+    )
+
+    db.session.add(payment)
+    db.session.commit()
+
+    payfast_data = {
+        "merchant_id": os.getenv("PAYFAST_MERCHANT_ID"),
+        "merchant_key": os.getenv("PAYFAST_MERCHANT_KEY"),
+        "return_url": f"{os.getenv('FRONTEND_URL')}/payment-success",
+        "cancel_url": f"{os.getenv('FRONTEND_URL')}/payment-cancelled",
+        "notify_url": f"{os.getenv('BACKEND_URL')}/payments/notify",
+        "name_first": user.full_name.split()[0],
+        "email_address": user.email,
+        "m_payment_id": str(payment.id),
+        "amount": f"{amount:.2f}",
+        "item_name": "LearnovaHub Monthly Subscription",
+    }
+
+    signature_fields = [
+        "merchant_id",
+        "merchant_key",
+        "return_url",
+        "cancel_url",
+        "notify_url",
+        "name_first",
+        "email_address",
+        "m_payment_id",
+        "amount",
+        "item_name",
+    ]
+
+    signature_parts = []
+
+    for field in signature_fields:
+        value = payfast_data.get(field)
+
+        if value:
+            signature_parts.append(
+                f"{field}={quote_plus(str(value))}"
+            )
+
+    signature_string = "&".join(signature_parts)
+
+    signature = hashlib.md5(
+        signature_string.encode("utf-8")
+    ).hexdigest()
+
+    #payfast_data["signature"] = signature
+
+    return jsonify({
+        "payfast_url": os.getenv("PAYFAST_URL"),
+        "payfast_data": payfast_data
+    }), 200
+
 @app.route("/admin/users/<int:user_id>/subscription", methods=["PATCH"])
 def update_subscription(user_id):
 
@@ -439,6 +511,32 @@ def get_users():
         })
 
     return jsonify(user_list), 200
+
+@app.route("/payments/notify", methods=["POST"])
+def payfast_notify():
+
+    data = request.form.to_dict()
+
+    payment_id = data.get("m_payment_id")
+    payment_status = data.get("payment_status")
+
+    payment = Payment.query.get(payment_id)
+
+    if not payment:
+        return "Payment not found", 404
+
+    if payment_status == "COMPLETE":
+        payment.status = "paid"
+
+        user = User.query.get(payment.user_id)
+
+        user.is_subscribed = True
+        user.subscription_type = payment.subscription_type
+        user.subscription_expires_at = datetime.utcnow() + timedelta(days=30)
+
+        db.session.commit()
+
+    return "OK", 200
 
 with app.app_context():
     db.create_all()
