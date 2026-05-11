@@ -1181,3 +1181,9 @@ main {
   font-weight: bold;
   font-size: 0.85rem;
 }
+
+.completed-btn {
+  background: #16a34a !important;
+  cursor: not-allowed;
+  opacity: 0.9;
+}

@@ -7,6 +7,7 @@ export default function LessonDetailPage() {
   const navigate = useNavigate();
 
   const [lesson, setLesson] = useState(null);
+  const [isCompleted, setIsCompleted] = useState(false);
 
   useEffect(() => {
     axios
@@ -17,6 +18,29 @@ export default function LessonDetailPage() {
       .catch((error) => {
         console.log(error);
       });
+
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      axios
+        .get("https://learnovahub.onrender.com/completed-lessons", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+
+          const completedIds = response.data;
+
+          if (completedIds.includes(Number(id))) {
+            setIsCompleted(true);
+          }
+
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
   }, [id]);
 
   if (!lesson) {
@@ -50,6 +74,7 @@ export default function LessonDetailPage() {
         }
       )
       .then((response) => {
+        setIsCompleted(true);
         alert(response.data.message);
       })
       .catch(() => {
@@ -106,8 +131,17 @@ export default function LessonDetailPage() {
           Start Quiz
         </button>
 
-        <button onClick={markLessonComplete}>
-          Mark as Complete
+        <button onClick={markLessonComplete}
+          disabled={isCompleted}
+          className={
+            isCompleted
+            ? "completed-btn"
+            : ""
+          }
+        >
+          {isCompleted
+          ? "✓ Completed"
+          : "Mark as Complete"}
         </button>
       </div>
     </section>
