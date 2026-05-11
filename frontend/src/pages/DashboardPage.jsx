@@ -8,18 +8,37 @@ export default function DashboardPage() {
 
   const [quizResults, setQuizResults] = useState([]);
 
+  const [progressData, setProgressData] = useState({
+    total_lessons: 0,
+    completed_lessons: 0,
+    completion_percentage: 0,
+  });
+
   useEffect(() => {
 
     const token = localStorage.getItem("token");
 
     axios
-      .get("https://learnovahub.onrender.com//my-quiz-results", {
+      .get("https://learnovahub.onrender.com/my-quiz-results", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       .then((response) => {
         setQuizResults(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    axios
+      .get("https://learnovahub.onrender.com/my-progress", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        setProgressData(response.data);
       })
       .catch((error) => {
         console.log(error);
@@ -50,6 +69,31 @@ export default function DashboardPage() {
             </p>
           </>
         )}
+      </div>
+
+      <div className="progress-overview-card">
+        <h2>Learning Progress</h2>
+
+        <p>
+          Completed Lessons:
+          {" "}
+          {progressData.completed_lessons}
+          {" / "}
+          {progressData.total_lessons}
+        </p>
+
+        <div className="progress-bar">
+          <div
+            className="progress-fill"
+            style={{
+              width: `${progressData.completion_percentage}%`,
+            }}
+          ></div>
+        </div>
+
+        <h3>
+          {progressData.completion_percentage}% Complete
+        </h3>
       </div>
 
       <div className="dashboard-grid">
@@ -101,7 +145,8 @@ export default function DashboardPage() {
             View Progress
           </button>
         </div>
-        <section className="results-section">
+      </div>
+      <section className="results-section">
           <h2>My Quiz Results</h2>
 
           {quizResults.length === 0 ? (
@@ -122,8 +167,6 @@ export default function DashboardPage() {
             </div>
           )}
         </section>
-
-      </div>
     </section>
   );
 }

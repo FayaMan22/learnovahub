@@ -5,17 +5,38 @@ import { useNavigate } from "react-router-dom";
 export default function LessonsPage() {
   const [lessons, setLessons] = useState([]);
   const navigate = useNavigate();
+  const [completedLessons, setCompletedLessons] = useState([]);
 
   useEffect(() => {
     axios
-      .get("https://learnovahub.onrender.com//lessons")
+      .get("https://learnovahub.onrender.com/lessons")
       .then((response) => {
         setLessons(response.data);
       })
       .catch((error) => {
         console.log(error);
       });
+
+      const token = localStorage.getItem("token");
+
+      if (token) {
+        axios
+          .get("https://learnovahub.onrender.com/completed-lessons", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          .then((response) => {
+            setCompletedLessons(response.data);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
   }, []);
+
+  console.log("Lessons:", lessons);
+  console.log("Completed:", completedLessons);
 
   return (
     <section className="lessons-page">
@@ -25,6 +46,11 @@ export default function LessonsPage() {
         {lessons.map((lesson) => (
           <div key={lesson.id} className="lesson-card">
             <h2>{lesson.title}</h2>
+            {completedLessons.includes(lesson.id) && (
+              <span className="completed-badge">
+                ✓ Completed
+              </span>
+            )}
 
             <p><strong>Topic:</strong> {lesson.topic}</p>
 

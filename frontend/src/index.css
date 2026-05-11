@@ -1128,3 +1128,56 @@ main {
   background: #eff6ff;
   transform: translateY(-2px);
 }
+
+.progress-overview-card {
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  margin-bottom: 35px;
+}
+
+.progress-overview-card h2 {
+  color: #0f172a;
+  margin-bottom: 18px;
+}
+
+.progress-overview-card p {
+  margin-bottom: 16px;
+  color: #475569;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 18px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    #2563eb,
+    #3b82f6
+  );
+  border-radius: 999px;
+  transition: 0.5s;
+}
+
+.progress-overview-card h3 {
+  color: #2563eb;
+}
+
+.completed-badge {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-weight: bold;
+  font-size: 0.85rem;
+}

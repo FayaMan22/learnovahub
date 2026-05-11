@@ -57,6 +57,7 @@ export default function LoginPage() {
             placeholder="Email Address"
             value={formData.email}
             onChange={handleChange}
+            autoComplete="off"
             required
           />
 
@@ -66,6 +67,7 @@ export default function LoginPage() {
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
+            autoComplete="new-password"
             required
           />
 

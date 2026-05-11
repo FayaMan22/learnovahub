@@ -656,6 +656,48 @@ def create_notification():
         "message": "Notification created successfully"
     }), 201
 
+@app.route("/my-progress", methods=["GET"])
+@jwt_required()
+def get_my_progress():
+
+    user_id = get_jwt_identity()
+
+    total_lessons = Lesson.query.count()
+
+    completed_lessons = LessonCompletion.query.filter_by(
+        user_id=user_id
+    ).count()
+
+    completion_percentage = 0
+
+    if total_lessons > 0:
+        completion_percentage = round(
+            (completed_lessons / total_lessons) * 100
+        )
+
+    return jsonify({
+        "total_lessons": total_lessons,
+        "completed_lessons": completed_lessons,
+        "completion_percentage": completion_percentage
+    }), 200
+
+@app.route("/completed-lessons", methods=["GET"])
+@jwt_required()
+def get_completed_lessons():
+
+    user_id = get_jwt_identity()
+
+    completions = LessonCompletion.query.filter_by(
+        user_id=user_id
+    ).all()
+
+    completed_ids = [
+        completion.lesson_id
+        for completion in completions
+    ]
+
+    return jsonify(completed_ids), 200
+
 with app.app_context():
     db.create_all()
 
