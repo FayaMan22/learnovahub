@@ -171,6 +171,36 @@ class Notification(db.Model):
         default=datetime.utcnow
     )
 
+class LessonCompletion(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id"),
+        nullable=False
+    )
+
+    lesson_id = db.Column(
+        db.Integer,
+        db.ForeignKey("lesson.id"),
+        nullable=False
+    )
+
+    completed_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
+
+    user = db.relationship(
+        "User",
+        backref="completed_lessons"
+    )
+
+    lesson = db.relationship(
+        "Lesson",
+        backref="lesson_completions"
+    )
+
 @app.route("/")
 def home():
     return {
@@ -391,6 +421,34 @@ def get_my_quiz_results():
         })
 
     return jsonify(result_list), 200
+
+@app.route("/lessons/<int:lesson_id>/complete", methods=["POST"])
+@jwt_required()
+def mark_lesson_complete(lesson_id):
+
+    user_id = get_jwt_identity()
+
+    existing_completion = LessonCompletion.query.filter_by(
+        user_id=user_id,
+        lesson_id=lesson_id
+    ).first()
+
+    if existing_completion:
+        return jsonify({
+            "message": "Lesson already completed"
+        }), 200
+
+    completion = LessonCompletion(
+        user_id=user_id,
+        lesson_id=lesson_id
+    )
+
+    db.session.add(completion)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Lesson marked as complete"
+    }), 201
 
 @app.route("/payments/create", methods=["POST"])
 @jwt_required()

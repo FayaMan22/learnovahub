@@ -36,6 +36,27 @@ export default function LessonDetailPage() {
     );
   }
 
+  function markLessonComplete() {
+    const token = localStorage.getItem("token");
+
+    axios
+      .post(
+        `https://learnovahub.onrender.com/lessons/${id}/complete`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((response) => {
+        alert(response.data.message);
+      })
+      .catch(() => {
+        alert("Failed to mark lesson as complete.");
+      });
+  }
+
   return (
     <section className="lesson-detail-page">
       <h1>{lesson.title}</h1>
@@ -83,6 +104,10 @@ export default function LessonDetailPage() {
           onClick={() => navigate(`/lessons/${lesson.id}/quiz`)}
         >
           Start Quiz
+        </button>
+
+        <button onClick={markLessonComplete}>
+          Mark as Complete
         </button>
       </div>
     </section>
