@@ -18,6 +18,7 @@ export default function AdminPage() {
   const [notificationData, setNotificationData] = useState({
     title: "",
     message: "",
+    link: "",
   });
 
   useEffect(() => {
@@ -45,6 +46,7 @@ export default function AdminPage() {
         setNotificationData({
           title: "",
           message: "",
+          link: "",
         });
       })
       .catch(() => {
@@ -160,6 +162,14 @@ export default function AdminPage() {
 
           <input
             type="text"
+            name="link"
+            placeholder="Optional link e.g. /lessons/1/quiz"
+            value={notificationData.link}
+            onChange={handleNotificationChange}
+            />
+
+          <input
+            type="text"
             name="video_url"
             placeholder="YouTube Video URL"
             value={lessonData.video_url}
@@ -206,6 +216,14 @@ export default function AdminPage() {
             value={notificationData.message}
             onChange={handleNotificationChange}
             required
+          />
+
+          <input
+            type="text"
+            name="link"
+            placeholder="Optional link e.g. /lessons/1/quiz"
+            value={notificationData.link}
+            onChange={handleNotificationChange}
           />
 
           <button type="submit">Post Announcement</button>

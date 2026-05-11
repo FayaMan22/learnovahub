@@ -162,6 +162,10 @@ class Notification(db.Model):
         nullable=False
     )
 
+    link =db.Column(
+        db.String(255)
+    )
+
     created_at = db.Column(
         db.DateTime,
         default=datetime.utcnow
@@ -570,6 +574,7 @@ def get_notifications():
             "id": notification.id,
             "title": notification.title,
             "message": notification.message,
+            "link": notification.link,
             "created_at": notification.created_at.isoformat()
         })
 
@@ -582,7 +587,8 @@ def create_notification():
 
     notification = Notification(
         title=data.get("title"),
-        message=data.get("message")
+        message=data.get("message"),
+        link=data.get("link")
     )
 
     db.session.add(notification)

@@ -1046,3 +1046,85 @@ main {
   background: #eff6ff;
   color: #2563eb;
 }
+
+.notification-wrapper {
+  position: relative;
+}
+
+.icon-btn {
+  position: relative;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+
+  background: #dc2626;
+  color: white;
+
+  font-size: 0.7rem;
+  font-weight: bold;
+
+  width: 20px;
+  height: 20px;
+
+  border-radius: 50%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.notification-dropdown {
+  position: absolute;
+
+  top: 55px;
+  right: 0;
+
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+
+  background: white;
+
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+
+  padding: 16px;
+
+  z-index: 1000;
+}
+
+.notification-dropdown h3 {
+  margin-bottom: 15px;
+  color: #0f172a;
+}
+
+.notification-item {
+  padding: 14px;
+  border-radius: 10px;
+  background: #f8fafc;
+  margin-bottom: 12px;
+}
+
+.notification-item h4 {
+  color: #2563eb;
+  margin-bottom: 6px;
+}
+
+.notification-item p {
+  color: #475569;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.notification-item {
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.notification-item:hover {
+  background: #eff6ff;
+  transform: translateY(-2px);
+}
