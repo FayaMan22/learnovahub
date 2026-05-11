@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+
+
 export default function AdminPage() {
   const [lessonData, setLessonData] = useState({
     title: "",
@@ -13,10 +15,42 @@ export default function AdminPage() {
 
   const [users, setUsers] = useState([]);
   const [message, setMessage] = useState("");
+  const [notificationData, setNotificationData] = useState({
+    title: "",
+    message: "",
+  });
 
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  function handleNotificationChange(e) {
+    setNotificationData({
+      ...notificationData,
+      [e.target.name]: e.target.value,
+    });
+  }
+
+  function handleNotificationSubmit(e) {
+    e.preventDefault();
+
+    axios
+      .post(
+        "https://learnovahub.onrender.com/admin/notifications",
+        notificationData
+      )
+      .then((response) => {
+        setMessage(response.data.message);
+
+        setNotificationData({
+          title: "",
+          message: "",
+        });
+      })
+      .catch(() => {
+        setMessage("Failed to create notification");
+      });
+  } 
 
   function fetchUsers() {
     axios
@@ -151,6 +185,30 @@ export default function AdminPage() {
           </label>
 
           <button type="submit">Create Lesson</button>
+        </form>
+      </div>
+      <div className="admin-card">
+        <h2>Create Announcement</h2>
+
+        <form className="admin-form" onSubmit={handleNotificationSubmit}>
+          <input
+            type="text"
+            name="title"
+            placeholder="Announcement Title"
+            value={notificationData.title}
+            onChange={handleNotificationChange}
+            required
+          />
+
+          <textarea
+            name="message"
+            placeholder="Announcement Message"
+            value={notificationData.message}
+            onChange={handleNotificationChange}
+            required
+          />
+
+          <button type="submit">Post Announcement</button>
         </form>
       </div>
 

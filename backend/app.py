@@ -149,6 +149,24 @@ class Payment(db.Model):
 
     user = db.relationship("User", backref="payments")
 
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    title = db.Column(
+        db.String(255),
+        nullable=False
+    )
+
+    message = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
+
 @app.route("/")
 def home():
     return {
@@ -537,6 +555,42 @@ def payfast_notify():
         db.session.commit()
 
     return "OK", 200
+
+@app.route("/notifications", methods=["GET"])
+def get_notifications():
+
+    notifications = Notification.query.order_by(
+        Notification.created_at.desc()
+    ).all()
+
+    notification_list = []
+
+    for notification in notifications:
+        notification_list.append({
+            "id": notification.id,
+            "title": notification.title,
+            "message": notification.message,
+            "created_at": notification.created_at.isoformat()
+        })
+
+    return jsonify(notification_list), 200
+
+@app.route("/admin/notifications", methods=["POST"])
+def create_notification():
+
+    data = request.get_json()
+
+    notification = Notification(
+        title=data.get("title"),
+        message=data.get("message")
+    )
+
+    db.session.add(notification)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Notification created successfully"
+    }), 201
 
 with app.app_context():
     db.create_all()
