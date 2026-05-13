@@ -774,7 +774,7 @@ def get_my_mastery():
             mastery = "Needs Improvement"
 
         mastery_data.append({
-            "lesson_title": result.lesson_title,
+            "lesson_title": result.lesson.title,
             "percentage": percentage,
             "mastery": mastery
         })

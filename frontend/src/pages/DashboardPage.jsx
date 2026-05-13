@@ -88,6 +88,8 @@ export default function DashboardPage() {
 
   }, []);
 
+  console.log("Mastery data:", masteryData);
+  
   return (
     <section className="dashboard-page">
       <h1>Welcome Back, {user?.full_name}</h1>
