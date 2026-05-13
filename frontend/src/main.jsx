@@ -23,6 +23,7 @@ import PaymentSuccessPage from "./pages/PaymentSuccessPage.jsx";
 import PaymentCancelledPage from "./pages/PaymentCancelledPage.jsx";
 import ProgressPage from "./pages/ProgressPage.jsx";
 import AdminLearnersPage from "./pages/AdminLearnersPage.jsx";
+import AdminLearnerDetailPage from "./pages/AdminLearnerDetailPage";
 
 
 const router = createBrowserRouter([
@@ -97,6 +98,10 @@ const router = createBrowserRouter([
             <ProgressPage />
           </ProtectedRoute>
         ),
+      },
+      {
+        path: "/admin/learners/:learnerId",
+        element: <AdminLearnerDetailPage />,
       },
     ],
   },

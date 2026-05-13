@@ -8,12 +8,34 @@ import os
 import bcrypt
 from urllib.parse import urlencode, quote_plus
 import hashlib
+from functools import wraps
 
 load_dotenv()
 
 app = Flask(__name__)
 
-CORS(app)
+CORS(
+    app,
+    resources={
+        r"/*": {
+            "origins": [
+                "http://localhost:5173",
+                "https://learnovahub.vercel.app"
+            ],
+            "allow_headers": [
+                "Content-Type",
+                "Authorization"
+            ],
+            "methods": [
+                "GET",
+                "POST",
+                "PATCH",
+                "DELETE",
+                "OPTIONS"
+            ]
+        }
+    }
+)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -21,6 +43,24 @@ app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
 
 db = SQLAlchemy(app)
 jwt = JWTManager(app)
+
+def admin_required(fn):
+
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+
+        current_user_id = get_jwt_identity()
+
+        user = User.query.get(current_user_id)
+
+        if not user or user.role != "admin":
+            return jsonify({
+                "message": "Admin access required"
+            }), 403
+
+        return fn(*args, **kwargs)
+
+    return wrapper
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -821,7 +861,7 @@ def get_my_mastery():
                 "mastery": mastery
             }
 
-    return jsonify(list(best_mastery.value())), 200
+    return jsonify(list(best_mastery.values())), 200
 
 @app.route("/my-best-scores", methods=["GET"])
 @jwt_required()
@@ -890,6 +930,43 @@ def get_my_latest_scores():
     return jsonify(
         list(latest_scores.values())
     ), 200
+
+@app.route("/admin/learners/<int:learner_id>", methods=["GET"])
+@jwt_required()
+@admin_required
+def get_learner_detail(learner_id):
+
+    learner = User.query.get_or_404(learner_id)
+
+    completed_lessons = LessonCompletion.query.filter_by(
+        user_id=learner.id
+    ).count()
+
+    total_lessons = Lesson.query.count()
+
+    progress = 0
+
+    if total_lessons > 0:
+        progress = round(
+            (completed_lessons / total_lessons) * 100
+        )
+
+    quizzes_passed = QuizResult.query.filter(
+        QuizResult.user_id == learner.id,
+        QuizResult.score >= (
+            QuizResult.total_questions * 0.5
+        )
+    ).count()
+
+    return jsonify({
+        "id": learner.id,
+        "full_name": learner.full_name,
+        "email": learner.email,
+        "is_subscribed": learner.is_subscribed,
+        "progress": progress,
+        "lessons_completed": completed_lessons,
+        "quizzes_passed": quizzes_passed,
+    })
 
 
 with app.app_context():
