@@ -346,24 +346,29 @@ def admin_analytics():
         is_subscribed=True
     ).count()
 
+    total_learners = User.query.filter_by(
+        role="learner"
+    ).count()
+
+    total_admins = User.query.filter_by(
+        role="admin"
+    ).count()
+
     total_lessons = Lesson.query.count()
     total_quiz_attempts = QuizResult.query.count()
     all_results = QuizResult.query.all()
+    total_learners = User.query.filter_by(role="learner").count()
+    total_admins = User.query.filter_by(role="admin").count()
 
     average_score = 0
 
     if all_results:
-
         total_percentages = 0
-
         for result in all_results:
-
             percentage = (
                 result.score / result.total_questions
             ) * 100
-
             total_percentages += percentage
-
         average_score = round(
             total_percentages / len(all_results)
         )
@@ -376,6 +381,8 @@ def admin_analytics():
 
     return jsonify({
         "total_users": total_users,
+        "total_learners": total_learners,
+        "total_admins": total_admins,
         "active_subscribers": active_subscribers,
         "total_lessons": total_lessons,
         "total_quiz_attempts": total_quiz_attempts,
@@ -756,7 +763,7 @@ def get_my_mastery():
         user_id=user_id
     ).all()
 
-    mastery_data = []
+    best_mastery = {}
 
     for result in results:
 
@@ -771,13 +778,17 @@ def get_my_mastery():
         else:
             mastery = "Needs Improvement"
 
-        mastery_data.append({
-            "lesson_title": result.lesson.title,
-            "percentage": percentage,
-            "mastery": mastery
-        })
+        if (
+            result.lesson_id not in best_mastery
+            or percentage > best_mastery[result.lesson_id]["percentage"]
+        ):
+            best_mastery[result.lesson_id] = {
+                "lesson_title": result.lesson.title,
+                "percentage": percentage,
+                "mastery": mastery
+            }
 
-    return jsonify(mastery_data), 200
+    return jsonify(list(best_mastery.value())), 200
 
 @app.route("/my-best-scores", methods=["GET"])
 @jwt_required()

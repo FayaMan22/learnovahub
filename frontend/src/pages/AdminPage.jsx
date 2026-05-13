@@ -168,6 +168,16 @@ export default function AdminPage() {
           </div>
 
           <div className="analytics-card">
+            <h2>{analytics.total_learners}</h2>
+            <p>Total Learners</p>
+          </div>
+
+          <div className="analytics-card">
+            <h2>{analytics.total_admins}</h2>
+            <p>Total Admins</p>
+          </div>
+
+          <div className="analytics-card">
             <h2>{analytics.active_subscribers}</h2>
             <p>Active Subscribers</p>
           </div>

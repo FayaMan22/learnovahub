@@ -86,6 +86,13 @@ export default function Navbar() {
               Dashboard
             </Link>
           )}
+
+          {token && user?.role === "admin" && (
+            <Link to="/admin">
+              Admin Panel
+            </Link>
+          )}
+          
         </div>
       </div>
 
