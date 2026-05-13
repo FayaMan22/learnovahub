@@ -357,8 +357,6 @@ def admin_analytics():
     total_lessons = Lesson.query.count()
     total_quiz_attempts = QuizResult.query.count()
     all_results = QuizResult.query.all()
-    total_learners = User.query.filter_by(role="learner").count()
-    total_admins = User.query.filter_by(role="admin").count()
 
     average_score = 0
 
@@ -390,6 +388,41 @@ def admin_analytics():
         "total_payments": total_payments,
         "successful_payments": successful_payments
     }), 200
+
+@app.route("/admin/learners", methods=["GET"])
+@jwt_required()
+def get_all_learners():
+
+    learners = User.query.filter_by(
+        role="learner"
+    ).all()
+
+    learner_data = []
+
+    for learner in learners:
+
+        completed_lessons = LessonCompletion.query.filter_by(
+            user_id=learner.id
+        ).count()
+
+        total_lessons = Lesson.query.count()
+
+        progress = 0
+
+        if total_lessons > 0:
+            progress = round(
+                (completed_lessons / total_lessons) * 100
+            )
+
+        learner_data.append({
+            "id": learner.id,
+            "full_name": learner.full_name,
+            "email": learner.email,
+            "is_subscribed": learner.is_subscribed,
+            "progress": progress
+        })
+
+    return jsonify(learner_data), 200
 
 @app.route("/lessons/<int:id>", methods=["GET"])
 def get_lesson(id):

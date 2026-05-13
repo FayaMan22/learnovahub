@@ -22,6 +22,7 @@ import QuizPage from "./pages/QuizPage";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage.jsx";
 import PaymentCancelledPage from "./pages/PaymentCancelledPage.jsx";
 import ProgressPage from "./pages/ProgressPage.jsx";
+import AdminLearnersPage from "./pages/AdminLearnersPage.jsx";
 
 
 const router = createBrowserRouter([
@@ -70,6 +71,14 @@ const router = createBrowserRouter([
         element: (
           <AdminRoute>
             <AdminPage />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "admin/learners",
+        element: (
+          <AdminRoute>
+            <AdminLearnersPage />
           </AdminRoute>
         ),
       },
