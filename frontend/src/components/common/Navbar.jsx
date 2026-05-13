@@ -81,7 +81,7 @@ export default function Navbar() {
           <Link to="/lessons">Lessons</Link>
           <Link to="/pricing">Pricing</Link>
 
-          {token && (
+          {token && user?.role !== "admin" && (
             <Link to="/dashboard">
               Dashboard
             </Link>

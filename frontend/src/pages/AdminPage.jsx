@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -13,8 +14,10 @@ export default function AdminPage() {
     is_premium: true,
   });
 
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [message, setMessage] = useState("");
+  const [analytics, setAnalytics] = useState(null);
   const [notificationData, setNotificationData] = useState({
     title: "",
     message: "",
@@ -23,6 +26,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     fetchUsers();
+    fetchAnalytics();
   }, []);
 
   function handleNotificationChange(e) {
@@ -124,9 +128,71 @@ export default function AdminPage() {
       });
   }
 
+  function fetchAnalytics() {
+    const token = localStorage.getItem("token");
+
+    axios
+      .get("https://learnovahub.onrender.com/admin/analytics", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        setAnalytics(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
   return (
     <section className="admin-page">
       <h1>Admin Dashboard</h1>
+
+      <div className="admin-top-actions">
+
+        <button
+          className="preview-btn"
+          onClick={() => navigate("/dashboard")}
+        >
+          View Learner Mode
+        </button>
+
+      </div>
+
+      {analytics && (
+        <div className="analytics-grid">
+          <div className="analytics-card">
+            <h2>{analytics.total_users}</h2>
+            <p>Total Users</p>
+          </div>
+
+          <div className="analytics-card">
+            <h2>{analytics.active_subscribers}</h2>
+            <p>Active Subscribers</p>
+          </div>
+
+          <div className="analytics-card">
+            <h2>{analytics.total_lessons}</h2>
+            <p>Total Lessons</p>
+          </div>
+
+          <div className="analytics-card">
+            <h2>{analytics.total_quiz_attempts}</h2>
+            <p>Quiz Attempts</p>
+          </div>
+
+          <div className="analytics-card">
+            <h2>{analytics.average_score}%</h2>
+            <p>Average Quiz Score</p>
+          </div>
+
+          <div className="analytics-card">
+            <h2>{analytics.successful_payments}</h2>
+            <p>Successful Payments</p>
+          </div>
+        </div>
+      )}
 
       <div className="admin-card">
         <h2>Create New Lesson</h2>

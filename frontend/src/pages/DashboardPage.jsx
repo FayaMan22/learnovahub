@@ -13,6 +13,9 @@ export default function DashboardPage() {
     completed_lessons: 0,
     completion_percentage: 0,
   });
+  const [masteryData, setMasteryData] = useState([]);
+  const [bestScores, setBestScores] = useState([]);
+  const [latestScores, setLatestScores] = useState([]);
 
   useEffect(() => {
 
@@ -39,6 +42,45 @@ export default function DashboardPage() {
       })
       .then((response) => {
         setProgressData(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    axios
+      .get("https://learnovahub.onrender.com/my-mastery", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        setMasteryData(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    axios
+      .get("https://learnovahub.onrender.com/my-best-scores", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        setBestScores(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    axios
+      .get("https://learnovahub.onrender.com/my-latest-scores", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        setLatestScores(response.data);
       })
       .catch((error) => {
         console.log(error);
@@ -166,6 +208,101 @@ export default function DashboardPage() {
               ))}
             </div>
           )}
+        </section>
+        <section className="mastery-section">
+          <h2>Topic Mastery</h2>
+          {masteryData.length === 0 ? (
+            <p>No mastery data yet.</p>
+          ) : (
+            <div className="mastery-grid">
+              {masteryData.map((item, index) => (
+                <div
+                  key={index}
+                  className={`mastery-card ${item.mastery}`}
+                >
+                  <h3>{item.lesson_title}</h3>
+                  <p>{item.percentage}%</p>
+                  <span>{item.mastery}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+        <section className="best-scores-section">
+
+          <h2>Best Quiz Scores</h2>
+
+          {bestScores.length === 0 ? (
+
+            <p>No quiz scores yet.</p>
+
+          ) : (
+
+            <div className="best-scores-grid">
+
+              {bestScores.map((item, index) => (
+
+                <div
+                  key={index}
+                  className="best-score-card"
+                >
+
+                  <h3>{item.lesson_title}</h3>
+
+                  <p>
+                    {item.score} / {item.total_questions}
+                  </p>
+
+                  <span>
+                    {item.percentage}%
+                  </span>
+
+                </div>
+
+              ))}
+
+            </div>
+
+          )}
+
+        </section>
+        <section className="latest-scores-section">
+
+          <h2>Latest Quiz Attempts</h2>
+
+          {latestScores.length === 0 ? (
+
+            <p>No recent quiz attempts.</p>
+
+          ) : (
+
+            <div className="latest-scores-grid">
+
+              {latestScores.map((item, index) => (
+
+                <div
+                  key={index}
+                  className="latest-score-card"
+                >
+
+                  <h3>{item.lesson_title}</h3>
+
+                  <p>
+                    {item.score} / {item.total_questions}
+                  </p>
+
+                  <span>
+                    {item.percentage}%
+                  </span>
+
+                </div>
+
+              ))}
+
+            </div>
+
+          )}
+
         </section>
     </section>
   );

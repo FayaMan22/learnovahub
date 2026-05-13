@@ -336,6 +336,54 @@ def create_lesson():
         "message": "Lesson created successfully"
     }), 201
 
+@app.route("/admin/analytics", methods=["GET"])
+@jwt_required()
+def admin_analytics():
+
+    total_users = User.query.count()
+
+    active_subscribers = User.query.filter_by(
+        is_subscribed=True
+    ).count()
+
+    total_lessons = Lesson.query.count()
+    total_quiz_attempts = QuizResult.query.count()
+    all_results = QuizResult.query.all()
+
+    average_score = 0
+
+    if all_results:
+
+        total_percentages = 0
+
+        for result in all_results:
+
+            percentage = (
+                result.score / result.total_questions
+            ) * 100
+
+            total_percentages += percentage
+
+        average_score = round(
+            total_percentages / len(all_results)
+        )
+
+    total_payments = Payment.query.count()
+
+    successful_payments = Payment.query.filter_by(
+        status="completed"
+    ).count()
+
+    return jsonify({
+        "total_users": total_users,
+        "active_subscribers": active_subscribers,
+        "total_lessons": total_lessons,
+        "total_quiz_attempts": total_quiz_attempts,
+        "average_score": average_score,
+        "total_payments": total_payments,
+        "successful_payments": successful_payments
+    }), 200
+
 @app.route("/lessons/<int:id>", methods=["GET"])
 def get_lesson(id):
 
@@ -697,6 +745,110 @@ def get_completed_lessons():
     ]
 
     return jsonify(completed_ids), 200
+
+@app.route("/my-mastery", methods=["GET"])
+@jwt_required()
+def get_my_mastery():
+
+    user_id = get_jwt_identity()
+
+    results = QuizResult.query.filter_by(
+        user_id=user_id
+    ).all()
+
+    mastery_data = []
+
+    for result in results:
+
+        percentage = round(
+            (result.score / result.total_questions) * 100
+        )
+
+        if percentage >= 75:
+            mastery = "Mastered"
+
+        elif percentage >= 50:
+            mastery = "Developing"
+
+        else:
+            mastery = "Needs Improvement"
+
+        mastery_data.append({
+            "lesson_title": result.lesson_title,
+            "percentage": percentage,
+            "mastery": mastery
+        })
+
+    return jsonify(mastery_data), 200
+
+@app.route("/my-best-scores", methods=["GET"])
+@jwt_required()
+def get_my_best_scores():
+
+    user_id = get_jwt_identity()
+
+    results = QuizResult.query.filter_by(
+        user_id=user_id
+    ).all()
+
+    best_scores = {}
+
+    for result in results:
+        lesson_id = result.lesson_id
+
+        percentage = round(
+            (result.score / result.total_questions) * 100
+        )
+
+        if (
+            lesson_id not in best_scores
+            or percentage > best_scores[lesson_id]["percentage"]
+        ):
+            best_scores[lesson_id] = {
+                "lesson_title": result.lesson.title,
+                "score": result.score,
+                "total_questions": result.total_questions,
+                "percentage": percentage
+            }
+
+    return jsonify(list(best_scores.values())), 200
+
+@app.route("/my-latest-scores", methods=["GET"])
+@jwt_required()
+def get_my_latest_scores():
+
+    user_id = get_jwt_identity()
+
+    results = QuizResult.query.filter_by(
+        user_id=user_id
+    ).order_by(
+        QuizResult.id.desc()
+    ).all()
+
+    latest_scores = {}
+    seen_lessons = set()
+
+    for result in results:
+
+        if result.lesson_id not in seen_lessons:
+
+            percentage = round(
+                (result.score / result.total_questions) * 100
+            )
+
+            latest_scores[result.lesson_id] = {
+                "lesson_title": result.lesson.title,
+                "score": result.score,
+                "total_questions": result.total_questions,
+                "percentage": percentage
+            }
+
+            seen_lessons.add(result.lesson_id)
+
+    return jsonify(
+        list(latest_scores.values())
+    ), 200
+
 
 with app.app_context():
     db.create_all()

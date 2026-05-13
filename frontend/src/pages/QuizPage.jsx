@@ -8,6 +8,7 @@ export default function QuizPage() {
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
   const [score, setScore] = useState(null);
+  const [reviewData, setReviewData] = useState([]);
 
   useEffect(() => {
     axios
@@ -35,6 +36,19 @@ export default function QuizPage() {
         total += 1;
       }
     });
+
+    const review = questions.map((question) => {
+      const selectedAnswer = answers[question.id];
+
+      return {
+        question: question.question,
+        selected_answer: selectedAnswer || "Not answered",
+        correct_answer: question.correct_answer,
+        is_correct: selectedAnswer === question.correct_answer,
+      };
+    });
+
+    setReviewData(review);
 
     setScore(total);
 
@@ -97,6 +111,37 @@ export default function QuizPage() {
       {score !== null && (
         <div className="score-box">
           You scored {score} out of {questions.length}
+        </div>
+      )}
+
+      {reviewData.length > 0 && (
+        <div className="review-section">
+          <h2>Quiz Review</h2>
+
+          {reviewData.map((item, index) => (
+            <div
+              key={index}
+              className={`review-card ${
+                item.is_correct ? "correct-review" : "wrong-review"
+              }`}
+            >
+              <h3>
+                Question {index + 1}: {item.question}
+              </h3>
+
+              <p>
+                Your Answer: {item.selected_answer}
+              </p>
+
+              <p>
+                Correct Answer: {item.correct_answer}
+              </p>
+
+              <strong>
+                {item.is_correct ? "Correct" : "Incorrect"}
+              </strong>
+            </div>
+          ))}
         </div>
       )}
     </section>

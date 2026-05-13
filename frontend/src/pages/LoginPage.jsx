@@ -34,7 +34,11 @@ export default function LoginPage() {
       );
 
         setMessage(response.data.message);
-        navigate("/dashboard");
+        if (response.data.user.role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/dashboard");
+        }
       })
       .catch((error) => {
         setMessage(
