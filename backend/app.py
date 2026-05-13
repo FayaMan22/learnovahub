@@ -766,10 +766,8 @@ def get_my_mastery():
 
         if percentage >= 75:
             mastery = "Mastered"
-
         elif percentage >= 50:
             mastery = "Developing"
-
         else:
             mastery = "Needs Improvement"
 
