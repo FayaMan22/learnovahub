@@ -9,6 +9,8 @@ import bcrypt
 from urllib.parse import urlencode, quote_plus
 import hashlib
 from functools import wraps
+import cloudinary
+import cloudinary.uploader
 
 #   === APP CONFIG ===
 load_dotenv()
@@ -41,6 +43,12 @@ CORS(
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
+
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET")
+)
 
 # ===EXTENSIONS ===
 db = SQLAlchemy(app)
@@ -97,6 +105,11 @@ class User(db.Model):
 
     subscription_type = db.Column(
         db.String(50),
+        nullable=True
+    )
+
+    profile_pic_url = db.Column(
+        db.String(255),
         nullable=True
     )
 
@@ -335,10 +348,40 @@ def login():
             "email": user.email,
             "role": user.role,
             "is_subscribed": user.is_subscribed,
-            "subscription_type": user.subscription_type, 
+            "subscription_type": user.subscription_type,
+            "profile_pic_url": user.profile_pic_url, 
             "subscription_expires_at": user.subscription_expires_at.isoformat()
             if user.subscription_expires_at else None
         }
+    }), 200
+
+@app.route("/profile-picture", methods=["POST"])
+@jwt_required()
+def upload_profile_picture():
+
+    user_id = int(get_jwt_identity())
+
+    user = User.query.get_or_404(user_id)
+
+    if "profile_picture" not in request.files:
+        return jsonify({
+            "error": "No profile picture uploaded"
+        }), 400
+
+    image = request.files["profile_picture"]
+
+    upload_result = cloudinary.uploader.upload(
+        image,
+        folder="learnovahub/profile_pictures"
+    )
+
+    user.profile_pic_url = upload_result.get("secure_url")
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Profile picture uploaded successfully",
+        "profile_pic_url": user.profile_pic_url
     }), 200
 
 # === LESSON ROUTES ===

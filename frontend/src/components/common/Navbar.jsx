@@ -15,7 +15,9 @@ export default function Navbar() {
   const profileRef = useRef();
 
   const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user"));
+  const [user, setUser] = useState(
+    JSON.parse(localStorage.getItem("user"))
+  );
 
   function handleLogout() {
     localStorage.removeItem("token");
@@ -62,6 +64,49 @@ export default function Navbar() {
         console.log(error);
       });
   }, []);
+
+  function handleProfilePictureUpload(event) {
+    const file = event.target.files[0];
+
+    if (!file) {
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    const formData = new FormData();
+
+    formData.append("profile_picture", file);
+
+    axios
+      .post(
+        "https://learnovahub.onrender.com/profile-picture",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
+      .then((response) => {
+        console.log("Upload response:", response.data)
+        const updatedUser = {
+          ...user,
+          profile_pic_url: response.data.profile_pic_url,
+        };
+
+        localStorage.setItem(
+          "user",
+          JSON.stringify(updatedUser)
+        );
+
+        setUser(updatedUser);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 
   return (
     <nav className="navbar">
@@ -163,7 +208,15 @@ export default function Navbar() {
               setProfileOpen(!profileOpen)
             }
           >
-            <FaUserCircle className="avatar-icon" />
+            {user?.profile_pic_url ? (
+              <img
+                src={user.profile_pic_url}
+                alt={user.full_name}
+                className="profile-image"
+              />
+            ) : (
+              <FaUserCircle className="avatar-icon" />
+            )}
 
             {user && (
               <span>
@@ -212,6 +265,15 @@ export default function Navbar() {
                   </Link>
                 </>
               )}
+              <label className="upload-profile-label">
+                Upload Profile Picture
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleProfilePictureUpload}
+                />
+              </label>
 
               <button onClick={handleLogout}>
                 Logout

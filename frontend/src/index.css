@@ -1649,3 +1649,41 @@ main {
 .lesson-form.create-mode h2 {
   color: #16a34a;
 }
+
+.profile-image {
+  width: 42px;
+  height: 42px;
+
+  border-radius: 50%;
+
+  object-fit: cover;
+
+  border: 2px solid #2563eb;
+}
+
+.upload-profile-label {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+
+  padding: 12px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  color: #0f172a;
+  font-weight: 500;
+
+  transition: 0.3s;
+}
+
+.upload-profile-label:hover {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.upload-profile-label input {
+  font-size: 0.85rem;
+}
