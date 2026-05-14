@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 
 export default function AdminLessonsPage() {
@@ -13,6 +13,9 @@ export default function AdminLessonsPage() {
     worksheet_url: "",
     is_premium: true,
   });
+
+  const [editingLessonId, setEditingLessonId] = useState(null);
+  const formRef = useRef(null);
 
   const fetchLessons = () => {
     axios
@@ -39,10 +42,33 @@ export default function AdminLessonsPage() {
     });
   };
 
-  const handleCreateLesson = (event) => {
+  const handleSubmitLesson = (event) => {
     event.preventDefault();
 
     const token = localStorage.getItem("token");
+
+    if (editingLessonId) {
+      axios
+        .patch(
+          `https://learnovahub.onrender.com/admin/lessons/${editingLessonId}`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          console.log("Lesson updated:", response.data);
+          fetchLessons();
+          handleCancelEdit();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
+      return;
+    }
 
     axios
       .post(
@@ -71,6 +97,24 @@ export default function AdminLessonsPage() {
       });
   };
 
+  const handleEditClick = (lesson) => {
+    setEditingLessonId(lesson.id);
+
+    setFormData({
+      title: lesson.title,
+      topic: lesson.topic,
+      description: lesson.description,
+      video_url: lesson.video_url || "",
+      worksheet_url: lesson.worksheet_url || "",
+      is_premium: lesson.is_premium,
+    });
+
+    formRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
   const handleDeleteLesson = (lessonId) => {
     const token = localStorage.getItem("token");
     const confirmDelete = window.confirm(
@@ -96,19 +140,38 @@ export default function AdminLessonsPage() {
       });
   };
 
+  const handleCancelEdit = () => {
+
+    setEditingLessonId(null);
+
+    setFormData({
+      title: "",
+      topic: "",
+      description: "",
+      video_url: "",
+      worksheet_url: "",
+      is_premium: true,
+    });
+  };
+
   return (
-    <section className="admin-lessons-page">
+    <section className="admin-lessons-page page-section">
 
       <h1>Lesson Management</h1>
 
       <p>Create, update, and manage LearnovaHub lessons.</p>
 
       <form
-        className="lesson-form"
-        onSubmit={handleCreateLesson}
+        ref={formRef}
+        className={`lesson-form card ${
+          editingLessonId
+          ? "edit-mode"
+          : "create-mode"
+        }`}
+        onSubmit={handleSubmitLesson}
       >
 
-        <h2>Create New Lesson</h2>
+        <h2>{editingLessonId ? "Edit Lesson" : "Create New Lesson"}</h2>
 
         <input
           type="text"
@@ -162,18 +225,35 @@ export default function AdminLessonsPage() {
           Premium lesson
         </label>
 
-        <button type="submit">
-          Create Lesson
-        </button>
+        <div className="lesson-actions">
+          <button
+            type="submit"
+            className="btn btn-success"
+          >
+            {editingLessonId
+            ? "Update Lesson"
+            : "Create Lesson"}
+          </button>
+
+          {editingLessonId && (
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleSubmitLesson}
+            >
+              Cancel
+            </button>
+          )}
+        </div>
 
       </form>
 
-      <div className="lessons-grid">
+      <div className="lessons-grid grid-auto">
 
         {lessons.map((lesson) => (
           <div
             key={lesson.id}
-            className="lesson-card"
+            className="lesson-card card"
           >
             <h2>{lesson.title}</h2>
 
@@ -187,12 +267,23 @@ export default function AdminLessonsPage() {
               {lesson.is_premium ? "Yes" : "No"}
             </p>
 
-            <button>Edit</button>
-            <button
-              onClick={() => handleDeleteLesson(lesson.id)}
-            >
-              Delete
-            </button>
+            <div className="lesson-actions">
+
+              <button
+                className="btn btn-primary"
+                onClick={() => handleEditClick(lesson)}
+              >
+                Edit
+              </button>
+
+              <button
+                className="btn btn-danger"
+                onClick={() => handleDeleteLesson(lesson.id)}
+              >
+                Delete
+              </button>
+
+            </div>
           </div>
         ))}
 

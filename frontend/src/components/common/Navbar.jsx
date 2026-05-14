@@ -175,17 +175,43 @@ export default function Navbar() {
           {profileOpen && (
             <div className="profile-dropdown">
 
-              <Link to="/dashboard">
-                Dashboard
-              </Link>
+              {user?.role === "admin" ? (
+                <>
+                  <Link to="/admin">
+                    Admin Dashboard
+                  </Link>
 
-              <Link to="/progress">
-                My Progress
-              </Link>
+                  <Link to="/admin/learners">
+                    Learner Management
+                  </Link>
 
-              <Link to="/pricing">
-                Subscription
-              </Link>
+                  <Link to="/admin/lessons">
+                    Lesson Management
+                  </Link>
+
+                  <Link to="/admin">
+                    Announcements
+                  </Link>
+
+                  <Link to="/admin">
+                    Subscriptions
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/dashboard">
+                    Dashboard
+                  </Link>
+
+                  <Link to="/progress">
+                    My Progress
+                  </Link>
+
+                  <Link to="/pricing">
+                    Subscription
+                  </Link>
+                </>
+              )}
 
               <button onClick={handleLogout}>
                 Logout
