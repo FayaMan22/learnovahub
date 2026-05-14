@@ -24,7 +24,7 @@ import PaymentCancelledPage from "./pages/PaymentCancelledPage.jsx";
 import ProgressPage from "./pages/ProgressPage.jsx";
 import AdminLearnersPage from "./pages/AdminLearnersPage.jsx";
 import AdminLearnerDetailPage from "./pages/AdminLearnerDetailPage";
-
+import AdminLessonsPage from "./pages/AdminLessonsPage";
 
 const router = createBrowserRouter([
   {
@@ -102,6 +102,10 @@ const router = createBrowserRouter([
       {
         path: "/admin/learners/:learnerId",
         element: <AdminLearnerDetailPage />,
+      },
+      {
+        path: "/admin/lessons",
+        element: <AdminLessonsPage />,
       },
     ],
   },

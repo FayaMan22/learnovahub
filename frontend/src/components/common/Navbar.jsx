@@ -88,9 +88,19 @@ export default function Navbar() {
           )}
 
           {token && user?.role === "admin" && (
-            <Link to="/admin">
-              Admin Panel
-            </Link>
+            <>
+              <Link to="/admin">
+                Admin Panel
+              </Link>
+
+              <Link to="/admin/learners">
+                Learner Management
+              </Link>
+
+              <Link to="/admin/lessons">
+                Lesson Management
+              </Link>
+            </>
           )}
           
         </div>

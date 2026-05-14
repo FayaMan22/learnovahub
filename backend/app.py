@@ -10,6 +10,7 @@ from urllib.parse import urlencode, quote_plus
 import hashlib
 from functools import wraps
 
+#   === APP CONFIG ===
 load_dotenv()
 
 app = Flask(__name__)
@@ -41,9 +42,11 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
 
+# ===EXTENSIONS ===
 db = SQLAlchemy(app)
 jwt = JWTManager(app)
 
+# === DECORATORS ===
 def admin_required(fn):
 
     @wraps(fn)
@@ -62,6 +65,7 @@ def admin_required(fn):
 
     return wrapper
 
+# === MODELS ===
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
@@ -241,12 +245,14 @@ class LessonCompletion(db.Model):
         backref="lesson_completions"
     )
 
+# === HOME ROUTE ===
 @app.route("/")
 def home():
     return {
         "message": "LearnovaHub backend is running with PostgreSQL"
     }
 
+# === AUTH ROUTES ===
 @app.route("/register", methods=["POST"])
 def register():
 
@@ -335,6 +341,7 @@ def login():
         }
     }), 200
 
+# === LESSON ROUTES ===
 @app.route("/lessons", methods=["GET"])
 def get_lessons():
 
@@ -354,115 +361,6 @@ def get_lessons():
         })
 
     return jsonify(lesson_list), 200
-
-@app.route("/admin/lessons", methods=["POST"])
-def create_lesson():
-
-    data = request.get_json()
-
-    new_lesson = Lesson(
-        title=data.get("title"),
-        topic=data.get("topic"),
-        description=data.get("description"),
-        video_url=data.get("video_url"),
-        worksheet_url=data.get("worksheet_url"),
-        is_premium=data.get("is_premium", True)
-    )
-
-    db.session.add(new_lesson)
-    db.session.commit()
-
-    return jsonify({
-        "message": "Lesson created successfully"
-    }), 201
-
-@app.route("/admin/analytics", methods=["GET"])
-@jwt_required()
-def admin_analytics():
-
-    total_users = User.query.count()
-
-    active_subscribers = User.query.filter_by(
-        is_subscribed=True
-    ).count()
-
-    total_learners = User.query.filter_by(
-        role="learner"
-    ).count()
-
-    total_admins = User.query.filter_by(
-        role="admin"
-    ).count()
-
-    total_lessons = Lesson.query.count()
-    total_quiz_attempts = QuizResult.query.count()
-    all_results = QuizResult.query.all()
-
-    average_score = 0
-
-    if all_results:
-        total_percentages = 0
-        for result in all_results:
-            percentage = (
-                result.score / result.total_questions
-            ) * 100
-            total_percentages += percentage
-        average_score = round(
-            total_percentages / len(all_results)
-        )
-
-    total_payments = Payment.query.count()
-
-    successful_payments = Payment.query.filter_by(
-        status="completed"
-    ).count()
-
-    return jsonify({
-        "total_users": total_users,
-        "total_learners": total_learners,
-        "total_admins": total_admins,
-        "active_subscribers": active_subscribers,
-        "total_lessons": total_lessons,
-        "total_quiz_attempts": total_quiz_attempts,
-        "average_score": average_score,
-        "total_payments": total_payments,
-        "successful_payments": successful_payments
-    }), 200
-
-@app.route("/admin/learners", methods=["GET"])
-@jwt_required()
-def get_all_learners():
-
-    learners = User.query.filter_by(
-        role="learner"
-    ).all()
-
-    learner_data = []
-
-    for learner in learners:
-
-        completed_lessons = LessonCompletion.query.filter_by(
-            user_id=learner.id
-        ).count()
-
-        total_lessons = Lesson.query.count()
-
-        progress = 0
-
-        if total_lessons > 0:
-            progress = round(
-                (completed_lessons / total_lessons) * 100
-            )
-
-        learner_data.append({
-            "id": learner.id,
-            "full_name": learner.full_name,
-            "email": learner.email,
-            "is_subscribed": learner.is_subscribed,
-            "progress": progress
-        })
-
-    return jsonify(learner_data), 200
 
 @app.route("/lessons/<int:id>", methods=["GET"])
 def get_lesson(id):
@@ -506,6 +404,35 @@ def get_quiz_questions(lesson_id):
 
     return jsonify(quiz_data), 200
 
+@app.route("/lessons/<int:lesson_id>/complete", methods=["POST"])
+@jwt_required()
+def mark_lesson_complete(lesson_id):
+
+    user_id = get_jwt_identity()
+
+    existing_completion = LessonCompletion.query.filter_by(
+        user_id=user_id,
+        lesson_id=lesson_id
+    ).first()
+
+    if existing_completion:
+        return jsonify({
+            "message": "Lesson already completed"
+        }), 200
+
+    completion = LessonCompletion(
+        user_id=user_id,
+        lesson_id=lesson_id
+    )
+
+    db.session.add(completion)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Lesson marked as complete"
+    }), 201
+
+# === QUIZ / MASTERY ROUTES ===
 @app.route("/quiz-results", methods=["POST"])
 @jwt_required()
 def save_quiz_result():
@@ -549,282 +476,6 @@ def get_my_quiz_results():
         })
 
     return jsonify(result_list), 200
-
-@app.route("/lessons/<int:lesson_id>/complete", methods=["POST"])
-@jwt_required()
-def mark_lesson_complete(lesson_id):
-
-    user_id = get_jwt_identity()
-
-    existing_completion = LessonCompletion.query.filter_by(
-        user_id=user_id,
-        lesson_id=lesson_id
-    ).first()
-
-    if existing_completion:
-        return jsonify({
-            "message": "Lesson already completed"
-        }), 200
-
-    completion = LessonCompletion(
-        user_id=user_id,
-        lesson_id=lesson_id
-    )
-
-    db.session.add(completion)
-    db.session.commit()
-
-    return jsonify({
-        "message": "Lesson marked as complete"
-    }), 201
-
-@app.route("/payments/create", methods=["POST"])
-@jwt_required()
-def create_payment():
-
-    user_id = get_jwt_identity()
-    data = request.get_json()
-
-    amount = data.get("amount")
-    subscription_type = data.get("subscription_type")
-
-    payment = Payment(
-        user_id=user_id,
-        amount=amount,
-        subscription_type=subscription_type,
-        status="pending"
-    )
-
-    db.session.add(payment)
-    db.session.commit()
-
-    return jsonify({
-        "message": "Payment created successfully",
-        "payment_id": payment.id
-    }), 201
-
-@app.route("/payments/payfast-data", methods=["POST"])
-@jwt_required()
-def create_payfast_data():
-
-    user_id = get_jwt_identity()
-    user = User.query.get(user_id)
-
-    data = request.get_json()
-    amount = data.get("amount", 149)
-    subscription_type = data.get("subscription_type", "monthly")
-
-    payment = Payment(
-        user_id=user_id,
-        amount=amount,
-        subscription_type=subscription_type,
-        status="pending"
-    )
-
-    db.session.add(payment)
-    db.session.commit()
-
-    payfast_data = {
-        "merchant_id": os.getenv("PAYFAST_MERCHANT_ID"),
-        "merchant_key": os.getenv("PAYFAST_MERCHANT_KEY"),
-        "return_url": f"{os.getenv('FRONTEND_URL')}/payment-success",
-        "cancel_url": f"{os.getenv('FRONTEND_URL')}/payment-cancelled",
-        "notify_url": f"{os.getenv('BACKEND_URL')}/payments/notify",
-        "name_first": user.full_name.split()[0],
-        "email_address": user.email,
-        "m_payment_id": str(payment.id),
-        "amount": f"{amount:.2f}",
-        "item_name": "LearnovaHub Monthly Subscription",
-    }
-
-    signature_fields = [
-        "merchant_id",
-        "merchant_key",
-        "return_url",
-        "cancel_url",
-        "notify_url",
-        "name_first",
-        "email_address",
-        "m_payment_id",
-        "amount",
-        "item_name",
-    ]
-
-    signature_parts = []
-
-    for field in signature_fields:
-        value = payfast_data.get(field)
-
-        if value:
-            signature_parts.append(
-                f"{field}={quote_plus(str(value))}"
-            )
-
-    signature_string = "&".join(signature_parts)
-
-    signature = hashlib.md5(
-        signature_string.encode("utf-8")
-    ).hexdigest()
-
-    #payfast_data["signature"] = signature
-
-    return jsonify({
-        "payfast_url": os.getenv("PAYFAST_URL"),
-        "payfast_data": payfast_data
-    }), 200
-
-@app.route("/admin/users/<int:user_id>/subscription", methods=["PATCH"])
-def update_subscription(user_id):
-
-    data = request.get_json()
-
-    user = User.query.get(user_id)
-
-    if not user:
-        return jsonify({
-            "error": "User not found"
-        }), 404
-
-    is_subscribed = data.get("is_subscribed", user.is_subscribed)
-
-    user.is_subscribed = is_subscribed
-    user.subscription_type = data.get("subscription_type")
-
-    if is_subscribed:
-        user.subscription_expires_at = datetime.utcnow() + timedelta(days=30)
-    else:
-        user.subscription_expires_at = None
-
-    db.session.commit()
-
-    return jsonify({
-        "message": "Subscription updated successfully"
-    }), 200
-
-@app.route("/admin/users", methods=["GET"])
-def get_users():
-
-    users = User.query.all()
-
-    user_list = []
-
-    for user in users:
-        user_list.append({
-            "id": user.id,
-            "full_name": user.full_name,
-            "email": user.email,
-            "role": user.role,
-            "is_subscribed": user.is_subscribed,
-            "subscription_type": user.subscription_type
-        })
-
-    return jsonify(user_list), 200
-
-@app.route("/payments/notify", methods=["POST"])
-def payfast_notify():
-
-    data = request.form.to_dict()
-
-    payment_id = data.get("m_payment_id")
-    payment_status = data.get("payment_status")
-
-    payment = Payment.query.get(payment_id)
-
-    if not payment:
-        return "Payment not found", 404
-
-    if payment_status == "COMPLETE":
-        payment.status = "paid"
-
-        user = User.query.get(payment.user_id)
-
-        user.is_subscribed = True
-        user.subscription_type = payment.subscription_type
-        user.subscription_expires_at = datetime.utcnow() + timedelta(days=30)
-
-        db.session.commit()
-
-    return "OK", 200
-
-@app.route("/notifications", methods=["GET"])
-def get_notifications():
-
-    notifications = Notification.query.order_by(
-        Notification.created_at.desc()
-    ).all()
-
-    notification_list = []
-
-    for notification in notifications:
-        notification_list.append({
-            "id": notification.id,
-            "title": notification.title,
-            "message": notification.message,
-            "link": notification.link,
-            "created_at": notification.created_at.isoformat()
-        })
-
-    return jsonify(notification_list), 200
-
-@app.route("/admin/notifications", methods=["POST"])
-def create_notification():
-
-    data = request.get_json()
-
-    notification = Notification(
-        title=data.get("title"),
-        message=data.get("message"),
-        link=data.get("link")
-    )
-
-    db.session.add(notification)
-    db.session.commit()
-
-    return jsonify({
-        "message": "Notification created successfully"
-    }), 201
-
-@app.route("/my-progress", methods=["GET"])
-@jwt_required()
-def get_my_progress():
-
-    user_id = get_jwt_identity()
-
-    total_lessons = Lesson.query.count()
-
-    completed_lessons = LessonCompletion.query.filter_by(
-        user_id=user_id
-    ).count()
-
-    completion_percentage = 0
-
-    if total_lessons > 0:
-        completion_percentage = round(
-            (completed_lessons / total_lessons) * 100
-        )
-
-    return jsonify({
-        "total_lessons": total_lessons,
-        "completed_lessons": completed_lessons,
-        "completion_percentage": completion_percentage
-    }), 200
-
-@app.route("/completed-lessons", methods=["GET"])
-@jwt_required()
-def get_completed_lessons():
-
-    user_id = get_jwt_identity()
-
-    completions = LessonCompletion.query.filter_by(
-        user_id=user_id
-    ).all()
-
-    completed_ids = [
-        completion.lesson_id
-        for completion in completions
-    ]
-
-    return jsonify(completed_ids), 200
 
 @app.route("/my-mastery", methods=["GET"])
 @jwt_required()
@@ -931,6 +582,346 @@ def get_my_latest_scores():
         list(latest_scores.values())
     ), 200
 
+# === PROGRESS ROUTES ===
+@app.route("/my-progress", methods=["GET"])
+@jwt_required()
+def get_my_progress():
+
+    user_id = get_jwt_identity()
+
+    total_lessons = Lesson.query.count()
+
+    completed_lessons = LessonCompletion.query.filter_by(
+        user_id=user_id
+    ).count()
+
+    completion_percentage = 0
+
+    if total_lessons > 0:
+        completion_percentage = round(
+            (completed_lessons / total_lessons) * 100
+        )
+
+    return jsonify({
+        "total_lessons": total_lessons,
+        "completed_lessons": completed_lessons,
+        "completion_percentage": completion_percentage
+    }), 200
+
+@app.route("/completed-lessons", methods=["GET"])
+@jwt_required()
+def get_completed_lessons():
+
+    user_id = get_jwt_identity()
+
+    completions = LessonCompletion.query.filter_by(
+        user_id=user_id
+    ).all()
+
+    completed_ids = [
+        completion.lesson_id
+        for completion in completions
+    ]
+
+    return jsonify(completed_ids), 200
+
+# === PAYMENT ROUTES ===
+@app.route("/payments/create", methods=["POST"])
+@jwt_required()
+def create_payment():
+
+    user_id = get_jwt_identity()
+    data = request.get_json()
+
+    amount = data.get("amount")
+    subscription_type = data.get("subscription_type")
+
+    payment = Payment(
+        user_id=user_id,
+        amount=amount,
+        subscription_type=subscription_type,
+        status="pending"
+    )
+
+    db.session.add(payment)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Payment created successfully",
+        "payment_id": payment.id
+    }), 201
+
+@app.route("/payments/payfast-data", methods=["POST"])
+@jwt_required()
+def create_payfast_data():
+
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+
+    data = request.get_json()
+    amount = data.get("amount", 149)
+    subscription_type = data.get("subscription_type", "monthly")
+
+    payment = Payment(
+        user_id=user_id,
+        amount=amount,
+        subscription_type=subscription_type,
+        status="pending"
+    )
+
+    db.session.add(payment)
+    db.session.commit()
+
+    payfast_data = {
+        "merchant_id": os.getenv("PAYFAST_MERCHANT_ID"),
+        "merchant_key": os.getenv("PAYFAST_MERCHANT_KEY"),
+        "return_url": f"{os.getenv('FRONTEND_URL')}/payment-success",
+        "cancel_url": f"{os.getenv('FRONTEND_URL')}/payment-cancelled",
+        "notify_url": f"{os.getenv('BACKEND_URL')}/payments/notify",
+        "name_first": user.full_name.split()[0],
+        "email_address": user.email,
+        "m_payment_id": str(payment.id),
+        "amount": f"{amount:.2f}",
+        "item_name": "LearnovaHub Monthly Subscription",
+    }
+
+    signature_fields = [
+        "merchant_id",
+        "merchant_key",
+        "return_url",
+        "cancel_url",
+        "notify_url",
+        "name_first",
+        "email_address",
+        "m_payment_id",
+        "amount",
+        "item_name",
+    ]
+
+    signature_parts = []
+
+    for field in signature_fields:
+        value = payfast_data.get(field)
+
+        if value:
+            signature_parts.append(
+                f"{field}={quote_plus(str(value))}"
+            )
+
+    signature_string = "&".join(signature_parts)
+
+    signature = hashlib.md5(
+        signature_string.encode("utf-8")
+    ).hexdigest()
+
+    #payfast_data["signature"] = signature
+
+    return jsonify({
+        "payfast_url": os.getenv("PAYFAST_URL"),
+        "payfast_data": payfast_data
+    }), 200
+
+@app.route("/payments/notify", methods=["POST"])
+def payfast_notify():
+
+    data = request.form.to_dict()
+
+    payment_id = data.get("m_payment_id")
+    payment_status = data.get("payment_status")
+
+    payment = Payment.query.get(payment_id)
+
+    if not payment:
+        return "Payment not found", 404
+
+    if payment_status == "COMPLETE":
+        payment.status = "paid"
+
+        user = User.query.get(payment.user_id)
+
+        user.is_subscribed = True
+        user.subscription_type = payment.subscription_type
+        user.subscription_expires_at = datetime.utcnow() + timedelta(days=30)
+
+        db.session.commit()
+
+    return "OK", 200
+
+# === NOTIFICATION ROUTES ===
+@app.route("/notifications", methods=["GET"])
+def get_notifications():
+
+    notifications = Notification.query.order_by(
+        Notification.created_at.desc()
+    ).all()
+
+    notification_list = []
+
+    for notification in notifications:
+        notification_list.append({
+            "id": notification.id,
+            "title": notification.title,
+            "message": notification.message,
+            "link": notification.link,
+            "created_at": notification.created_at.isoformat()
+        })
+
+    return jsonify(notification_list), 200
+
+@app.route("/admin/notifications", methods=["POST"])
+def create_notification():
+
+    data = request.get_json()
+
+    notification = Notification(
+        title=data.get("title"),
+        message=data.get("message"),
+        link=data.get("link")
+    )
+
+    db.session.add(notification)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Notification created successfully"
+    }), 201
+
+# === ADMIN ROUTES ===
+@app.route("/admin/analytics", methods=["GET"])
+@jwt_required()
+def admin_analytics():
+
+    total_users = User.query.count()
+
+    active_subscribers = User.query.filter_by(
+        is_subscribed=True
+    ).count()
+
+    total_learners = User.query.filter_by(
+        role="learner"
+    ).count()
+
+    total_admins = User.query.filter_by(
+        role="admin"
+    ).count()
+
+    total_lessons = Lesson.query.count()
+    total_quiz_attempts = QuizResult.query.count()
+    all_results = QuizResult.query.all()
+
+    average_score = 0
+
+    if all_results:
+        total_percentages = 0
+        for result in all_results:
+            percentage = (
+                result.score / result.total_questions
+            ) * 100
+            total_percentages += percentage
+        average_score = round(
+            total_percentages / len(all_results)
+        )
+
+    total_payments = Payment.query.count()
+
+    successful_payments = Payment.query.filter_by(
+        status="completed"
+    ).count()
+
+    return jsonify({
+        "total_users": total_users,
+        "total_learners": total_learners,
+        "total_admins": total_admins,
+        "active_subscribers": active_subscribers,
+        "total_lessons": total_lessons,
+        "total_quiz_attempts": total_quiz_attempts,
+        "average_score": average_score,
+        "total_payments": total_payments,
+        "successful_payments": successful_payments
+    }), 200
+
+@app.route("/admin/users", methods=["GET"])
+def get_users():
+
+    users = User.query.all()
+
+    user_list = []
+
+    for user in users:
+        user_list.append({
+            "id": user.id,
+            "full_name": user.full_name,
+            "email": user.email,
+            "role": user.role,
+            "is_subscribed": user.is_subscribed,
+            "subscription_type": user.subscription_type
+        })
+
+    return jsonify(user_list), 200
+
+@app.route("/admin/users/<int:user_id>/subscription", methods=["PATCH"])
+def update_subscription(user_id):
+
+    data = request.get_json()
+
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({
+            "error": "User not found"
+        }), 404
+
+    is_subscribed = data.get("is_subscribed", user.is_subscribed)
+
+    user.is_subscribed = is_subscribed
+    user.subscription_type = data.get("subscription_type")
+
+    if is_subscribed:
+        user.subscription_expires_at = datetime.utcnow() + timedelta(days=30)
+    else:
+        user.subscription_expires_at = None
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Subscription updated successfully"
+    }), 200
+
+@app.route("/admin/learners", methods=["GET"])
+@jwt_required()
+def get_all_learners():
+
+    learners = User.query.filter_by(
+        role="learner"
+    ).all()
+
+    learner_data = []
+
+    for learner in learners:
+
+        completed_lessons = LessonCompletion.query.filter_by(
+            user_id=learner.id
+        ).count()
+
+        total_lessons = Lesson.query.count()
+
+        progress = 0
+
+        if total_lessons > 0:
+            progress = round(
+                (completed_lessons / total_lessons) * 100
+            )
+
+        learner_data.append({
+            "id": learner.id,
+            "full_name": learner.full_name,
+            "email": learner.email,
+            "is_subscribed": learner.is_subscribed,
+            "progress": progress
+        })
+
+    return jsonify(learner_data), 200
+
 @app.route("/admin/learners/<int:learner_id>", methods=["GET"])
 @jwt_required()
 @admin_required
@@ -968,10 +959,69 @@ def get_learner_detail(learner_id):
         "quizzes_passed": quizzes_passed,
     })
 
+@app.route("/admin/lessons", methods=["POST"])
+@jwt_required()
+@admin_required
+def create_lesson():
 
+    data = request.get_json()
+
+    new_lesson = Lesson(
+        title=data.get("title"),
+        topic=data.get("topic"),
+        description=data.get("description"),
+        video_url=data.get("video_url"),
+        worksheet_url=data.get("worksheet_url"),
+        is_premium=data.get("is_premium", True)
+    )
+
+    db.session.add(new_lesson)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Lesson created successfully"
+    }), 201
+
+@app.route("/admin/lessons/<int:lesson_id>", methods=["PATCH"])
+@jwt_required()
+@admin_required
+def update_lesson(lesson_id):
+
+    lesson = Lesson.query.get_or_404(lesson_id)
+    data = request.get_json()
+
+    lesson.title = data.get("title", lesson.title)
+    lesson.topic = data.get("topic", lesson.topic)
+    lesson.description = data.get("description", lesson.description)
+    lesson.video_url = data.get("video_url", lesson.video_url)
+    lesson.worksheet_url = data.get("worksheet_url", lesson.worksheet_url)
+    lesson.is_premium = data.get("is_premium", lesson.is_premium)
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Lesson updated successfully"
+    }), 200
+
+@app.route("/admin/lessons/<int:lesson_id>", methods=["DELETE"])
+@jwt_required()
+@admin_required
+def delete_lesson(lesson_id):
+
+    lesson = Lesson.query.get_or_404(lesson_id)
+
+    db.session.delete(lesson)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Lesson deleted successfully"
+    }), 200
+
+# === DATABASE INITIALIZATION ===
 with app.app_context():
     db.create_all()
 
+# === SEED DATA ===
 with app.app_context():
 
     if Lesson.query.count() == 0:
@@ -1050,6 +1100,6 @@ with app.app_context():
 
         db.session.commit()
 
-
+# === RUN APP ===
 if __name__ == "__main__":
     app.run(debug=True)

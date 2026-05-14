@@ -5,15 +5,6 @@ import { useNavigate } from "react-router-dom";
 
 
 export default function AdminPage() {
-  const [lessonData, setLessonData] = useState({
-    title: "",
-    topic: "",
-    description: "",
-    video_url: "",
-    worksheet_url: "",
-    is_premium: true,
-  });
-
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [message, setMessage] = useState("");
@@ -60,7 +51,7 @@ export default function AdminPage() {
 
   function fetchUsers() {
     axios
-      .get("https://learnovahub.onrender.com//admin/users")
+      .get("https://learnovahub.onrender.com/admin/users")
       .then((response) => {
         setUsers(response.data);
       })
@@ -69,40 +60,9 @@ export default function AdminPage() {
       });
   }
 
-  function handleChange(e) {
-    const { name, value, type, checked } = e.target;
-
-    setLessonData({
-      ...lessonData,
-      [name]: type === "checkbox" ? checked : value,
-    });
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-
-    axios
-      .post("https://learnovahub.onrender.com//admin/lessons", lessonData)
-      .then((response) => {
-        setMessage(response.data.message);
-
-        setLessonData({
-          title: "",
-          topic: "",
-          description: "",
-          video_url: "",
-          worksheet_url: "",
-          is_premium: true,
-        });
-      })
-      .catch(() => {
-        setMessage("Failed to create lesson");
-      });
-  }
-
   function activateSubscription(userId) {
     axios
-      .patch(`https://learnovahub.onrender.com//admin/users/${userId}/subscription`, {
+      .patch(`https://learnovahub.onrender.com/admin/users/${userId}/subscription`, {
         is_subscribed: true,
         subscription_type: "monthly",
       })
@@ -116,7 +76,7 @@ export default function AdminPage() {
 
   function deactivateSubscription(userId) {
     axios
-      .patch(`https://learnovahub.onrender.com//admin/users/${userId}/subscription`, {
+      .patch(`https://learnovahub.onrender.com/admin/users/${userId}/subscription`, {
         is_subscribed: false,
         subscription_type: null,
       })
@@ -204,75 +164,6 @@ export default function AdminPage() {
         </div>
       )}
 
-      <div className="admin-card">
-        <h2>Create New Lesson</h2>
-
-        {message && <p className="form-message">{message}</p>}
-
-        <form className="admin-form" onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="title"
-            placeholder="Lesson Title"
-            value={lessonData.title}
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            type="text"
-            name="topic"
-            placeholder="Topic"
-            value={lessonData.topic}
-            onChange={handleChange}
-            required
-          />
-
-          <textarea
-            name="description"
-            placeholder="Lesson Description"
-            value={lessonData.description}
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            type="text"
-            name="link"
-            placeholder="Optional link e.g. /lessons/1/quiz"
-            value={notificationData.link}
-            onChange={handleNotificationChange}
-            />
-
-          <input
-            type="text"
-            name="video_url"
-            placeholder="YouTube Video URL"
-            value={lessonData.video_url}
-            onChange={handleChange}
-          />
-
-          <input
-            type="text"
-            name="worksheet_url"
-            placeholder="Worksheet URL"
-            value={lessonData.worksheet_url}
-            onChange={handleChange}
-          />
-
-          <label className="checkbox-row">
-            <input
-              type="checkbox"
-              name="is_premium"
-              checked={lessonData.is_premium}
-              onChange={handleChange}
-            />
-            Premium Lesson
-          </label>
-
-          <button type="submit">Create Lesson</button>
-        </form>
-      </div>
       <div className="admin-card">
         <h2>Create Announcement</h2>
 
