@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/api";
 import { useParams } from "react-router-dom";
 
 export default function QuizPage() {
@@ -11,8 +11,8 @@ export default function QuizPage() {
   const [reviewData, setReviewData] = useState([]);
 
   useEffect(() => {
-    axios
-      .get(`https://learnovahub.onrender.com//lessons/${id}/quiz`)
+    api
+      .get(`/lessons/${id}/quiz`)
       .then((response) => {
         setQuestions(response.data);
       })
@@ -51,22 +51,14 @@ export default function QuizPage() {
     setReviewData(review);
 
     setScore(total);
-
-    const token = localStorage.getItem("token");
-
-    axios
+    api
       .post(
-        "https://learnovahub.onrender.com/quiz-results",
+        "/quiz-results",
         {
           lesson_id: id,
           score: total,
           total_questions: questions.length,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
       )
       .then((response) => {
         console.log(response.data.message);

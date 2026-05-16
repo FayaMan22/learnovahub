@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../api/api";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -26,8 +26,8 @@ export default function RegisterPage() {
       return;
     }
 
-    axios
-      .post("https://learnovahub.onrender.com//register", {
+    api
+      .post("/register", {
         full_name: formData.full_name,
         email: formData.email,
         password: formData.password,

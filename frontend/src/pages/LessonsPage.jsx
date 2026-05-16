@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/api";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function LessonsPage() {
   const [lessons, setLessons] = useState([]);
   const navigate = useNavigate();
   const [completedLessons, setCompletedLessons] = useState([]);
-
+  const { token } = useAuth();
+  
   useEffect(() => {
-    axios
-      .get("https://learnovahub.onrender.com/lessons")
+    api
+      .get("/lessons")
       .then((response) => {
         setLessons(response.data);
       })
@@ -17,15 +19,9 @@ export default function LessonsPage() {
         console.log(error);
       });
 
-      const token = localStorage.getItem("token");
-
       if (token) {
-        axios
-          .get("https://learnovahub.onrender.com/completed-lessons", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
+        api
+          .get("/completed-lessons")
           .then((response) => {
             setCompletedLessons(response.data);
           })

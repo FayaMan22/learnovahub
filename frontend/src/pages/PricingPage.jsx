@@ -1,28 +1,23 @@
-import axios from "axios";
+import api from "../api/api";
 import { useNavigate } from "react-router-dom";
 
 export default function PricingPage() {
   const navigate = useNavigate();
+  
   async function handleSubscriptionPayment() {
-    const token = localStorage.getItem("token");
-
+    
     if (!token) {
       alert("Please login first before subscribing.");
       return;
     }
 
     try {
-      const response = await axios.post(
-        "https://learnovahub.onrender.com/payments/payfast-data",
+      const response = await api.post(
+        "/payments/payfast-data",
         {
           amount: 149,
           subscription_type: "monthly",
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
       );
 
       const { payfast_url, payfast_data } = response.data;

@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../api/api";
 import { useEffect, useState } from "react";
 
 export default function HomePage() {
@@ -7,8 +7,8 @@ export default function HomePage() {
   const [message, setMessage] = useState("");
   
   useEffect(() => {
-    axios
-      .get("https://learnovahub.onrender.com//")
+    api
+      .get("/")
       .then((response) => {
         setMessage(response.data.message);
       })

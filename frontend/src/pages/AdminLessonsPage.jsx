@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
+import api from "../api/api";
 
 export default function AdminLessonsPage() {
 
@@ -18,8 +18,7 @@ export default function AdminLessonsPage() {
   const formRef = useRef(null);
 
   const fetchLessons = () => {
-    axios
-      .get("https://learnovahub.onrender.com/lessons")
+    api.get("/lessons")
       .then((response) => {
         setLessons(response.data);
       })
@@ -45,18 +44,9 @@ export default function AdminLessonsPage() {
   const handleSubmitLesson = (event) => {
     event.preventDefault();
 
-    const token = localStorage.getItem("token");
-
     if (editingLessonId) {
-      axios
-        .patch(
-          `https://learnovahub.onrender.com/admin/lessons/${editingLessonId}`,
+      api.patch(`/admin/lessons/${editingLessonId}`,
           formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
         )
         .then((response) => {
           console.log("Lesson updated:", response.data);
@@ -70,15 +60,8 @@ export default function AdminLessonsPage() {
       return;
     }
 
-    axios
-      .post(
-        "https://learnovahub.onrender.com/admin/lessons",
+    api.post("/admin/lessons",
         formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
       )
       .then(() => {
         fetchLessons();
@@ -116,21 +99,14 @@ export default function AdminLessonsPage() {
   };
 
   const handleDeleteLesson = (lessonId) => {
-    const token = localStorage.getItem("token");
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this lesson?"
     );
     if (!confirmDelete) {
       return;
     }
-    axios
-      .delete(
-        `https://learnovahub.onrender.com/admin/lessons/${lessonId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+    api.delete(`/admin/lessons/${lessonId}`,
+    
       )
       .then(() => {
         fetchLessons();

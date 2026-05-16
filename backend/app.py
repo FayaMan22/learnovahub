@@ -903,6 +903,8 @@ def get_users():
     return jsonify(user_list), 200
 
 @app.route("/admin/users/<int:user_id>/subscription", methods=["PATCH"])
+@jwt_required()
+@admin_required
 def update_subscription(user_id):
 
     data = request.get_json()
@@ -928,6 +930,24 @@ def update_subscription(user_id):
 
     return jsonify({
         "message": "Subscription updated successfully"
+    }), 200
+
+@app.route("/admin/users/<int:user_id>/role", methods=["PATCH"])
+@jwt_required()
+@admin_required
+def update_user_role(user_id):
+
+    user = User.query.get_or_404(user_id)
+
+    data = request.get_json()
+
+    user.role = data.get("role", user.role)
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "User role updated successfully",
+        "role": user.role
     }), 200
 
 @app.route("/admin/learners", methods=["GET"])

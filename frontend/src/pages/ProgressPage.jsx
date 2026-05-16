@@ -1,18 +1,12 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/api";
 
 export default function ProgressPage() {
   const [quizResults, setQuizResults] = useState([]);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    axios
-      .get("https://learnovahub.onrender.com/my-quiz-results", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+    api
+      .get("/my-quiz-results")
       .then((response) => {
         setQuizResults(response.data);
       })

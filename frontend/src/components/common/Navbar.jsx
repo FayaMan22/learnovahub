@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { FaBell, FaUserCircle, FaBars, FaTimes } from "react-icons/fa";
 import { useState, useRef, useEffect } from "react";
-import axios from "axios";
+import api from "../../api/api";
+import { useAuth } from "../../context/AuthContext";
 
 import logo from "../../assets/images/learnovahub-logo.png";
 
@@ -14,14 +15,17 @@ export default function Navbar() {
 
   const profileRef = useRef();
 
-  const token = localStorage.getItem("token");
-  const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("user"))
-  );
+  const {
+    token,
+    user,
+    setUser,
+    logoutUser,
+  } = useAuth();
 
   function handleLogout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    logoutUser();
+
+    setProfileOpen(false);
 
     navigate("/login");
   }
@@ -55,8 +59,7 @@ export default function Navbar() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   useEffect(() => {
-    axios
-      .get("https://learnovahub.onrender.com/notifications")
+    api.get("/notifications")
       .then((response) => {
         setNotifications(response.data);
       })
@@ -78,13 +81,11 @@ export default function Navbar() {
 
     formData.append("profile_picture", file);
 
-    axios
-      .post(
-        "https://learnovahub.onrender.com/profile-picture",
-        formData,
-        {
+    api
+      .post("/profile-picture",
+            formData,
+            {
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -126,9 +127,15 @@ export default function Navbar() {
           <Link to="/lessons">Lessons</Link>
           <Link to="/pricing">Pricing</Link>
 
-          {token && user?.role !== "admin" && (
+          {token && user?.role === "learner" && (
             <Link to="/dashboard">
               Dashboard
+            </Link>
+          )}
+
+          {token && user?.role === "teacher" && (
+            <Link to="/teacher">
+              Teacher Dashboard
             </Link>
           )}
 
@@ -230,39 +237,24 @@ export default function Navbar() {
 
               {user?.role === "admin" ? (
                 <>
-                  <Link to="/admin">
-                    Admin Dashboard
-                  </Link>
-
-                  <Link to="/admin/learners">
-                    Learner Management
-                  </Link>
-
-                  <Link to="/admin/lessons">
-                    Lesson Management
-                  </Link>
-
-                  <Link to="/admin">
-                    Announcements
-                  </Link>
-
-                  <Link to="/admin">
-                    Subscriptions
-                  </Link>
+                  <Link to="/admin">Admin Dashboard</Link>
+                  <Link to="/admin/learners">Learner Management</Link>
+                  <Link to="/admin/lessons">Lesson Management</Link>
+                  <Link to="/admin">Announcements</Link>
+                  <Link to="/admin">Subscriptions</Link>
+                </>
+              ) : user?.role === "teacher" ? (
+                <>
+                  <Link to="/teacher">Teacher Dashboard</Link>
+                  <Link to="/teacher">My Lessons</Link>
+                  <Link to="/teacher">My Quizzes</Link>
+                  <Link to="/teacher">My Learners</Link>
                 </>
               ) : (
                 <>
-                  <Link to="/dashboard">
-                    Dashboard
-                  </Link>
-
-                  <Link to="/progress">
-                    My Progress
-                  </Link>
-
-                  <Link to="/pricing">
-                    Subscription
-                  </Link>
+                  <Link to="/dashboard">Dashboard</Link>
+                  <Link to="/progress">My Progress</Link>
+                  <Link to="/pricing">Subscription</Link>
                 </>
               )}
               <label className="upload-profile-label">

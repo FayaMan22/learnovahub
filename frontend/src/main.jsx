@@ -5,10 +5,12 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import "./index.css";
+import { AuthProvider } from "./context/AuthContext.jsx";
 
 import Layout from "./components/common/Layout.jsx";
 import ProtectedRoute from "./components/common/ProtectedRoute.jsx";
 import AdminRoute from "./components/common/AdminRoute.jsx";
+import TeacherRoute from "./components/common/TeacherRoute.jsx";
 
 import HomePage from "./pages/HomePage";
 import PricingPage from "./pages/PricingPage";
@@ -25,6 +27,8 @@ import ProgressPage from "./pages/ProgressPage.jsx";
 import AdminLearnersPage from "./pages/AdminLearnersPage.jsx";
 import AdminLearnerDetailPage from "./pages/AdminLearnerDetailPage";
 import AdminLessonsPage from "./pages/AdminLessonsPage";
+import TeacherDashboardPage from "./pages/TeacherDashboardPage.jsx";
+
 
 const router = createBrowserRouter([
   {
@@ -84,6 +88,14 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "teacher",
+        element: (
+          <TeacherRoute>
+            <TeacherDashboardPage />
+          </TeacherRoute>
+        ),
+      },
+      {
         path: "payment-success",
         element: <PaymentSuccessPage />,
       },
@@ -100,12 +112,20 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/admin/learners/:learnerId",
-        element: <AdminLearnerDetailPage />,
+        path: "admin/learners/:learnerId",
+        element: (
+          <AdminRoute>
+            <AdminLearnerDetailPage />
+          </AdminRoute>
+        ),
       },
       {
-        path: "/admin/lessons",
-        element: <AdminLessonsPage />,
+        path: "admin/lessons",
+        element: (
+          <AdminRoute>
+            <AdminLessonsPage />
+          </AdminRoute>
+        ),
       },
     ],
   },
@@ -113,6 +133,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </React.StrictMode>
 );

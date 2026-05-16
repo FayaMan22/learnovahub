@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/api";
 import { useNavigate } from "react-router-dom";
 
 
@@ -30,9 +30,9 @@ export default function AdminPage() {
   function handleNotificationSubmit(e) {
     e.preventDefault();
 
-    axios
+    api
       .post(
-        "https://learnovahub.onrender.com/admin/notifications",
+        "/admin/notifications",
         notificationData
       )
       .then((response) => {
@@ -50,8 +50,8 @@ export default function AdminPage() {
   } 
 
   function fetchUsers() {
-    axios
-      .get("https://learnovahub.onrender.com/admin/users")
+    api
+      .get("/admin/users")
       .then((response) => {
         setUsers(response.data);
       })
@@ -61,8 +61,8 @@ export default function AdminPage() {
   }
 
   function activateSubscription(userId) {
-    axios
-      .patch(`https://learnovahub.onrender.com/admin/users/${userId}/subscription`, {
+    api
+      .patch(`/admin/users/${userId}/subscription`, {
         is_subscribed: true,
         subscription_type: "monthly",
       })
@@ -75,8 +75,8 @@ export default function AdminPage() {
   }
 
   function deactivateSubscription(userId) {
-    axios
-      .patch(`https://learnovahub.onrender.com/admin/users/${userId}/subscription`, {
+    api
+      .patch(`/admin/users/${userId}/subscription`, {
         is_subscribed: false,
         subscription_type: null,
       })
@@ -89,14 +89,8 @@ export default function AdminPage() {
   }
 
   function fetchAnalytics() {
-    const token = localStorage.getItem("token");
-
-    axios
-      .get("https://learnovahub.onrender.com/admin/analytics", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+    api
+      .get("/admin/analytics")
       .then((response) => {
         setAnalytics(response.data);
       })

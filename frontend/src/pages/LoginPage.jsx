@@ -1,9 +1,14 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../api/api";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { loginUser } = useAuth();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -22,28 +27,30 @@ export default function LoginPage() {
   function handleSubmit(e) {
     e.preventDefault();
 
-    axios
-      .post("https://learnovahub.onrender.com//login", formData)
+    setIsLoading(true);
+
+    api.post("/login", formData)
       .then((response) => {
-        localStorage.setItem("token", response.data.token);
         const userData = response.data.user;
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify(userData)
-      );
+        loginUser(
+          response.data.token,
+          userData
+        );
 
         setMessage(response.data.message);
-        if (response.data.user.role === "admin") {
-          navigate("/admin");
+
+        if (userData.role === "admin") {
+          window.location.href = "/admin";
         } else {
-          navigate("/dashboard");
+          window.location.href ="/dashboard";
         }
       })
       .catch((error) => {
         setMessage(
           error.response?.data?.error || "Login failed"
         );
+        setIsLoading(false);
       });
   }
 
@@ -75,7 +82,9 @@ export default function LoginPage() {
             required
           />
 
-          <button type="submit">Login</button>
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? "Logging in..." : "Login"}
+          </button>
         </form>
       </div>
     </section>

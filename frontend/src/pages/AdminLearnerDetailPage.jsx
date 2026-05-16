@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../api/api";
 
 export default function AdminLearnerDetailPage() {
 
@@ -9,18 +9,8 @@ export default function AdminLearnerDetailPage() {
   const [learner, setLearner] = useState(null);
 
   useEffect(() => {
-
-    const token = localStorage.getItem("token");
-
-    axios
-      .get(
-        `https://learnovahub.onrender.com/admin/learners/${learnerId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+    api
+      .get(`/admin/learners/${learnerId}`)
       .then((response) => {
         setLearner(response.data);
       })

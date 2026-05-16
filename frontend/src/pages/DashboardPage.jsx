@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/api";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"));
-
   const [quizResults, setQuizResults] = useState([]);
+  const { user } = useAuth();
 
   const [progressData, setProgressData] = useState({
     total_lessons: 0,
@@ -18,15 +18,8 @@ export default function DashboardPage() {
   const [latestScores, setLatestScores] = useState([]);
 
   useEffect(() => {
-
-    const token = localStorage.getItem("token");
-
-    axios
-      .get("https://learnovahub.onrender.com/my-quiz-results", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+    api
+      .get("/my-quiz-results")
       .then((response) => {
         setQuizResults(response.data);
       })
@@ -34,12 +27,8 @@ export default function DashboardPage() {
         console.log(error);
       });
 
-    axios
-      .get("https://learnovahub.onrender.com/my-progress", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+    api
+      .get("/my-progress")
       .then((response) => {
         setProgressData(response.data);
       })
@@ -47,12 +36,8 @@ export default function DashboardPage() {
         console.log(error);
       });
 
-    axios
-      .get("https://learnovahub.onrender.com/my-mastery", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+    api
+      .get("/my-mastery")
       .then((response) => {
         setMasteryData(response.data);
       })
@@ -60,12 +45,8 @@ export default function DashboardPage() {
         console.log(error);
       });
 
-    axios
-      .get("https://learnovahub.onrender.com/my-best-scores", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+    api
+      .get("/my-best-scores")
       .then((response) => {
         setBestScores(response.data);
       })
@@ -73,12 +54,8 @@ export default function DashboardPage() {
         console.log(error);
       });
 
-    axios
-      .get("https://learnovahub.onrender.com/my-latest-scores", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+    api
+      .get("/my-latest-scores")
       .then((response) => {
         setLatestScores(response.data);
       })

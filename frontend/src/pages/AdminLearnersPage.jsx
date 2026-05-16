@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/api";
 import { useNavigate } from "react-router-dom";
 
 export default function AdminLearnersPage() {
@@ -8,24 +8,48 @@ export default function AdminLearnersPage() {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-
-    const token = localStorage.getItem("token");
-
-    axios
-      .get("https://learnovahub.onrender.com/admin/learners", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+  function fetchLearners() {
+    api
+      .get("/admin/learners")
       .then((response) => {
         setLearners(response.data);
       })
       .catch((error) => {
         console.log(error);
       });
+  }
 
+  useEffect(() => {
+    fetchLearners();
   }, []);
+
+  function promoteToTeacher(userId) {
+
+    api
+      .patch(`/admin/users/${userId}/role`, {
+        role: "teacher",
+      })
+      .then(() => {
+        fetchLearners();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+  function removeTeacherRole(userId) {
+
+    api
+      .patch(`/admin/users/${userId}/role`, {
+        role: "learner",
+      })
+      .then(() => {
+        fetchLearners();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 
   return (
     <section className="admin-learners-page">
@@ -61,6 +85,32 @@ export default function AdminLearnersPage() {
                 {" "}
                 {learner.progress}%
               </p>
+
+              <p>
+                Role: {learner.role}
+              </p>
+
+              <div className="lesson-actions">
+                {learner.role !== "teacher" ?(
+                  <button
+                    className="btn btn-success"
+                    onClick={() =>
+                    promoteToTeacher(learner.id)
+                  }
+                  >
+                    Promote to Teacher 
+                  </button>
+                ) : (
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() =>
+                      removeTeacherRole(learner.id)
+                    }
+                    >
+                      Remove Teacher
+                    </button> 
+                )}
+              </div>
 
               <button
                 onClick={() =>

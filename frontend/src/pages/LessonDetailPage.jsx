@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/api";
 import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function LessonDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { token } = useAuth();
 
   const [lesson, setLesson] = useState(null);
   const [isCompleted, setIsCompleted] = useState(false);
 
   useEffect(() => {
-    axios
-      .get(`https://learnovahub.onrender.com//lessons/${id}`)
+    api
+      .get(`/lessons/${id}`)
       .then((response) => {
         setLesson(response.data);
       })
@@ -19,15 +21,10 @@ export default function LessonDetailPage() {
         console.log(error);
       });
 
-    const token = localStorage.getItem("token");
-
+    
     if (token) {
-      axios
-        .get("https://learnovahub.onrender.com/completed-lessons", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+      api
+        .get("/completed-lessons")
         .then((response) => {
 
           const completedIds = response.data;
@@ -61,18 +58,10 @@ export default function LessonDetailPage() {
   }
 
   function markLessonComplete() {
-    const token = localStorage.getItem("token");
-
-    axios
+    api
       .post(
-        `https://learnovahub.onrender.com/lessons/${id}/complete`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+        `/lessons/${id}/complete`,
+        {},)
       .then((response) => {
         setIsCompleted(true);
         alert(response.data.message);
