@@ -42,6 +42,8 @@ export default function LoginPage() {
 
         if (userData.role === "admin") {
           window.location.href = "/admin";
+        } else if (userData.role === "teacher") {
+          window.location.href = "/teacher";
         } else {
           window.location.href ="/dashboard";
         }

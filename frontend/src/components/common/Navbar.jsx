@@ -124,7 +124,17 @@ export default function Navbar() {
 
         <div className={`nav-links ${menuOpen ? "open" : ""}`}>
           <Link to="/">Home</Link>
-          <Link to="/lessons">Lessons</Link>
+          {(!token || user?.role === "learner") && (
+            <Link to="/lessons">
+              Lessons
+            </Link>
+          )}
+
+          {token && user?.role === "teacher" && (
+            <Link to="/teacher/lessons">
+              My Lessons
+            </Link>
+          )}
           <Link to="/pricing">Pricing</Link>
 
           {token && user?.role === "learner" && (
@@ -203,77 +213,81 @@ export default function Navbar() {
             </div>
           )}
         </div>
-
-        <div
-          className="profile-wrapper"
-          ref={profileRef}
-        >
-
-          <button
-            className="user-profile"
-            onClick={() =>
-              setProfileOpen(!profileOpen)
-            }
+        
+        {token && (
+          <div
+            className="profile-wrapper"
+            ref={profileRef}
           >
-            {user?.profile_pic_url ? (
-              <img
-                src={user.profile_pic_url}
-                alt={user.full_name}
-                className="profile-image"
-              />
-            ) : (
-              <FaUserCircle className="avatar-icon" />
-            )}
 
-            {user && (
-              <span>
-                {user.full_name?.split(" ")[0]}
-              </span>
-            )}
-          </button>
-
-          {profileOpen && (
-            <div className="profile-dropdown">
-
-              {user?.role === "admin" ? (
-                <>
-                  <Link to="/admin">Admin Dashboard</Link>
-                  <Link to="/admin/learners">Learner Management</Link>
-                  <Link to="/admin/lessons">Lesson Management</Link>
-                  <Link to="/admin">Announcements</Link>
-                  <Link to="/admin">Subscriptions</Link>
-                </>
-              ) : user?.role === "teacher" ? (
-                <>
-                  <Link to="/teacher">Teacher Dashboard</Link>
-                  <Link to="/teacher">My Lessons</Link>
-                  <Link to="/teacher">My Quizzes</Link>
-                  <Link to="/teacher">My Learners</Link>
-                </>
-              ) : (
-                <>
-                  <Link to="/dashboard">Dashboard</Link>
-                  <Link to="/progress">My Progress</Link>
-                  <Link to="/pricing">Subscription</Link>
-                </>
-              )}
-              <label className="upload-profile-label">
-                Upload Profile Picture
-
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleProfilePictureUpload}
+            <button
+              className="user-profile"
+              onClick={() =>
+                setProfileOpen(!profileOpen)
+              }
+            >
+              {user?.profile_pic_url ? (
+                <img
+                  src={user.profile_pic_url}
+                  alt={user.full_name}
+                  className="profile-image"
                 />
-              </label>
+              ) : (
+                <FaUserCircle className="avatar-icon" />
+              )}
 
-              <button onClick={handleLogout}>
-                Logout
-              </button>
+              {user && (
+                <span>
+                  {user.full_name?.split(" ")[0]}
+                </span>
+              )}
+            </button>
 
-            </div>
-          )}
-        </div>
+            {profileOpen && (
+              <div className="profile-dropdown">
+
+                {user?.role === "admin" ? (
+                  <>
+                    <Link to="/admin">Admin Dashboard</Link>
+                    <Link to="/admin/learners">Learner Management</Link>
+                    <Link to="/admin/lessons">Lesson Management</Link>
+                    <Link to="/admin">Announcements</Link>
+                    <Link to="/admin">Subscriptions</Link>
+                  </>
+                ) : user?.role === "teacher" ? (
+                  <>
+                    <Link to="/teacher">Teacher Dashboard</Link>
+                    <Link to="/teacher/lessons">My Lessons</Link>
+                    <Link to="/teacher">My Quizzes</Link>
+                    <Link to="/teacher">My Learners</Link>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/dashboard">Dashboard</Link>
+                    <Link to="/progress">My Progress</Link>
+                    <Link to="/pricing">Subscription</Link>
+                  </>
+                )}
+                {token && (
+                  <label className="upload-profile-label">
+                    Upload Profile Picture
+
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleProfilePictureUpload}
+                    />
+                  </label>
+                )}
+
+                <button onClick={handleLogout}>
+                  Logout
+                </button>
+
+              </div>
+            )}
+          </div>
+        )}  
 
         {token ? (
           <button

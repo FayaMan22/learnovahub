@@ -53,6 +53,10 @@ export default function LessonsPage() {
             <p>{lesson.description}</p>
 
             <p>
+              Instructor: {lesson.teacher_name}
+            </p>
+
+            <p>
               {lesson.is_premium ? "Premium Lesson" : "Free Lesson"}
             </p>
 

@@ -12,7 +12,9 @@ from functools import wraps
 import cloudinary
 import cloudinary.uploader
 
-#   === APP CONFIG ===
+#===========================
+# APP CONFIG 
+#===========================
 load_dotenv()
 
 app = Flask(__name__)
@@ -50,11 +52,15 @@ cloudinary.config(
     api_secret=os.getenv("CLOUDINARY_API_SECRET")
 )
 
-# ===EXTENSIONS ===
+#===========================
+# EXTENSIONS 
+#===========================
 db = SQLAlchemy(app)
 jwt = JWTManager(app)
 
-# === DECORATORS ===
+#===========================
+# DECORATORS 
+#===========================
 def admin_required(fn):
 
     @wraps(fn)
@@ -73,7 +79,9 @@ def admin_required(fn):
 
     return wrapper
 
-# === MODELS ===
+#===========================
+# MODELS 
+#===========================
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
@@ -118,20 +126,33 @@ class User(db.Model):
         nullable=True
     )
 
+    lessons = db.relationship(
+        "Lesson",
+        backref="teacher",
+        lazy=True
+    )
+
 class Lesson(db.Model):
+
     id = db.Column(db.Integer, primary_key=True)
 
-    title = db.Column(db.String(150), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
 
     topic = db.Column(db.String(100), nullable=False)
 
-    description = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text)
 
-    video_url = db.Column(db.String(255), nullable=True)
+    video_url = db.Column(db.String(500))
 
-    worksheet_url = db.Column(db.String(255), nullable=True)
+    worksheet_url = db.Column(db.String(500))
 
     is_premium = db.Column(db.Boolean, default=True)
+
+    teacher_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id"),
+        nullable=True
+    )
 
 class QuizQuestion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -258,14 +279,18 @@ class LessonCompletion(db.Model):
         backref="lesson_completions"
     )
 
-# === HOME ROUTE ===
+#===========================
+# HOME ROUTE 
+#===========================
 @app.route("/")
 def home():
     return {
         "message": "LearnovaHub backend is running with PostgreSQL"
     }
 
-# === AUTH ROUTES ===
+#===========================
+# AUTH ROUTES 
+#===========================
 @app.route("/register", methods=["POST"])
 def register():
 
@@ -384,7 +409,9 @@ def upload_profile_picture():
         "profile_pic_url": user.profile_pic_url
     }), 200
 
-# === LESSON ROUTES ===
+#===========================
+# LESSON ROUTES 
+#===========================
 @app.route("/lessons", methods=["GET"])
 def get_lessons():
 
@@ -400,7 +427,12 @@ def get_lessons():
             "description": lesson.description,
             "video_url": lesson.video_url,
             "worksheet_url": lesson.worksheet_url,
-            "is_premium": lesson.is_premium
+            "is_premium": lesson.is_premium,
+            "teacher_name": (
+                lesson.teacher.full_name
+                if lesson.teacher
+                else "Admin"
+            )
         })
 
     return jsonify(lesson_list), 200
@@ -422,7 +454,12 @@ def get_lesson(id):
         "description": lesson.description,
         "video_url": lesson.video_url,
         "worksheet_url": lesson.worksheet_url,
-        "is_premium": lesson.is_premium
+        "is_premium": lesson.is_premium,
+        "teacher_name": (
+            lesson.teacher.full_name
+            if lesson.teacher
+            else "Admin"
+        ),
     }), 200
 
 @app.route("/lessons/<int:lesson_id>/quiz", methods=["GET"])
@@ -475,7 +512,9 @@ def mark_lesson_complete(lesson_id):
         "message": "Lesson marked as complete"
     }), 201
 
-# === QUIZ / MASTERY ROUTES ===
+#===========================
+# QUIZ / MASTERY ROUTES 
+#===========================
 @app.route("/quiz-results", methods=["POST"])
 @jwt_required()
 def save_quiz_result():
@@ -625,7 +664,9 @@ def get_my_latest_scores():
         list(latest_scores.values())
     ), 200
 
-# === PROGRESS ROUTES ===
+#===========================
+# PROGRESS ROUTES 
+#===========================
 @app.route("/my-progress", methods=["GET"])
 @jwt_required()
 def get_my_progress():
@@ -668,7 +709,9 @@ def get_completed_lessons():
 
     return jsonify(completed_ids), 200
 
-# === PAYMENT ROUTES ===
+#===========================
+# PAYMENT ROUTES 
+#===========================
 @app.route("/payments/create", methods=["POST"])
 @jwt_required()
 def create_payment():
@@ -790,7 +833,9 @@ def payfast_notify():
 
     return "OK", 200
 
-# === NOTIFICATION ROUTES ===
+#===========================
+# NOTIFICATION ROUTES 
+#===========================
 @app.route("/notifications", methods=["GET"])
 def get_notifications():
 
@@ -829,7 +874,9 @@ def create_notification():
         "message": "Notification created successfully"
     }), 201
 
-# === ADMIN ROUTES ===
+#===========================
+# ADMIN ROUTES 
+#===========================
 @app.route("/admin/analytics", methods=["GET"])
 @jwt_required()
 def admin_analytics():
@@ -979,6 +1026,7 @@ def get_all_learners():
             "id": learner.id,
             "full_name": learner.full_name,
             "email": learner.email,
+            "role": learner.role,
             "is_subscribed": learner.is_subscribed,
             "progress": progress
         })
@@ -1079,6 +1127,162 @@ def delete_lesson(lesson_id):
     return jsonify({
         "message": "Lesson deleted successfully"
     }), 200
+
+# =========================
+# TEACHER ROUTES
+# =========================
+@app.route("/teacher/lessons", methods=["GET"])
+@jwt_required()
+def get_teacher_lessons():
+
+    teacher_id = int(get_jwt_identity())
+
+    lessons = Lesson.query.filter_by(
+        teacher_id=teacher_id
+    ).all()
+
+    lesson_list = []
+
+    for lesson in lessons:
+        lesson_list.append({
+            "id": lesson.id,
+            "title": lesson.title,
+            "topic": lesson.topic,
+            "description": lesson.description,
+            "video_url": lesson.video_url,
+            "worksheet_url": lesson.worksheet_url,
+            "is_premium": lesson.is_premium,
+            "teacher_id": lesson.teacher_id,
+            "teacher_name": (
+                lesson.teacher.full_name
+                if lesson.teacher
+                else "Admin"
+            ),
+        })
+
+    return jsonify(lesson_list), 200
+
+@app.route("/teacher/lessons", methods=["POST"])
+@jwt_required()
+def create_teacher_lesson():
+
+    teacher_id = int(get_jwt_identity())
+
+    user = User.query.get_or_404(teacher_id)
+
+    if user.role != "teacher":
+        return jsonify({
+            "error": "Teacher access required"
+        }), 403
+
+    data = request.get_json()
+
+    lesson = Lesson(
+        title=data.get("title"),
+        topic=data.get("topic"),
+        description=data.get("description"),
+        video_url=data.get("video_url"),
+        worksheet_url=data.get("worksheet_url"),
+        is_premium=data.get("is_premium", True),
+        teacher_id=teacher_id
+        
+    )
+
+    db.session.add(lesson)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Teacher lesson created successfully"
+    }), 201
+
+@app.route("/teacher/lessons/<int:lesson_id>", methods=["PATCH"])
+@jwt_required()
+def update_teacher_lesson(lesson_id):
+
+    teacher_id = int(get_jwt_identity())
+
+    lesson = Lesson.query.get_or_404(lesson_id)
+
+    if lesson.teacher_id != teacher_id:
+        return jsonify({
+            "error": "Unauthorized"
+        }), 403
+
+    data = request.get_json()
+
+    lesson.title = data.get("title", lesson.title)
+    lesson.topic = data.get("topic", lesson.topic)
+    lesson.description = data.get("description", lesson.description)
+    lesson.video_url = data.get("video_url", lesson.video_url)
+    lesson.worksheet_url = data.get(
+        "worksheet_url",
+        lesson.worksheet_url
+    )
+    lesson.is_premium = data.get(
+        "is_premium",
+        lesson.is_premium
+    )
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Lesson updated successfully"
+    }), 200
+
+@app.route("/teacher/lessons/<int:lesson_id>", methods=["DELETE"])
+@jwt_required()
+def delete_teacher_lesson(lesson_id):
+
+    teacher_id = int(get_jwt_identity())
+
+    lesson = Lesson.query.get_or_404(lesson_id)
+
+    if lesson.teacher_id != teacher_id:
+        return jsonify({
+            "error": "Unauthorized"
+        }), 403
+
+    db.session.delete(lesson)
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Lesson deleted successfully"
+    }), 200
+
+@app.route("/teacher/analytics", methods=["GET"])
+@jwt_required()
+def teacher_analytics():
+
+    teacher_id = int(get_jwt_identity())
+
+    user = User.query.get_or_404(teacher_id)
+
+    if user.role != "teacher":
+        return jsonify({
+            "error": "Teacher access required"
+        }), 403
+
+    total_lessons = Lesson.query.filter_by(
+        teacher_id=teacher_id
+    ).count()
+
+    premium_lessons = Lesson.query.filter_by(
+        teacher_id=teacher_id,
+        is_premium=True
+    ).count()
+
+    free_lessons = Lesson.query.filter_by(
+        teacher_id=teacher_id,
+        is_premium=False
+    ).count()
+
+    return jsonify({
+        "total_lessons": total_lessons,
+        "premium_lessons": premium_lessons,
+        "free_lessons": free_lessons
+    }), 200
+
 
 # === DATABASE INITIALIZATION ===
 with app.app_context():

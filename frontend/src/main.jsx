@@ -28,6 +28,7 @@ import AdminLearnersPage from "./pages/AdminLearnersPage.jsx";
 import AdminLearnerDetailPage from "./pages/AdminLearnerDetailPage";
 import AdminLessonsPage from "./pages/AdminLessonsPage";
 import TeacherDashboardPage from "./pages/TeacherDashboardPage.jsx";
+import TeacherLessonsPage from "./pages/TeacherLessonsPage.jsx";
 
 
 const router = createBrowserRouter([
@@ -92,6 +93,14 @@ const router = createBrowserRouter([
         element: (
           <TeacherRoute>
             <TeacherDashboardPage />
+          </TeacherRoute>
+        ),
+      },
+      {
+        path: "teacher/lessons",
+        element: (
+          <TeacherRoute>
+            <TeacherLessonsPage />
           </TeacherRoute>
         ),
       },
