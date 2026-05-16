@@ -178,7 +178,7 @@ export default function TeacherLessonsPage() {
           {editingLessonId ? "Update Lesson" : "Create Lesson"}
         </button>
 
-              {editingLessonId && (
+        {editingLessonId && (
         <button
           type="button"
           className="btn btn-secondary"
@@ -188,32 +188,32 @@ export default function TeacherLessonsPage() {
         </button>
         )}
 
-        <div className="lesson-actions">
-
-          <button
-            className="btn btn-primary"
-            onClick={() => handleEditClick(lesson)}
-          >
-            Edit
-          </button>
-
-          <button
-            className="btn btn-danger"
-            onClick={() => handleDeleteLesson(lesson.id)}
-          >
-            Delete
-          </button>
-
-        </div>
       </form>
 
-      <div className="grid-auto">
-        {lessons.map((lesson) => (
-          <div key={lesson.id} className="card lesson-card">
-            <h2>{lesson.title}</h2>
-            <p>{lesson.topic}</p>
-            <p>{lesson.description}</p>
-            <p>{lesson.is_premium ? "Premium" : "Free"}</p>
+        <div className="grid-auto">
+          {lessons.map((lesson) => (
+            <div key={lesson.id} className="card lesson-card">
+              <h2>{lesson.title}</h2>
+              <p>{lesson.topic}</p>
+              <p>{lesson.description}</p>
+              <p>{lesson.is_premium ? "Premium" : "Free"}</p>
+                      <div className="lesson-actions">
+
+              <button
+                className="btn btn-primary"
+                onClick={() => handleEditClick(lesson)}
+              >
+                Edit
+              </button>
+
+              <button
+                className="btn btn-danger"
+                onClick={() => handleDeleteLesson(lesson.id)}
+              >
+                Delete
+              </button>
+
+            </div>
           </div>
         ))}
       </div>
