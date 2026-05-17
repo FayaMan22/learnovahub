@@ -49,7 +49,7 @@ export default function TeacherLessonsPage() {
 
   useEffect(() => {
     fetchTeacherLessons();
-    fetchLessons();
+    fetchCourses();
   }, []);
 
   function handleChange(e) {
