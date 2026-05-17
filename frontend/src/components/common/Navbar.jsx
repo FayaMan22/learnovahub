@@ -138,7 +138,7 @@ export default function Navbar() {
         <div className={`nav-links ${menuOpen ? "open" : ""}`}>
           <Link to="/" onClick={closeMenus}>Home</Link>
           {(!token || user?.role === "learner") && (
-            <Link to="/lessons">
+            <Link to="/lessons" onClick={closeMenus}>
               Lessons
             </Link>
           )}
