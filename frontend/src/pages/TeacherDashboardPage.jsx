@@ -28,6 +28,7 @@ export default function TeacherDashboardPage() {
 
       {analytics && (
         <div className="analytics-grid">
+
           <div className="analytics-card">
             <h2>{analytics.total_lessons}</h2>
             <p>My Lessons</p>
@@ -42,19 +43,47 @@ export default function TeacherDashboardPage() {
             <h2>{analytics.free_lessons}</h2>
             <p>Free Lessons</p>
           </div>
+
+          <div className="analytics-card">
+            <h2>{analytics.total_quiz_questions}</h2>
+            <p>Quiz Questions</p>
+          </div>
+
+          <div className="analytics-card">
+            <h2>{analytics.lessons_with_quizzes}</h2>
+            <p>Lessons With Quizzes</p>
+          </div>
+
+          <div className="analytics-card">
+            <h2>{analytics.lessons_without_quizzes}</h2>
+            <p>Lessons Without Quizzes</p>
+          </div>
+
         </div>
       )}
 
       <div className="grid-auto">
         <div className="card">
           <h2>My Lessons</h2>
-          <p>Create and manage your own lessons.</p>
+          <p>Create, edit, delete, search, and sort your lessons.</p>
 
           <button
             className="btn btn-primary"
             onClick={() => navigate("/teacher/lessons")}
           >
-            Manage Lessons
+            Manage My Lessons
+          </button>
+        </div>
+
+        <div className="card">
+          <h2>Lessons Without Quizzes</h2>
+          <p>Quickly identify lessons that need quiz questions</p>
+
+          <button
+            className="btn btn-success"
+            onClick={() => navigate("/teacher/lessons")}
+          >
+            Add Quizzes
           </button>
         </div>
 

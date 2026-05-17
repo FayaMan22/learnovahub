@@ -1144,6 +1144,9 @@ def get_teacher_lessons():
     lesson_list = []
 
     for lesson in lessons:
+        quiz_count = QuizQuestion.query.filter_by(
+            lesson_id=lesson.id
+        ).count()
         lesson_list.append({
             "id": lesson.id,
             "title": lesson.title,
@@ -1153,6 +1156,7 @@ def get_teacher_lessons():
             "worksheet_url": lesson.worksheet_url,
             "is_premium": lesson.is_premium,
             "teacher_id": lesson.teacher_id,
+            "quiz_question_count": quiz_count,
             "teacher_name": (
                 lesson.teacher.full_name
                 if lesson.teacher
@@ -1277,10 +1281,40 @@ def teacher_analytics():
         is_premium=False
     ).count()
 
+    teacher_lessons = Lesson.query.filter_by(
+        teacher_id=teacher_id
+    ).all()
+
+    lesson_ids = [
+        lesson.id
+        for lesson in teacher_lessons
+    ]
+
+    total_quiz_questions = QuizQuestion.query.filter(
+        QuizQuestion.lesson_id.in_(lesson_ids)
+    ).count() if lesson_ids else 0
+
+    lessons_with_quizzes = 0
+
+    for lesson in teacher_lessons:
+        quiz_count = QuizQuestion.query.filter_by(
+            lesson_id=lesson.id
+        ).count()
+
+        if quiz_count > 0:
+            lessons_with_quizzes += 1
+
+    lessons_without_quizzes = (
+        total_lessons - lessons_with_quizzes
+    )
+
     return jsonify({
         "total_lessons": total_lessons,
         "premium_lessons": premium_lessons,
-        "free_lessons": free_lessons
+        "free_lessons": free_lessons,
+        "total_quiz_questions": total_quiz_questions,
+        "lessons_with_quizzes": lessons_with_quizzes,
+        "lessons_without_quizzes": lessons_without_quizzes
     }), 200
 
 @app.route("/teacher/lessons/<int:lesson_id>/quiz", methods=["GET"])

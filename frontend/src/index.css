@@ -1719,3 +1719,43 @@ main {
     display: flex;
   }
 }
+
+.lesson-toolbar {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+  align-items: center;
+}
+
+.lesson-toolbar input,
+.lesson-toolbar select {
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 1rem;
+}
+
+.lesson-toolbar input {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .lesson-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.empty-state h2 {
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  color: #475569;
+}

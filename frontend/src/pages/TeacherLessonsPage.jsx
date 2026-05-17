@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 export default function TeacherLessonsPage() {
   const navigate = useNavigate();
   const [lessons, setLessons] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [sortBy, setSortBy] = useState("newest");
 
   const [editingLessonId, setEditingLessonId] = useState(null);
 
@@ -117,6 +120,46 @@ export default function TeacherLessonsPage() {
       });
   }
 
+  const filteredLessons = lessons
+    .filter((lesson) => {
+      const title = lesson.title || "";
+      const topic = lesson.topic || "";
+
+      const matchesSearch =
+        title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        topic.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const quizCount = lesson.quiz_question_count || 0;
+
+      const matchesFilter =
+        filterStatus === "all" ||
+        (filterStatus === "withQuiz" && quizCount > 0) ||
+        (filterStatus === "withoutQuiz" && quizCount === 0) ||
+        (filterStatus === "premium" && lesson.is_premium) ||
+        (filterStatus === "free" && !lesson.is_premium);
+
+      return matchesSearch && matchesFilter;
+    })
+    .sort((a, b) => {
+      if (sortBy === "newest") {
+        return b.id - a.id;
+      }
+
+      if (sortBy === "oldest") {
+        return a.id - b.id;
+      }
+
+      if (sortBy === "titleAsc") {
+        return (a.title || "").localeCompare(b.title || "");
+      }
+
+      if (sortBy === "titleDesc") {
+        return (b.title || "").localeCompare(a.title || "");
+      }
+
+      return 0;
+    });
+
   return (
     <section className="page-section">
       <h1>My Lessons</h1>
@@ -190,14 +233,65 @@ export default function TeacherLessonsPage() {
         </button>
         )}
       </form>
+      
+      <div className="lesson-toolbar card">
+          <input
+            type="text"
+            placeholder="Search by title or topic..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="all">All Lessons</option>
+            <option value="withQuiz">With Quiz</option>
+            <option value="withoutQuiz">Without Quiz</option>
+            <option value="premium">Premium</option>
+            <option value="free">Free</option>
+          </select>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="titleAsc">Title A-Z</option>
+            <option value="titleDesc">Title Z-A</option>
+          </select>
+      </div> 
+
+      {filteredLessons.length === 0 && (
+          <div className="card empty-state">
+            <h2>No lessons found</h2>
+            <p>
+              Try adjusting your search/filter, or create your first lesson above.
+            </p>
+          </div>
+        )}
 
         <div className="grid-auto">
-          {lessons.map((lesson) => (
+          {filteredLessons.map((lesson) => (
             <div key={lesson.id} className="card lesson-card">
               <h2>{lesson.title}</h2>
               <p>{lesson.topic}</p>
               <p>{lesson.description}</p>
               <p>{lesson.is_premium ? "Premium" : "Free"}</p>
+              <p>
+                Quiz Questions:
+                {" "}
+                {lesson.quiz_question_count}
+              </p>
+
+              <p>
+                Status:
+                {" "}
+                {lesson.quiz_question_count > 0
+                  ? "Has Quiz"
+                  : "No Quiz Yet"}
+              </p>
             <div className="lesson-actions">
 
               <button
@@ -215,12 +309,18 @@ export default function TeacherLessonsPage() {
               </button>
 
               <button
-                className="btn btn-secondary"
+                className={
+                  lesson.quiz_question_count > 0
+                    ? "btn btn-primary"
+                    : "btn btn-success"
+                }
                 onClick={() =>
                   navigate(`/teacher/lessons/${lesson.id}/quiz`)
                 }
               >
-                Manage Quiz
+                {lesson.quiz_question_count > 0
+                  ? "Manage Quiz"
+                  : "Create Quiz"}
               </button>
 
             </div>

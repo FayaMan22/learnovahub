@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { FaBell, FaUserCircle, FaBars, FaTimes } from "react-icons/fa";
+import { FaBell, FaUserCircle, FaBars, FaTimes, FaFileSignature } from "react-icons/fa";
 import { useState, useRef, useEffect } from "react";
 import api from "../../api/api";
 import { useAuth } from "../../context/AuthContext";
@@ -103,6 +103,7 @@ export default function Navbar() {
         );
 
         setUser(updatedUser);
+        setProfileOpen(false);
       })
       .catch((error) => {
         console.log(error);

@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import api from "../api/api";
+
 
 export default function TeacherQuizPage() {
   const { lessonId } = useParams();
+  const navigate = useNavigate();
 
   const [questions, setQuestions] = useState([]);
 
@@ -120,7 +122,19 @@ export default function TeacherQuizPage() {
     <section className="page-section">
       <h1>Manage Quiz Questions</h1>
 
-      <form className="lesson-form card" onSubmit={handleSubmit}>
+      <button
+        className="btn btn-secondary"
+        onClick={() => navigate("/teacher/lessons")}
+      >
+        Back to My Lessons
+      </button>
+
+      <form 
+        className={`lesson-form card ${
+          editingQuestionId ? "edit-mode" : "create-mode"
+        }`}
+        onSubmit={handleSubmit}>
+
         <h2>
           {editingQuestionId ? "Edit Question" : "Add Question"}
         </h2>
