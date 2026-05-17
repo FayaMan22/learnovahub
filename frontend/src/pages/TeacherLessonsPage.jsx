@@ -6,6 +6,7 @@ export default function TeacherLessonsPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [lessons, setLessons] = useState([]);
+  const [courses, setCourses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState(
     searchParams.get("filter") || "all"
@@ -20,8 +21,20 @@ export default function TeacherLessonsPage() {
     description: "",
     video_url: "",
     worksheet_url: "",
-    is_premium: true,
+    is_premium: false,
+    course_id: "",
   });
+
+  function fetchCourses() {
+    api
+      .get("/teacher/courses")
+      .then((response) => {
+        setCourses(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 
   function fetchTeacherLessons() {
     api
@@ -36,6 +49,7 @@ export default function TeacherLessonsPage() {
 
   useEffect(() => {
     fetchTeacherLessons();
+    fetchLessons();
   }, []);
 
   function handleChange(e) {
@@ -88,6 +102,7 @@ export default function TeacherLessonsPage() {
       video_url: lesson.video_url || "",
       worksheet_url: lesson.worksheet_url || "",
       is_premium: lesson.is_premium,
+      course_id: lesson.course_id || "",
     });
   }
 
@@ -188,6 +203,25 @@ export default function TeacherLessonsPage() {
           required
         />
 
+        <select
+          name="course_id"
+          value={formData.course_id}
+          onChange={handleChange}
+        >
+          <option value="">
+            Select course / subject
+          </option>
+
+          {courses.map((course) => (
+            <option
+              key={course.id}
+              value={course.id}
+            >
+              {course.title}
+            </option>
+          ))}
+        </select>
+
         <textarea
           name="description"
           placeholder="Lesson description"
@@ -280,6 +314,11 @@ export default function TeacherLessonsPage() {
             <div key={lesson.id} className="card lesson-card">
               <h2>{lesson.title}</h2>
               <p>{lesson.topic}</p>
+              <p>
+                Course:
+                {" "}
+                {lesson.course_title || "Unassigned"}
+              </p>
               <p>{lesson.description}</p>
               <p>{lesson.is_premium ? "Premium" : "Free"}</p>
               <p>

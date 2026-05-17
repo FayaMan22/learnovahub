@@ -1201,7 +1201,16 @@ def get_teacher_lessons():
             "worksheet_url": lesson.worksheet_url,
             "is_premium": lesson.is_premium,
             "teacher_id": lesson.teacher_id,
+            "course_id": lesson.course_id,
+
+            "course_title": (
+                lesson.course.title
+                if lesson.course
+                else "Unassigned"
+            ),
+
             "quiz_question_count": quiz_count,
+
             "teacher_name": (
                 lesson.teacher.full_name
                 if lesson.teacher
@@ -1233,7 +1242,8 @@ def create_teacher_lesson():
         video_url=data.get("video_url"),
         worksheet_url=data.get("worksheet_url"),
         is_premium=data.get("is_premium", True),
-        teacher_id=teacher_id
+        teacher_id=teacher_id,
+        course_id=data.get("course_id"),
         
     )
 
@@ -1270,6 +1280,10 @@ def update_teacher_lesson(lesson_id):
     lesson.is_premium = data.get(
         "is_premium",
         lesson.is_premium
+    )
+    lesson.course_id = data.get(
+        "course_id",
+        lesson.course_id
     )
 
     db.session.commit()
