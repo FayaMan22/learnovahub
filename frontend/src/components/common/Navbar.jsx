@@ -271,6 +271,7 @@ export default function Navbar() {
                 ) : user?.role === "teacher" ? (
                   <>
                     <Link to="/teacher" onClick={closeMenus}>Teacher Dashboard</Link>
+                    <Link to="/teacher/courses" onClick={closeMenus}>My Courses</Link>
                     <Link to="/teacher/lessons" onClick={closeMenus}>My Lessons</Link>
                     <Link to="/teacher" onClick={closeMenus}>My Quizzes</Link>
                     <Link to="/teacher" onClick={closeMenus}>My Learners</Link>

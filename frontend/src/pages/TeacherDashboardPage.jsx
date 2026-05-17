@@ -81,7 +81,7 @@ export default function TeacherDashboardPage() {
 
           <button
             className="btn btn-success"
-            onClick={() => navigate("/teacher/lessons")}
+            onClick={() => navigate("/teacher/lessons?filter=withoutQuiz")}
           >
             Add Quizzes
           </button>

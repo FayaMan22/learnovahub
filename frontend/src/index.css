@@ -1759,3 +1759,14 @@ main {
 .empty-state p {
   color: #475569;
 }
+
+.coming-soon-badge {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 10px 16px;
+  background: #e2e8f0;
+  color: #475569;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+}

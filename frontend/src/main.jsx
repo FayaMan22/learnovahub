@@ -30,6 +30,7 @@ import AdminLessonsPage from "./pages/AdminLessonsPage";
 import TeacherDashboardPage from "./pages/TeacherDashboardPage.jsx";
 import TeacherLessonsPage from "./pages/TeacherLessonsPage.jsx";
 import TeacherQuizPage from "./pages/TeacherQuizPage.jsx";
+import TeacherCoursesPage from "./pages/TeacherCoursesPage.jsx";
 
 
 const router = createBrowserRouter([
@@ -135,6 +136,14 @@ const router = createBrowserRouter([
           <AdminRoute>
             <AdminLearnerDetailPage />
           </AdminRoute>
+        ),
+      },
+      {
+        path: "teacher/courses",
+        element: (
+          <TeacherRoute>
+            <TeacherCoursesPage />
+          </TeacherRoute>
         ),
       },
       {

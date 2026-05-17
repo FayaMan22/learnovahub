@@ -148,6 +148,17 @@ class Lesson(db.Model):
 
     is_premium = db.Column(db.Boolean, default=True)
 
+    course_id = db.Column(
+        db.Integer,
+        db.ForeignKey("course.id"),
+        nullable=True
+    )
+
+    course = db.relationship(
+        "Course",
+        backref="lessons"
+    )
+
     teacher_id = db.Column(
         db.Integer,
         db.ForeignKey("user.id"),
@@ -277,6 +288,40 @@ class LessonCompletion(db.Model):
     lesson = db.relationship(
         "Lesson",
         backref="lesson_completions"
+    )
+
+class Course(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    title = db.Column(
+        db.String(150),
+        nullable=False
+    )
+
+    description = db.Column(
+        db.Text,
+        nullable=True
+    )
+
+    price = db.Column(
+        db.Float,
+        default=0
+    )
+
+    teacher_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id"),
+        nullable=False
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
+
+    teacher = db.relationship(
+        "User",
+        backref="courses"
     )
 
 #===========================
@@ -1449,6 +1494,59 @@ def update_teacher_quiz_question(question_id):
     return jsonify({
         "message": "Quiz question updated successfully"
     }), 200
+
+@app.route("/teacher/courses", methods=["GET"])
+@jwt_required()
+def get_teacher_courses():
+
+    teacher_id = int(get_jwt_identity())
+
+    courses = Course.query.filter_by(
+        teacher_id=teacher_id
+    ).all()
+
+    course_list = []
+
+    for course in courses:
+        course_list.append({
+            "id": course.id,
+            "title": course.title,
+            "description": course.description,
+            "price": course.price,
+            "teacher_id": course.teacher_id,
+            "created_at": course.created_at.isoformat()
+        })
+
+    return jsonify(course_list), 200
+
+@app.route("/teacher/courses", methods=["POST"])
+@jwt_required()
+def create_teacher_course():
+
+    teacher_id = int(get_jwt_identity())
+
+    user = User.query.get_or_404(teacher_id)
+
+    if user.role != "teacher":
+        return jsonify({
+            "error": "Teacher access required"
+        }), 403
+
+    data = request.get_json()
+
+    course = Course(
+        title=data.get("title"),
+        description=data.get("description"),
+        price=data.get("price", 0),
+        teacher_id=teacher_id
+    )
+
+    db.session.add(course)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Course created successfully"
+    }), 201
 
 # === DATABASE INITIALIZATION ===
 with app.app_context():

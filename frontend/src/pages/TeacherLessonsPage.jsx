@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import api from "../api/api";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function TeacherLessonsPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [lessons, setLessons] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterStatus, setFilterStatus] = useState(
+    searchParams.get("filter") || "all"
+  );
   const [sortBy, setSortBy] = useState("newest");
 
   const [editingLessonId, setEditingLessonId] = useState(null);
