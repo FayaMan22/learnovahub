@@ -1519,13 +1519,12 @@ def get_teacher_courses():
         teacher_id=teacher_id
     ).all()
 
-    lesson_count = Lesson.query.filter_by(
-        course_id=course.id
-    ).count()
-
     course_list = []
 
     for course in courses:
+        lesson_count = Lesson.query.filter_by(
+            course_id=course.id
+        ).count()
         course_list.append({
             "id": course.id,
             "title": course.title,
@@ -1533,7 +1532,11 @@ def get_teacher_courses():
             "price": course.price,
             "teacher_id": course.teacher_id,
             "lesson_count": lesson_count,
-            "created_at": course.created_at.isoformat()
+            "created_at": (
+                course.created_at.isoformat()
+                if course.created_at
+                else None
+            )
         })
 
     return jsonify(course_list), 200
