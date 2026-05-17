@@ -4,6 +4,8 @@ import api from "../api/api";
 export default function TeacherCoursesPage() {
   const [courses, setCourses] = useState([]);
 
+  const [editingCourseId, setEditingCourseId] = useState(null);
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -32,25 +34,82 @@ export default function TeacherCoursesPage() {
     });
   }
 
+function handleEditClick(course) {
+  setEditingCourseId(course.id);
+
+  setFormData({
+    title: course.title,
+    description: course.description,
+    price: course.price,
+  });
+}
+
+function handleCancelEdit() {
+  setEditingCourseId(null);
+
+  setFormData({
+    title: "",
+    description: "",
+    price: "",
+  });
+}
+
   function handleSubmit(e) {
     e.preventDefault();
 
+    const payload = {
+      ...formData,
+      price: Number(formData.price),
+    };
+
+    if (editingCourseId) {
+      api
+        .patch(
+          `/teacher/courses/${editingCourseId}`,
+          payload
+        )
+        .then(() => {
+          fetchCourses();
+          handleCancelEdit();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
+      return;
+    }
+
     api
-      .post("/teacher/courses", {
-        ...formData,
-        price: Number(formData.price),
-      })
+      .post("/teacher/courses", payload)
       .then(() => {
         fetchCourses();
-
-        setFormData({
-          title: "",
-          description: "",
-          price: "",
-        });
+        handleCancelEdit();
       })
       .catch((error) => {
         console.log(error);
+      });
+  }
+
+  function handleDeleteCourse(courseId) {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this course?"
+    );
+
+    if (!confirmDelete) {
+      return;
+    }
+
+    api
+      .delete(`/teacher/courses/${courseId}`)
+      .then(() => {
+        fetchCourses();
+      })
+      .catch((error) => {
+        console.log(error);
+        alert(
+          error.response?.data?.error ||
+          "Failed to delete course"
+        );
       });
   }
 
@@ -59,7 +118,9 @@ export default function TeacherCoursesPage() {
       <h1>My Courses</h1>
 
       <form className="lesson-form card" onSubmit={handleSubmit}>
-        <h2>Create Course / Subject</h2>
+        <h2>
+          {editingCourseId ? "Edit Course" : "Create Course / Subject"}
+        </h2>
 
         <input
           type="text"
@@ -86,8 +147,19 @@ export default function TeacherCoursesPage() {
         />
 
         <button className="btn btn-success" type="submit">
-          Create Course
+          {editingCourseId ? "Update Course" : "Create Course"}
         </button>
+
+        {editingCourseId && (
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleCancelEdit}
+          >
+            Cancel
+          </button>
+        )}
+
       </form>
 
       {courses.length === 0 && (
@@ -103,6 +175,27 @@ export default function TeacherCoursesPage() {
             <h2>{course.title}</h2>
             <p>{course.description}</p>
             <p>Price: R{course.price}</p>
+            <p>
+              Lessons:
+              {" "}
+              {course.lesson_count}
+            </p>
+            <div className="lesson-actions">
+              <button
+                className="btn btn-primary"
+                onClick={() => handleEditClick(course)}
+              >
+                Edit
+              </button>
+
+              <button
+                className="btn btn-danger"
+                onClick={() => handleDeleteCourse(course.id)}
+              >
+                Delete
+              </button>
+
+            </div>
           </div>
         ))}
       </div>

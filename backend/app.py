@@ -1519,6 +1519,10 @@ def get_teacher_courses():
         teacher_id=teacher_id
     ).all()
 
+    lesson_count = Lesson.query.filter_by(
+        course_id=course.id
+    ).count()
+
     course_list = []
 
     for course in courses:
@@ -1528,6 +1532,7 @@ def get_teacher_courses():
             "description": course.description,
             "price": course.price,
             "teacher_id": course.teacher_id,
+            "lesson_count": lesson_count,
             "created_at": course.created_at.isoformat()
         })
 
@@ -1561,6 +1566,63 @@ def create_teacher_course():
     return jsonify({
         "message": "Course created successfully"
     }), 201
+
+@app.route("/teacher/courses/<int:course_id>", methods=["PATCH"])
+@jwt_required()
+def update_teacher_course(course_id):
+
+    teacher_id = int(get_jwt_identity())
+
+    course = Course.query.get_or_404(course_id)
+
+    if course.teacher_id != teacher_id:
+        return jsonify({
+            "error": "Unauthorized"
+        }), 403
+
+    data = request.get_json()
+
+    course.title = data.get("title", course.title)
+    course.description = data.get(
+        "description",
+        course.description
+    )
+    course.price = data.get("price", course.price)
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Course updated successfully"
+    }), 200
+
+@app.route("/teacher/courses/<int:course_id>", methods=["DELETE"])
+@jwt_required()
+def delete_teacher_course(course_id):
+
+    teacher_id = int(get_jwt_identity())
+
+    course = Course.query.get_or_404(course_id)
+
+    if course.teacher_id != teacher_id:
+        return jsonify({
+            "error": "Unauthorized"
+        }), 403
+
+    linked_lessons = Lesson.query.filter_by(
+        course_id=course.id
+    ).count()
+
+    if linked_lessons > 0:
+        return jsonify({
+            "error": "Cannot delete course with linked lessons"
+        }), 400
+
+    db.session.delete(course)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Course deleted successfully"
+    }), 200
 
 # === DATABASE INITIALIZATION ===
 with app.app_context():
