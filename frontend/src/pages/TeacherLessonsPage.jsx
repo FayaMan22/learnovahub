@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../api/api";
+import { useNavigate } from "react-router-dom";
 
 export default function TeacherLessonsPage() {
+  const navigate = useNavigate();
   const [lessons, setLessons] = useState([]);
 
   const [editingLessonId, setEditingLessonId] = useState(null);
@@ -187,7 +189,6 @@ export default function TeacherLessonsPage() {
           Cancel
         </button>
         )}
-
       </form>
 
         <div className="grid-auto">
@@ -197,7 +198,7 @@ export default function TeacherLessonsPage() {
               <p>{lesson.topic}</p>
               <p>{lesson.description}</p>
               <p>{lesson.is_premium ? "Premium" : "Free"}</p>
-                      <div className="lesson-actions">
+            <div className="lesson-actions">
 
               <button
                 className="btn btn-primary"
@@ -211,6 +212,15 @@ export default function TeacherLessonsPage() {
                 onClick={() => handleDeleteLesson(lesson.id)}
               >
                 Delete
+              </button>
+
+              <button
+                className="btn btn-secondary"
+                onClick={() =>
+                  navigate(`/teacher/lessons/${lesson.id}/quiz`)
+                }
+              >
+                Manage Quiz
               </button>
 
             </div>

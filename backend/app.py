@@ -1283,6 +1283,71 @@ def teacher_analytics():
         "free_lessons": free_lessons
     }), 200
 
+@app.route("/teacher/lessons/<int:lesson_id>/quiz", methods=["GET"])
+@jwt_required()
+def get_teacher_quiz_questions(lesson_id):
+
+    teacher_id = int(get_jwt_identity())
+
+    lesson = Lesson.query.get_or_404(lesson_id)
+
+    if lesson.teacher_id != teacher_id:
+        return jsonify({
+            "error": "Unauthorized"
+        }), 403
+
+    questions = QuizQuestion.query.filter_by(
+        lesson_id=lesson_id
+    ).all()
+
+    question_list = []
+
+    for question in questions:
+
+        question_list.append({
+            "id": question.id,
+            "question": question.question,
+            "option_a": question.option_a,
+            "option_b": question.option_b,
+            "option_c": question.option_c,
+            "option_d": question.option_d,
+            "correct_answer": question.correct_answer
+        })
+
+    return jsonify(question_list), 200
+
+@app.route("/teacher/lessons/<int:lesson_id>/quiz", methods=["POST"])
+@jwt_required()
+def create_teacher_quiz_question(lesson_id):
+
+    teacher_id = int(get_jwt_identity())
+
+    lesson = Lesson.query.get_or_404(lesson_id)
+
+    if lesson.teacher_id != teacher_id:
+        return jsonify({
+            "error": "Unauthorized"
+        }), 403
+
+    data = request.get_json()
+
+    question = QuizQuestion(
+        lesson_id=lesson_id,
+        question=data.get("question"),
+        option_a=data.get("option_a"),
+        option_b=data.get("option_b"),
+        option_c=data.get("option_c"),
+        option_d=data.get("option_d"),
+        correct_answer=data.get("correct_answer")
+    )
+
+    db.session.add(question)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Quiz question created successfully"
+    }), 201
+
 
 # === DATABASE INITIALIZATION ===
 with app.app_context():

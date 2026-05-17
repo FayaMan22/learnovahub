@@ -1,0 +1,146 @@
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import api from "../api/api";
+
+export default function TeacherQuizPage() {
+  const { lessonId } = useParams();
+
+  const [questions, setQuestions] = useState([]);
+
+  const [formData, setFormData] = useState({
+    question: "",
+    option_a: "",
+    option_b: "",
+    option_c: "",
+    option_d: "",
+    correct_answer: "",
+  });
+
+  function fetchQuestions() {
+    api
+      .get(`/teacher/lessons/${lessonId}/quiz`)
+      .then((response) => {
+        setQuestions(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+  useEffect(() => {
+    fetchQuestions();
+  }, [lessonId]);
+
+  function handleChange(e) {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    api
+      .post(`/teacher/lessons/${lessonId}/quiz`, formData)
+      .then(() => {
+        fetchQuestions();
+
+        setFormData({
+          question: "",
+          option_a: "",
+          option_b: "",
+          option_c: "",
+          option_d: "",
+          correct_answer: "",
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+  return (
+    <section className="page-section">
+      <h1>Manage Quiz Questions</h1>
+
+      <form className="lesson-form card" onSubmit={handleSubmit}>
+        <h2>Add Question</h2>
+
+        <textarea
+          name="question"
+          placeholder="Question"
+          value={formData.question}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          name="option_a"
+          placeholder="Option A"
+          value={formData.option_a}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          name="option_b"
+          placeholder="Option B"
+          value={formData.option_b}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          name="option_c"
+          placeholder="Option C"
+          value={formData.option_c}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          name="option_d"
+          placeholder="Option D"
+          value={formData.option_d}
+          onChange={handleChange}
+          required
+        />
+
+        <select
+          name="correct_answer"
+          value={formData.correct_answer}
+          onChange={handleChange}
+          required
+        >
+          <option value="">Select correct answer</option>
+          <option value="A">Option A</option>
+          <option value="B">Option B</option>
+          <option value="C">Option C</option>
+          <option value="D">Option D</option>
+        </select>
+
+        <button className="btn btn-success" type="submit">
+          Add Question
+        </button>
+      </form>
+
+      <div className="grid-auto">
+        {questions.map((item) => (
+          <div key={item.id} className="card">
+            <h2>{item.question}</h2>
+
+            <p>A: {item.option_a}</p>
+            <p>B: {item.option_b}</p>
+            <p>C: {item.option_c}</p>
+            <p>D: {item.option_d}</p>
+
+            <p>
+              Correct Answer: {item.correct_answer}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
