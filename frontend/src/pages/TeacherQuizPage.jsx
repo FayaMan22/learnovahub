@@ -60,6 +60,25 @@ export default function TeacherQuizPage() {
       });
   }
 
+  function handleDeleteQuestion(questionId) {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this question?"
+    );
+
+    if (!confirmDelete) {
+      return;
+    }
+
+    api
+      .delete(`/teacher/quiz-questions/${questionId}`)
+      .then(() => {
+        fetchQuestions();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
   return (
     <section className="page-section">
       <h1>Manage Quiz Questions</h1>
@@ -138,6 +157,12 @@ export default function TeacherQuizPage() {
             <p>
               Correct Answer: {item.correct_answer}
             </p>
+            <button
+              className="btn btn-danger"
+              onClick={() => handleDeleteQuestion(item.id)}
+            >
+              Delete Question
+            </button>
           </div>
         ))}
       </div>

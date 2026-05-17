@@ -1348,6 +1348,26 @@ def create_teacher_quiz_question(lesson_id):
         "message": "Quiz question created successfully"
     }), 201
 
+@app.route("/teacher/quiz-questions/<int:question_id>", methods=["DELETE"])
+@jwt_required()
+def delete_teacher_quiz_question(question_id):
+
+    teacher_id = int(get_jwt_identity())
+
+    question = QuizQuestion.query.get_or_404(question_id)
+
+    if question.lesson.teacher_id != teacher_id:
+        return jsonify({
+            "error": "Unauthorized"
+        }), 403
+
+    db.session.delete(question)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Quiz question deleted successfully"
+    }), 200
+
 
 # === DATABASE INITIALIZATION ===
 with app.app_context():
