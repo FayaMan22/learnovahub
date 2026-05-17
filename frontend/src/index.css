@@ -1692,3 +1692,30 @@ main {
   opacity: 0.7;
   cursor: not-allowed;
 }
+
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #2563eb;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  .nav-links {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    margin-top: 20px;
+    gap: 16px;
+  }
+
+  .nav-links.open {
+    display: flex;
+  }
+}

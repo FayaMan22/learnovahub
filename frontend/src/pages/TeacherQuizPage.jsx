@@ -7,6 +7,8 @@ export default function TeacherQuizPage() {
 
   const [questions, setQuestions] = useState([]);
 
+  const [editingQuestionId, setEditingQuestionId] = useState(null);
+
   const [formData, setFormData] = useState({
     question: "",
     option_a: "",
@@ -41,19 +43,28 @@ export default function TeacherQuizPage() {
   function handleSubmit(e) {
     e.preventDefault();
 
+    if (editingQuestionId) {
+      api
+        .patch(
+          `/teacher/quiz-questions/${editingQuestionId}`,
+          formData
+        )
+        .then(() => {
+          fetchQuestions();
+          handleCancelEdit();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
+      return;
+    }
+
     api
       .post(`/teacher/lessons/${lessonId}/quiz`, formData)
       .then(() => {
         fetchQuestions();
-
-        setFormData({
-          question: "",
-          option_a: "",
-          option_b: "",
-          option_c: "",
-          option_d: "",
-          correct_answer: "",
-        });
+        handleCancelEdit();
       })
       .catch((error) => {
         console.log(error);
@@ -79,12 +90,40 @@ export default function TeacherQuizPage() {
       });
   }
 
+  function handleEditClick(item) {
+    setEditingQuestionId(item.id);
+
+    setFormData({
+      question: item.question,
+      option_a: item.option_a,
+      option_b: item.option_b,
+      option_c: item.option_c,
+      option_d: item.option_d,
+      correct_answer: item.correct_answer,
+    });
+  }
+
+  function handleCancelEdit() {
+    setEditingQuestionId(null);
+
+    setFormData({
+      question: "",
+      option_a: "",
+      option_b: "",
+      option_c: "",
+      option_d: "",
+      correct_answer: "",
+    });
+  }
+
   return (
     <section className="page-section">
       <h1>Manage Quiz Questions</h1>
 
       <form className="lesson-form card" onSubmit={handleSubmit}>
-        <h2>Add Question</h2>
+        <h2>
+          {editingQuestionId ? "Edit Question" : "Add Question"}
+        </h2>
 
         <textarea
           name="question"
@@ -140,8 +179,17 @@ export default function TeacherQuizPage() {
         </select>
 
         <button className="btn btn-success" type="submit">
-          Add Question
+          {editingQuestionId ? "Update Question" : "Add Question"}
         </button>
+        {editingQuestionId && (
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleCancelEdit}
+          >
+            Cancel
+          </button>
+        )}
       </form>
 
       <div className="grid-auto">
@@ -157,12 +205,22 @@ export default function TeacherQuizPage() {
             <p>
               Correct Answer: {item.correct_answer}
             </p>
-            <button
-              className="btn btn-danger"
-              onClick={() => handleDeleteQuestion(item.id)}
-            >
-              Delete Question
-            </button>
+
+            <div className="lesson-actions">
+              <button
+                className="btn btn-primary"
+                onClick={() => handleEditClick(item)}
+              >
+                Edit Question
+              </button>
+
+              <button
+                className="btn btn-danger"
+                onClick={() => handleDeleteQuestion(item.id)}
+              >
+                Delete Question
+              </button>
+            </div>
           </div>
         ))}
       </div>

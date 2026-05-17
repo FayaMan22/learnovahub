@@ -109,12 +109,18 @@ export default function Navbar() {
       });
   }
 
+  function closeMenus() {
+    setProfileOpen(false);
+    setNotificationsOpen(false);
+    setMenuOpen(false);
+  }
+
   return (
     <nav className="navbar">
 
       <div className="navbar-left">
 
-        <Link to="/" className="logo-section">
+        <Link to="/" className="logo-section" onClick={closeMenus}>
           <img
             src={logo}
             alt="LearnovaHub"
@@ -122,8 +128,15 @@ export default function Navbar() {
           />
         </Link>
 
+        <button
+          className="menu-toggle"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          {menuOpen ? <FaTimes /> : <FaBars />}
+        </button>
+
         <div className={`nav-links ${menuOpen ? "open" : ""}`}>
-          <Link to="/">Home</Link>
+          <Link to="/" onClick={closeMenus}>Home</Link>
           {(!token || user?.role === "learner") && (
             <Link to="/lessons">
               Lessons
@@ -131,35 +144,35 @@ export default function Navbar() {
           )}
 
           {token && user?.role === "teacher" && (
-            <Link to="/teacher/lessons">
+            <Link to="/teacher/lessons" onClick={closeMenus}>
               My Lessons
             </Link>
           )}
-          <Link to="/pricing">Pricing</Link>
+          <Link to="/pricing" onClick={closeMenus}>Pricing</Link>
 
           {token && user?.role === "learner" && (
-            <Link to="/dashboard">
+            <Link to="/dashboard" onClick={closeMenus}>
               Dashboard
             </Link>
           )}
 
           {token && user?.role === "teacher" && (
-            <Link to="/teacher">
+            <Link to="/teacher" onClick={closeMenus}>
               Teacher Dashboard
             </Link>
           )}
 
           {token && user?.role === "admin" && (
             <>
-              <Link to="/admin">
+              <Link to="/admin" onClick={closeMenus}>
                 Admin Panel
               </Link>
 
-              <Link to="/admin/learners">
+              <Link to="/admin/learners" onClick={closeMenus}>
                 Learner Management
               </Link>
 
-              <Link to="/admin/lessons">
+              <Link to="/admin/lessons" onClick={closeMenus}>
                 Lesson Management
               </Link>
             </>
@@ -248,24 +261,24 @@ export default function Navbar() {
 
                 {user?.role === "admin" ? (
                   <>
-                    <Link to="/admin">Admin Dashboard</Link>
-                    <Link to="/admin/learners">Learner Management</Link>
-                    <Link to="/admin/lessons">Lesson Management</Link>
-                    <Link to="/admin">Announcements</Link>
-                    <Link to="/admin">Subscriptions</Link>
+                    <Link to="/admin" onClick={closeMenus}>Admin Dashboard</Link>
+                    <Link to="/admin/learners" onClick={closeMenus}>Learner Management</Link>
+                    <Link to="/admin/lessons" onClick={closeMenus}>Lesson Management</Link>
+                    <Link to="/admin" onClick={closeMenus}>Announcements</Link>
+                    <Link to="/admin" onClick={closeMenus}>Subscriptions</Link>
                   </>
                 ) : user?.role === "teacher" ? (
                   <>
-                    <Link to="/teacher">Teacher Dashboard</Link>
-                    <Link to="/teacher/lessons">My Lessons</Link>
-                    <Link to="/teacher">My Quizzes</Link>
-                    <Link to="/teacher">My Learners</Link>
+                    <Link to="/teacher" onClick={closeMenus}>Teacher Dashboard</Link>
+                    <Link to="/teacher/lessons" onClick={closeMenus}>My Lessons</Link>
+                    <Link to="/teacher" onClick={closeMenus}>My Quizzes</Link>
+                    <Link to="/teacher" onClick={closeMenus}>My Learners</Link>
                   </>
                 ) : (
                   <>
-                    <Link to="/dashboard">Dashboard</Link>
-                    <Link to="/progress">My Progress</Link>
-                    <Link to="/pricing">Subscription</Link>
+                    <Link to="/dashboard" onClick={closeMenus}>Dashboard</Link>
+                    <Link to="/progress" onClick={closeMenus}>My Progress</Link>
+                    <Link to="/pricing" onClick={closeMenus}>Subscription</Link>
                   </>
                 )}
                 {token && (
