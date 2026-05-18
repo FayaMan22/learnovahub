@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../api/api";
+import { useAuth } from "../context/AuthContext";
 
 export default function CourseDetailPage() {
   const { courseId } = useParams();
+
+  const { token, user } = useAuth();
 
   const [course, setCourse] = useState(null);
 
@@ -26,28 +29,82 @@ export default function CourseDetailPage() {
     );
   }
 
+  function handleEnroll() {
+
+    if (!token) {
+        alert("Please login first.");
+        return;
+    }
+
+    api
+        .post(`/courses/${courseId}/enroll`)
+        .then((response) => {
+        alert(response.data.message);
+        })
+        .catch((error) => {
+        console.log(error);
+
+        alert(
+            error.response?.data?.error ||
+            "Enrollment failed"
+        );
+        });
+    }
+
   return (
     <section className="page-section">
-      <h1>{course.title}</h1>
+      <div className="course-hero card">
+        <h1>{course.title}</h1>
 
-      <p>{course.description}</p>
-      <p>Teacher: {course.teacher_name}</p>
-      <p>Price: R{course.price}</p>
+        <p className="course-description">
+            {course.description}
+        </p>
 
-      <button className="btn btn-success">
-        Enroll in Course
-      </button>
+        <div className="course-meta">
+            <span>
+            Teacher: {course.teacher_name}
+            </span>
 
-      <h2>Course Lessons</h2>
+            <span>
+            Price: R{course.price}
+            </span>
+        </div>
 
-      <div className="grid-auto">
+        {user?.role === "learner" && (
+            <button
+            className="btn btn-success enroll-btn"
+            onClick={handleEnroll}
+            >
+            Enroll in Course
+            </button>
+        )}
+      </div>
+      <h2 className="section-title">
+        Course Lessons
+      </h2>
+
+      <div className="course-lessons-grid">
         {course.lessons.map((lesson) => (
-          <div key={lesson.id} className="card">
-            <h2>{lesson.title}</h2>
-            <p>{lesson.topic}</p>
-            <p>{lesson.description}</p>
-          </div>
-        ))}
+            <div key={lesson.id} className="card lesson-preview-card">
+
+              <div className="lesson-preview-header">
+                <h2>{lesson.title}</h2>
+
+                <span className="lesson-topic-badge">
+                  {lesson.topic}
+                </span>
+              </div>
+
+              <p className="lesson-preview-description">
+                {lesson.description}
+              </p>
+
+              <button className="btn btn-primary">
+                Start Learning
+              </button>
+
+            </div>
+          ))}
       </div>
     </section>
   );

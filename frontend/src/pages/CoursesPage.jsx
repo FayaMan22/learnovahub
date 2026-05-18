@@ -30,12 +30,21 @@ export default function CoursesPage() {
 
       <div className="grid-auto">
         {courses.map((course) => (
-          <div key={course.id} className="card">
+          <div key={course.id} className="card public-course-card">
             <h2>{course.title}</h2>
-            <p>{course.description}</p>
-            <p>Teacher: {course.teacher_name}</p>
-            <p>Lessons: {course.lesson_count}</p>
-            <p>Price: R{course.price}</p>
+            <p className="course-card-description">
+              {course.description}</p>
+            <div className="course-card-meta">
+              <span>
+                Teacher: {course.teacher_name}
+              </span>
+              <span>
+                Lessons: {course.lesson_count}
+              </span>
+            </div>
+
+            <p className="course-price">
+              R{course.price}</p>
 
             <button
               className="btn btn-primary"

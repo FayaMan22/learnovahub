@@ -1789,3 +1789,83 @@ main {
     align-items: stretch;
   }
 }
+.course-hero {
+  margin-bottom: 35px;
+  padding: 35px;
+}
+
+.course-description {
+  margin: 20px 0;
+  color: #475569;
+  line-height: 1.7;
+}
+
+.course-meta {
+  display: flex;
+  gap: 25px;
+  margin-bottom: 25px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.enroll-btn {
+  min-width: 220px;
+}
+
+.section-title {
+  margin-bottom: 20px;
+}
+
+.course-lessons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.lesson-preview-card {
+  transition: transform 0.2s ease;
+}
+
+.lesson-preview-card:hover {
+  transform: translateY(-4px);
+}
+
+@media (max-width: 768px) {
+  .course-meta {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .course-hero {
+    padding: 25px;
+  }
+}
+.public-course-card {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  transition: transform 0.2s ease;
+}
+
+.public-course-card:hover {
+  transform: translateY(-4px);
+}
+
+.course-card-description {
+  color: #475569;
+  line-height: 1.6;
+}
+
+.course-card-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.course-price {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #0f172a;
+}
