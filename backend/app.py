@@ -530,6 +530,13 @@ def get_lesson(id):
         "video_url": lesson.video_url,
         "worksheet_url": lesson.worksheet_url,
         "is_premium": lesson.is_premium,
+        "course_id": lesson.course_id,
+
+        "course_title": (
+            lesson.course.title
+            if lesson.course
+            else None
+        ),
         "teacher_name": (
             lesson.teacher.full_name
             if lesson.teacher

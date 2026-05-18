@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import api from "../api/api";
 import { useAuth } from "../context/AuthContext";
 
 export default function CourseDetailPage() {
+  const navigate = useNavigate();
+
   const { courseId } = useParams();
 
   const { token, user } = useAuth();
@@ -99,7 +101,12 @@ export default function CourseDetailPage() {
                 {lesson.description}
               </p>
 
-              <button className="btn btn-primary">
+              <button
+                className="btn btn-primary"
+                onClick={() =>
+                  navigate(`/lessons/${lesson.id}`)
+                }
+              >
                 Start Learning
               </button>
 

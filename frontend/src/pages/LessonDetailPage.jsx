@@ -75,6 +75,17 @@ export default function LessonDetailPage() {
     <section className="lesson-detail-page">
       <h1>{lesson.title}</h1>
 
+      {lesson.course_id && (
+        <button
+          className="btn btn-secondary back-course-btn"
+          onClick={() =>
+            navigate(`/courses/${lesson.course_id}`)
+          }
+        >
+          ← Back to {lesson.course_title}
+        </button>
+      )}
+
       <p className="lesson-topic">
         Topic: {lesson.topic}
       </p>
