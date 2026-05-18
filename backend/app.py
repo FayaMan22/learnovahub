@@ -324,6 +324,36 @@ class Course(db.Model):
         backref="courses"
     )
 
+class Enrollment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    learner_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id"),
+        nullable=False
+    )
+
+    course_id = db.Column(
+        db.Integer,
+        db.ForeignKey("course.id"),
+        nullable=False
+    )
+
+    enrolled_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
+
+    learner = db.relationship(
+        "User",
+        backref="enrollments"
+    )
+
+    course = db.relationship(
+        "Course",
+        backref="enrollments"
+    )
+
 #===========================
 # HOME ROUTE 
 #===========================
@@ -1625,6 +1655,109 @@ def delete_teacher_course(course_id):
 
     return jsonify({
         "message": "Course deleted successfully"
+    }), 200
+
+# =========================
+# LEARNER ROUTES
+# =========================
+@app.route("/courses/<int:course_id>/enroll", methods=["POST"])
+@jwt_required()
+def enroll_course(course_id):
+
+    learner_id = int(get_jwt_identity())
+
+    user = User.query.get_or_404(learner_id)
+
+    if user.role != "learner":
+        return jsonify({
+            "error": "Learner access required"
+        }), 403
+
+    course = Course.query.get_or_404(course_id)
+
+    existing_enrollment = Enrollment.query.filter_by(
+        learner_id=learner_id,
+        course_id=course.id
+    ).first()
+
+    if existing_enrollment:
+        return jsonify({
+            "message": "Already enrolled"
+        }), 200
+
+    enrollment = Enrollment(
+        learner_id=learner_id,
+        course_id=course.id
+    )
+
+    db.session.add(enrollment)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Enrollment successful"
+    }), 201
+
+@app.route("/courses", methods=["GET"])
+def get_courses():
+
+    courses = Course.query.all()
+
+    course_list = []
+
+    for course in courses:
+
+        lesson_count = Lesson.query.filter_by(
+            course_id=course.id
+        ).count()
+
+        course_list.append({
+            "id": course.id,
+            "title": course.title,
+            "description": course.description,
+            "price": course.price,
+            "teacher_name": (
+                course.teacher.full_name
+                if course.teacher
+                else "Unknown"
+            ),
+            "lesson_count": lesson_count
+        })
+
+    return jsonify(course_list), 200
+
+@app.route("/courses/<int:course_id>", methods=["GET"])
+def get_course_detail(course_id):
+
+    course = Course.query.get_or_404(course_id)
+
+    lessons = Lesson.query.filter_by(
+        course_id=course.id
+    ).all()
+
+    lesson_list = []
+
+    for lesson in lessons:
+        lesson_list.append({
+            "id": lesson.id,
+            "title": lesson.title,
+            "topic": lesson.topic,
+            "description": lesson.description,
+            "video_url": lesson.video_url,
+            "worksheet_url": lesson.worksheet_url,
+            "is_premium": lesson.is_premium
+        })
+
+    return jsonify({
+        "id": course.id,
+        "title": course.title,
+        "description": course.description,
+        "price": course.price,
+        "teacher_name": (
+            course.teacher.full_name
+            if course.teacher
+            else "Unknown"
+        ),
+        "lessons": lesson_list
     }), 200
 
 # === DATABASE INITIALIZATION ===

@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../api/api";
+import { useNavigate } from "react-router-dom";
 
 export default function TeacherCoursesPage() {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
 
   const [editingCourseId, setEditingCourseId] = useState(null);
@@ -41,6 +43,10 @@ function handleEditClick(course) {
     title: course.title,
     description: course.description,
     price: course.price,
+  });
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
   });
 }
 
@@ -183,6 +189,15 @@ function handleCancelEdit() {
             <div className="lesson-actions">
               <button
                 className="btn btn-primary"
+                onClick={() =>
+                  navigate(`/teacher/lessons?course=${course.id}`)
+                }
+              >
+                Manage Lessons
+              </button>
+
+              <button
+                className="btn btn-secondary"
                 onClick={() => handleEditClick(course)}
               >
                 Edit
@@ -194,7 +209,6 @@ function handleCancelEdit() {
               >
                 Delete
               </button>
-
             </div>
           </div>
         ))}

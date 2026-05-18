@@ -29,8 +29,6 @@ export default function HomePage() {
             students succeed.
           </p>
 
-          <p className="backend-message">{message}</p>
-
           <div className="hero-buttons">
             <button onClick={() => navigate("/lessons")}>
               Start Learning

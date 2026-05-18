@@ -14,6 +14,8 @@ export default function TeacherLessonsPage() {
   const [sortBy, setSortBy] = useState("newest");
 
   const [editingLessonId, setEditingLessonId] = useState(null);
+ 
+  const selectedCourseId = searchParams.get("course");
 
   const [formData, setFormData] = useState({
     title: "",
@@ -104,6 +106,10 @@ export default function TeacherLessonsPage() {
       is_premium: lesson.is_premium,
       course_id: lesson.course_id || "",
     });
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   }
 
   function handleCancelEdit() {
@@ -156,7 +162,15 @@ export default function TeacherLessonsPage() {
         (filterStatus === "premium" && lesson.is_premium) ||
         (filterStatus === "free" && !lesson.is_premium);
 
-      return matchesSearch && matchesFilter;
+      const matchesCourse =
+        !selectedCourseId ||
+        String(lesson.course_id) === selectedCourseId;
+
+      return (
+        matchesSearch && 
+        matchesFilter &&
+        matchesCourse
+      );
     })
     .sort((a, b) => {
       if (sortBy === "newest") {
@@ -181,6 +195,21 @@ export default function TeacherLessonsPage() {
   return (
     <section className="page-section">
       <h1>My Lessons</h1>
+
+      {selectedCourseId && (
+        <div className="card course-filter-banner">
+          <p>
+            Showing lessons for selected course.
+          </p>
+
+          <button
+            className="btn btn-secondary"
+            onClick={() => navigate("/teacher/lessons")}
+          >
+            Clear Course Filter
+          </button>
+        </div>
+      )}
 
       <form className="lesson-form card" onSubmit={handleSubmit}>
         <h2>Create Teacher Lesson</h2>

@@ -1770,3 +1770,22 @@ main {
   font-weight: 600;
   font-size: 0.95rem;
 }
+.course-filter-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 15px;
+}
+
+.course-filter-banner p {
+  margin: 0;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .course-filter-banner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

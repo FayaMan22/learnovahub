@@ -138,29 +138,45 @@ export default function Navbar() {
 
         <div className={`nav-links ${menuOpen ? "open" : ""}`}>
           <Link to="/" onClick={closeMenus}>Home</Link>
-          {(!token || user?.role === "learner") && (
-            <Link to="/lessons" onClick={closeMenus}>
-              Lessons
-            </Link>
-          )}
+          
+          {!token && (
+            <>
+              <Link to="/courses" onClick={closeMenus}>
+                Courses
+              </Link>
 
-          {token && user?.role === "teacher" && (
-            <Link to="/teacher/lessons" onClick={closeMenus}>
-              My Lessons
-            </Link>
+              <Link to="/pricing" onClick={closeMenus}>
+                Pricing
+              </Link>
+            </>
           )}
-          <Link to="/pricing" onClick={closeMenus}>Pricing</Link>
-
+          
           {token && user?.role === "learner" && (
-            <Link to="/dashboard" onClick={closeMenus}>
-              Dashboard
-            </Link>
+            <>
+              <Link to="/courses" onClick={closeMenus}>
+                Courses
+              </Link>
+
+              <Link to="/dashboard" onClick={closeMenus}>
+                Dashboard
+              </Link>
+            </>
           )}
 
           {token && user?.role === "teacher" && (
-            <Link to="/teacher" onClick={closeMenus}>
-              Teacher Dashboard
-            </Link>
+            <>
+              <Link to="/teacher" onClick={closeMenus}>
+                Teacher Dashboard
+              </Link>
+
+              <Link to="/teacher/courses" onClick={closeMenus}>
+                My Courses
+              </Link>
+
+              <Link to="/teacher/lessons" onClick={closeMenus}>
+                My Lessons
+              </Link>
+            </>
           )}
 
           {token && user?.role === "admin" && (
@@ -180,54 +196,56 @@ export default function Navbar() {
           )}
           
         </div>
+
       </div>
 
       <div className="navbar-right">
+        {token && (
+          <div className="notification-wrapper">
+              <button
+                className="icon-btn"
+                onClick={() =>
+                  setNotificationsOpen(!notificationsOpen)
+                }
+              >
+                <FaBell />
 
-        <div className="notification-wrapper">
-          <button
-            className="icon-btn"
-            onClick={() =>
-              setNotificationsOpen(!notificationsOpen)
-            }
-          >
-            <FaBell />
+                {notifications.length > 0 && (
+                  <span className="notification-badge">
+                    {notifications.length}
+                  </span>
+                )}
+              </button>
 
-            {notifications.length > 0 && (
-              <span className="notification-badge">
-                {notifications.length}
-              </span>
-            )}
-          </button>
+              {notificationsOpen && (
+                <div className="notification-dropdown">
+                  <h3>Announcements</h3>
 
-          {notificationsOpen && (
-            <div className="notification-dropdown">
-              <h3>Announcements</h3>
-
-              {notifications.length === 0 ? (
-                <p>No announcements yet.</p>
-              ) : (
-                notifications.map((notification) => (
-                  <div
-                    key={notification.id}
-                    className="notification-item"
-                    onClick={() => {
-                      if (notification.link) {
-                        navigate(notification.link);
-                        setNotificationsOpen(false);
-                      }
-                    }}
-                  >
-                    <h4>{notification.title}</h4>
-                    <p>{notification.message}</p>
-                    <small>Link: {notification.link || "No link found"}</small>
-                  </div>
-                ))
+                  {notifications.length === 0 ? (
+                    <p>No announcements yet.</p>
+                  ) : (
+                    notifications.map((notification) => (
+                      <div
+                        key={notification.id}
+                        className="notification-item"
+                        onClick={() => {
+                          if (notification.link) {
+                            navigate(notification.link);
+                            setNotificationsOpen(false);
+                          }
+                        }}
+                      >
+                        <h4>{notification.title}</h4>
+                        <p>{notification.message}</p>
+                        <small>Link: {notification.link || "No link found"}</small>
+                      </div>
+                    ))
+                  )}
+                </div>
               )}
             </div>
           )}
-        </div>
-        
+          
         {token && (
           <div
             className="profile-wrapper"

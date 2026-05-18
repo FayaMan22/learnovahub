@@ -31,6 +31,8 @@ import TeacherDashboardPage from "./pages/TeacherDashboardPage.jsx";
 import TeacherLessonsPage from "./pages/TeacherLessonsPage.jsx";
 import TeacherQuizPage from "./pages/TeacherQuizPage.jsx";
 import TeacherCoursesPage from "./pages/TeacherCoursesPage.jsx";
+import CoursesPage from "./pages/CoursesPage.jsx";
+import CourseDetailPage from "./pages/CourseDetailPage.jsx";
 
 
 const router = createBrowserRouter([
@@ -45,6 +47,10 @@ const router = createBrowserRouter([
       {
         path: "pricing",
         element: <PricingPage />,
+      },
+      {
+        path: "courses",
+        element: <CoursesPage /> 
       },
       {
         path: "login",
@@ -69,6 +75,10 @@ const router = createBrowserRouter([
       {
         path: "lessons/:id",
         element: <LessonDetailPage />,
+      },
+      {
+        path: "courses/:courseId",
+        element: <CourseDetailPage />,
       },
       {
         path: "lessons/:id/quiz",
