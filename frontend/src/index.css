@@ -1873,3 +1873,20 @@ main {
 .back-course-btn {
   margin-bottom: 20px;
 }
+
+.back-btn {
+  margin-bottom: 20px;
+}
+
+.notification-item.unread {
+  font-weight: 700;
+  background: #eff6ff;
+}
+
+.notification-item.read {
+  opacity: 0.65;
+}
+
+.back-btn {
+  margin-bottom: 20px;
+}

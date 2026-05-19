@@ -21,6 +21,13 @@ export default function CoursesPage() {
     <section className="page-section">
       <h1>Available Courses</h1>
 
+      <button
+        className="btn btn-secondary back-btn"
+        onClick={() => navigate("/dashboard")}
+      >
+        ← Back to Dashboard
+      </button>
+
       {courses.length === 0 && (
         <div className="card empty-state">
           <h2>No courses available yet</h2>

@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import api from "../api/api";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminLessonsPage() {
 
   const [lessons, setLessons] = useState([]);
+
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -134,6 +137,14 @@ export default function AdminLessonsPage() {
     <section className="admin-lessons-page page-section">
 
       <h1>Lesson Management</h1>
+
+      <button
+        className="btn btn-secondary back-btn"
+        onClick={() => navigate("/admin")}
+      >
+        ← Back to Admin Dashboard
+      </button>
+      
 
       <p>Create, update, and manage LearnovaHub lessons.</p>
 

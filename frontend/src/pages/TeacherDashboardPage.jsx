@@ -91,8 +91,11 @@ export default function TeacherDashboardPage() {
           <h2>My Learners</h2>
           <p>Track learners enrolled in your subjects.</p>
 
-          <button className="btn btn-secondary">
-            Coming Soon
+          <button 
+            className="btn btn-primary"
+            onClick={() => navigate("/teacher/learners")}
+          >
+            View Learners
           </button>
         </div>
 

@@ -196,6 +196,13 @@ export default function TeacherLessonsPage() {
     <section className="page-section">
       <h1>My Lessons</h1>
 
+      <button
+        className="btn btn-secondary back-btn"
+        onClick={() => navigate("/teacher")}
+      >
+        ← Back to Teacher Dashboard
+      </button>
+
       {selectedCourseId && (
         <div className="card course-filter-banner">
           <p>

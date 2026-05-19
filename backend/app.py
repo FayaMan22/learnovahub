@@ -513,14 +513,25 @@ def get_lessons():
     return jsonify(lesson_list), 200
 
 @app.route("/lessons/<int:id>", methods=["GET"])
+@jwt_required()
 def get_lesson(id):
 
-    lesson = Lesson.query.get(id)
+    lesson = Lesson.query.get_or_404(id)
 
-    if not lesson:
-        return jsonify({
-            "error": "Lesson not found"
-        }), 404
+    user_id = int(get_jwt_identity())
+    user = User.query.get_or_404(user_id)
+
+    if user.role == "learner" and lesson.course_id:
+
+        enrollment = Enrollment.query.filter_by(
+            learner_id=user_id,
+            course_id=lesson.course_id
+        ).first()
+
+        if not enrollment:
+            return jsonify({
+                "error": "You must enroll in this course before accessing this lesson"
+            }), 403
 
     return jsonify({
         "id": lesson.id,
@@ -545,7 +556,26 @@ def get_lesson(id):
     }), 200
 
 @app.route("/lessons/<int:lesson_id>/quiz", methods=["GET"])
+@jwt_required()
 def get_quiz_questions(lesson_id):
+
+    lesson = Lesson.query.get_or_404(lesson_id)
+
+    user_id = int(get_jwt_identity())
+
+    user = User.query.get_or_404(user_id)
+
+    if user.role == "learner" and lesson.course_id:
+
+        enrollment = Enrollment.query.filter_by(
+            learner_id=user_id,
+            course_id=lesson.course_id
+        ).first()
+
+        if not enrollment:
+            return jsonify({
+                "error": "You must enroll in this course before accessing this quiz"
+            }), 403
 
     questions = QuizQuestion.query.filter_by(
         lesson_id=lesson_id
@@ -570,7 +600,23 @@ def get_quiz_questions(lesson_id):
 @jwt_required()
 def mark_lesson_complete(lesson_id):
 
-    user_id = get_jwt_identity()
+    lesson = Lesson.query.get_or_404(lesson_id)
+
+    user_id = int(get_jwt_identity())
+
+    user = User.query.get_or_404(user_id)
+
+    if user.role == "learner" and lesson.course_id:
+
+        enrollment = Enrollment.query.filter_by(
+            learner_id=user_id,
+            course_id=lesson.course_id
+        ).first()
+
+        if not enrollment:
+            return jsonify({
+                "error": "You must enroll in this course before completing this lesson"
+            }), 403
 
     existing_completion = LessonCompletion.query.filter_by(
         user_id=user_id,
@@ -1662,6 +1708,137 @@ def delete_teacher_course(course_id):
 
     return jsonify({
         "message": "Course deleted successfully"
+    }), 200
+
+@app.route("/teacher/learners", methods=["GET"])
+@jwt_required()
+def get_teacher_learners():
+
+    teacher_id = int(get_jwt_identity())
+
+    user = User.query.get_or_404(teacher_id)
+
+    if user.role != "teacher":
+        return jsonify({
+            "error": "Teacher access required"
+        }), 403
+
+    teacher_courses = Course.query.filter_by(
+        teacher_id=teacher_id
+    ).all()
+
+    course_ids = [
+        course.id
+        for course in teacher_courses
+    ]
+
+    enrollments = Enrollment.query.filter(
+        Enrollment.course_id.in_(course_ids)
+    ).all() if course_ids else []
+
+    learner_map = {}
+
+    for enrollment in enrollments:
+
+        learner = enrollment.learner
+        course = enrollment.course
+
+        if learner.id not in learner_map:
+            learner_map[learner.id] = {
+                "id": learner.id,
+                "full_name": learner.full_name,
+                "email": learner.email,
+                "courses": []
+            }
+
+        learner_map[learner.id]["courses"].append({
+            "id": course.id,
+            "title": course.title,
+            "enrolled_at": (
+                enrollment.enrolled_at.isoformat()
+                if enrollment.enrolled_at
+                else None
+            )
+        })
+
+    return jsonify(
+        list(learner_map.values())
+    ), 200
+
+@app.route("/teacher/learners/<int:learner_id>", methods=["GET"])
+@jwt_required()
+def get_teacher_learner_detail(learner_id):
+
+    teacher_id = int(get_jwt_identity())
+
+    teacher = User.query.get_or_404(teacher_id)
+
+    if teacher.role != "teacher":
+        return jsonify({
+            "error": "Teacher access required"
+        }), 403
+
+    learner = User.query.get_or_404(learner_id)
+
+    teacher_courses = Course.query.filter_by(
+        teacher_id=teacher_id
+    ).all()
+
+    teacher_course_ids = [
+        course.id
+        for course in teacher_courses
+    ]
+
+    enrollments = Enrollment.query.filter(
+        Enrollment.learner_id == learner_id,
+        Enrollment.course_id.in_(teacher_course_ids)
+    ).all()
+
+    enrolled_courses = []
+
+    for enrollment in enrollments:
+
+        course = enrollment.course
+
+        lessons = Lesson.query.filter_by(
+            course_id=course.id
+        ).all()
+
+        total_lessons = len(lessons)
+
+        completed_count = 0
+
+        for lesson in lessons:
+
+            completion = LessonCompletion.query.filter_by(
+                user_id=learner_id,
+                lesson_id=lesson.id
+            ).first()
+
+            if completion:
+                completed_count += 1
+
+        completion_percentage = (
+            round(
+                (completed_count / total_lessons) * 100
+            )
+            if total_lessons > 0
+            else 0
+        )
+
+        enrolled_courses.append({
+            "id": course.id,
+            "title": course.title,
+            "total_lessons": total_lessons,
+            "completed_lessons": completed_count,
+            "completion_percentage": completion_percentage
+        })
+
+    return jsonify({
+        "id": learner.id,
+        "full_name": learner.full_name,
+        "email": learner.email,
+        "courses": enrolled_courses
     }), 200
 
 # =========================

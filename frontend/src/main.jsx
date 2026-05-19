@@ -34,6 +34,9 @@ import TeacherCoursesPage from "./pages/TeacherCoursesPage.jsx";
 import CoursesPage from "./pages/CoursesPage.jsx";
 import CourseDetailPage from "./pages/CourseDetailPage.jsx";
 import MyCoursesPage from "./pages/MyCoursesPage.jsx";
+import AnnouncementsPage from "./pages/AnnouncementsPage.jsx";
+import TeacherLearnersPage from "./pages/TeacherLearnersPage.jsx";
+import TeacherLearnerDetailPage from "./pages/TeacherLearnerDetailPage.jsx";
 
 
 const router = createBrowserRouter([
@@ -167,6 +170,30 @@ const router = createBrowserRouter([
           <AdminRoute>
             <AdminLessonsPage />
           </AdminRoute>
+        ),
+      },
+      {
+        path: "announcements",
+        element: <AnnouncementsPage />,
+      },
+      {
+        path: "announcements/:announcementId",
+        element: <AnnouncementsPage />,
+      },
+      {
+        path: "teacher/learners",
+        element: (
+          <TeacherRoute>
+            <TeacherLearnersPage />
+          </TeacherRoute>
+        ),
+      },
+      {
+        path: "teacher/learners/:learnerId",
+        element: (
+          <TeacherRoute>
+            <TeacherLearnerDetailPage />
+          </TeacherRoute>
         ),
       },
     ],

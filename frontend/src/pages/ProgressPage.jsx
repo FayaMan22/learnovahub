@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../api/api";
+import { useNavigate } from "react-router-dom";
 
 export default function ProgressPage() {
+  const navigate = useNavigate();
   const [quizResults, setQuizResults] = useState([]);
 
   useEffect(() => {
@@ -31,6 +33,13 @@ export default function ProgressPage() {
   return (
     <section className="progress-page">
       <h1>My Progress</h1>
+
+      <button
+        className="btn btn-secondary back-btn"
+        onClick={() => navigate("/dashboard")}
+      >
+        ← Back to Dashboard
+      </button>
 
       <div className="progress-summary">
         <div className="progress-card">

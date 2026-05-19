@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import api from "../api/api";
 import { useNavigate } from "react-router-dom";
 
@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 export default function AdminPage() {
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
+  const announcementRef = useRef(null);
   const [message, setMessage] = useState("");
   const [analytics, setAnalytics] = useState(null);
   const [notificationData, setNotificationData] = useState({
@@ -157,71 +158,114 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+      <div className="admin-card" ref={announcementRef}>
+        <div className="admin-card">
+          <h2>Create Announcement</h2>
 
-      <div className="admin-card">
-        <h2>Create Announcement</h2>
+          <form className="admin-form" onSubmit={handleNotificationSubmit}>
+            <input
+              type="text"
+              name="title"
+              placeholder="Announcement Title"
+              value={notificationData.title}
+              onChange={handleNotificationChange}
+              required
+            />
 
-        <form className="admin-form" onSubmit={handleNotificationSubmit}>
-          <input
-            type="text"
-            name="title"
-            placeholder="Announcement Title"
-            value={notificationData.title}
-            onChange={handleNotificationChange}
-            required
-          />
+            <textarea
+              name="message"
+              placeholder="Announcement Message"
+              value={notificationData.message}
+              onChange={handleNotificationChange}
+              required
+            />
 
-          <textarea
-            name="message"
-            placeholder="Announcement Message"
-            value={notificationData.message}
-            onChange={handleNotificationChange}
-            required
-          />
+            <input
+              type="text"
+              name="link"
+              placeholder="Optional link e.g. /lessons/1/quiz"
+              value={notificationData.link}
+              onChange={handleNotificationChange}
+            />
 
-          <input
-            type="text"
-            name="link"
-            placeholder="Optional link e.g. /lessons/1/quiz"
-            value={notificationData.link}
-            onChange={handleNotificationChange}
-          />
+            <button type="submit">Post Announcement</button>
+          </form>
+        </div>
+      </div>
+      
 
-          <button type="submit">Post Announcement</button>
-        </form>
+      <div className="grid-auto">
+
+        <div className="dashboard-card">
+          <h2>Learner Management</h2>
+
+          <p>
+            Manage learners, subscriptions,
+            progress, and course access.
+          </p>
+
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate("/admin/learners")}
+          >
+            Open Learners
+          </button>
+        </div>
+
+        <div className="dashboard-card">
+          <h2>Lesson Management</h2>
+
+          <p>
+            Create, edit, and organize lessons
+            across the platform.
+          </p>
+
+          <button
+            className="btn btn-success"
+            onClick={() => navigate("/admin/lessons")}
+          >
+            Manage Lessons
+          </button>
+        </div>
+
+        <div className="dashboard-card">
+          <h2>Subscriptions</h2>
+
+          <p>
+            Monitor learner subscriptions
+            and payment activity.
+          </p>
+
+          <button
+            className="btn btn-secondary"
+          >
+            Coming Soon
+          </button>
+        </div>
+
+        <div className="dashboard-card">
+          <h2>Announcements</h2>
+
+          <p>
+            Publish announcements and updates
+            to learners and teachers.
+          </p>
+
+          <button
+            className="btn btn-primary"
+            onClick={() =>
+              announcementRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              })
+            }
+          >
+            Create Announcement
+          </button>
+        </div>
+
       </div>
 
-      <div className="admin-card users-card">
-        <h2>Manage Subscriptions</h2>
-
-        {users.map((user) => (
-          <div key={user.id} className="user-row">
-            <div>
-              <h3>{user.full_name}</h3>
-              <p>{user.email}</p>
-              <p>
-                Status:{" "}
-                {user.is_subscribed
-                  ? `Subscribed (${user.subscription_type})`
-                  : "Not Subscribed"}
-              </p>
-            </div>
-
-            {user.is_subscribed ? (
-              <button
-                className="danger-btn"
-                onClick={() => deactivateSubscription(user.id)}
-              >
-                Deactivate
-              </button>
-            ) : (
-              <button onClick={() => activateSubscription(user.id)}>
-                Activate Monthly
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
     </section>
   );
 }

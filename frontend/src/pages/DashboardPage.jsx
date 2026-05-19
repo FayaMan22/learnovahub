@@ -116,56 +116,62 @@ export default function DashboardPage() {
       </div>
 
       <div className="dashboard-grid">
-
         <div className="dashboard-card">
-          <h2>Video Lessons</h2>
+          <h2>My Courses</h2>
           <p>
-            Continue learning Mathematics through
-            interactive video lessons.
+            Continue learning from the courses you are enrolled in.
           </p>
 
           <button
-            className="btn btn-primary" 
-            onClick={() => navigate("/my-courses")}>
-            View My Lessons
+            className="btn btn-primary"
+            onClick={() => navigate("/my-courses")}
+          >
+            Continue Learning
           </button>
         </div>
 
         <div className="dashboard-card">
-          <h2>Quizzes</h2>
+          <h2>Browse Courses</h2>
           <p>
-            Test your understanding with
-            auto-marked quizzes and exercises.
+            Explore available courses, lessons, quizzes, and learning materials.
           </p>
 
-          <button onClick={() => navigate("/lessons/1/quiz")}>
-            Start Quiz
+          <button
+            className="btn btn-success"
+            onClick={() => navigate("/courses")}
+          >
+            Browse Courses
           </button>
         </div>
 
         <div className="dashboard-card">
-          <h2>Worksheets</h2>
+          <h2>My Progress</h2>
           <p>
-            Download worksheets and revision
-            materials for practice.
+            Track completed lessons, quiz scores, and learning growth.
           </p>
 
-          <button onClick={() => navigate("/lessons")}>
-            Download
-          </button>
-        </div>
-
-        <div className="dashboard-card">
-          <h2>Progress Tracker</h2>
-          <p>
-            Monitor your lesson completion
-            and quiz performance.
-          </p>
-
-          <button onClick={() => navigate("/progress")}>
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate("/progress")}
+          >
             View Progress
           </button>
         </div>
+
+        <div className="dashboard-card">
+          <h2>Learning Materials</h2>
+          <p>
+            Access worksheets and resources inside each enrolled course lesson.
+          </p>
+
+          <button
+            className="btn btn-secondary"
+            onClick={() => navigate("/my-courses")}
+          >
+            Go to My Courses
+          </button>
+        </div>
+
       </div>
       <section className="results-section">
           <h2>My Quiz Results</h2>

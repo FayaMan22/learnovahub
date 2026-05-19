@@ -57,7 +57,7 @@ export default function Navbar() {
 
   const [notifications, setNotifications] = useState([]);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-
+  
   useEffect(() => {
     api.get("/notifications")
       .then((response) => {
@@ -67,6 +67,23 @@ export default function Navbar() {
         console.log(error);
       });
   }, []);
+
+  const [readNotifications, setReadNotifications] =
+    useState([]);
+
+  useEffect(() => {
+    const storedReads =
+      JSON.parse(
+        localStorage.getItem("readNotifications")
+      ) || [];
+
+    setReadNotifications(storedReads);
+  }, []);
+
+  const unreadCount = notifications.filter(
+    (notification) =>
+      !readNotifications.includes(notification.id)
+  ).length;
 
   function handleProfilePictureUpload(event) {
     const file = event.target.files[0];
@@ -204,15 +221,15 @@ export default function Navbar() {
           <div className="notification-wrapper">
               <button
                 className="icon-btn"
-                onClick={() =>
+                onClick={() => 
                   setNotificationsOpen(!notificationsOpen)
                 }
               >
                 <FaBell />
 
-                {notifications.length > 0 && (
+                {unreadCount > 0 && (
                   <span className="notification-badge">
-                    {notifications.length}
+                    {unreadCount}
                   </span>
                 )}
               </button>
@@ -227,12 +244,31 @@ export default function Navbar() {
                     notifications.map((notification) => (
                       <div
                         key={notification.id}
-                        className="notification-item"
+                        className={readNotifications.includes(notification.id)
+                          ? "notifications-item read"
+                          : "notification-item unread"
+                        }
                         onClick={() => {
-                          if (notification.link) {
-                            navigate(notification.link);
-                            setNotificationsOpen(false);
-                          }
+
+                          const updatedReads = [
+                            ...new Set([
+                              ...readNotifications,
+                              notification.id
+                            ])
+                          ];
+
+                          setReadNotifications(updatedReads);
+
+                          localStorage.setItem(
+                            "readNotifications",
+                            JSON.stringify(updatedReads)
+                          );
+
+                          navigate(
+                            `/announcements/${notification.id}`
+                          );
+
+                          setNotificationsOpen(false);
                         }}
                       >
                         <h4>{notification.title}</h4>

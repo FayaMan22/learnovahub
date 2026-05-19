@@ -56,6 +56,13 @@ export default function AdminLearnersPage() {
 
       <h1>Learner Management</h1>
 
+      <button
+        className="btn btn-secondary back-btn"
+        onClick={() => navigate("/admin")}
+      >
+        ← Back to Admin Dashboard
+      </button>
+
       {learners.length === 0 ? (
         <p>No learners found.</p>
       ) : (
