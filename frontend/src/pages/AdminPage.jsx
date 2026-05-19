@@ -13,6 +13,7 @@ export default function AdminPage() {
   const [notificationData, setNotificationData] = useState({
     title: "",
     message: "",
+    target_role: "all",
     link: "",
   });
 
@@ -42,6 +43,7 @@ export default function AdminPage() {
         setNotificationData({
           title: "",
           message: "",
+          target_role: "all",
           link: "",
         });
       })
@@ -180,6 +182,17 @@ export default function AdminPage() {
               required
             />
 
+            <select
+              name="target_role"
+              value={notificationData.target_role}
+              onChange={handleNotificationChange}
+            >
+              <option value="all">Everyone</option>
+              <option value="learner">Learners</option>
+              <option value="teacher">Teachers</option>
+              <option value="admin">Admins</option>
+            </select>
+
             <input
               type="text"
               name="link"
@@ -238,8 +251,9 @@ export default function AdminPage() {
 
           <button
             className="btn btn-secondary"
+            onClick={() => navigate("/admin/subscriptions")}
           >
-            Coming Soon
+            Manage Subscriptions
           </button>
         </div>
 

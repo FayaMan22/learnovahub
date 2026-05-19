@@ -11,6 +11,7 @@ import hashlib
 from functools import wraps
 import cloudinary
 import cloudinary.uploader
+import re
 
 #===========================
 # APP CONFIG 
@@ -260,6 +261,11 @@ class Notification(db.Model):
         default=datetime.utcnow
     )
 
+    target_role = db.Column(
+        db.String(20),
+        default="all"
+    )
+
 class LessonCompletion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
@@ -370,6 +376,33 @@ def home():
 def register():
 
     data = request.get_json()
+
+    password = data.get("password", "")
+
+    if len(password) < 8:
+        return jsonify({
+            "error": "Password must be at least 8 characters long"
+        }), 400
+
+    if not re.search(r"[A-Z]", password):
+        return jsonify({
+            "error": "Password must include at least one uppercase letter"
+        }), 400
+
+    if not re.search(r"[a-z]", password):
+        return jsonify({
+            "error": "Password must include at least one lowercase letter"
+        }), 400
+
+    if not re.search(r"\d", password):
+        return jsonify({
+            "error": "Password must include at least one number"
+        }), 400
+
+    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+        return jsonify({
+            "error": "Password must include at least one special character"
+        }), 400
 
     full_name = data.get("full_name")
     email = data.get("email")
@@ -875,12 +908,14 @@ def create_payfast_data():
     data = request.get_json()
     amount = data.get("amount", 149)
     subscription_type = data.get("subscription_type", "monthly")
+    course_id = data.get("course_id")
 
     payment = Payment(
         user_id=user_id,
         amount=amount,
         subscription_type=subscription_type,
-        status="pending"
+        status="pending",
+        course_id=course_id
     )
 
     db.session.add(payment)
@@ -957,6 +992,20 @@ def payfast_notify():
         user.subscription_type = payment.subscription_type
         user.subscription_expires_at = datetime.utcnow() + timedelta(days=30)
 
+        if payment.course_id:
+            existing_enrollment = Enrollment.query.filter_by(
+                learner_id=payment.user_id,
+                course_id=payment.course_id
+            ).first()
+
+            if not existing_enrollment:
+                enrollment = Enrollment(
+                    learner_id=payment.user_id,
+                    course_id=payment.course_id
+                )
+
+                db.session.add(enrollment)
+
         db.session.commit()
 
     return "OK", 200
@@ -967,7 +1016,16 @@ def payfast_notify():
 @app.route("/notifications", methods=["GET"])
 def get_notifications():
 
-    notifications = Notification.query.order_by(
+    user_id = int(get_jwt_identity())
+
+    user = User.query.get_or_404(user_id)
+
+    notifications = Notification.query.filter(
+        db.or_(
+            Notification.target_role == "all",
+            Notification.target_role == user.role
+        )
+    ).order_by(
         Notification.created_at.desc()
     ).all()
 
@@ -1838,8 +1896,10 @@ def get_teacher_learner_detail(learner_id):
         "id": learner.id,
         "full_name": learner.full_name,
         "email": learner.email,
-        "courses": enrolled_courses
+        "courses": enrolled_courses,
+        "profile_pic_url": learner.profile_pic_url
     }), 200
+
 
 # =========================
 # LEARNER ROUTES

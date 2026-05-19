@@ -1,8 +1,12 @@
 import api from "../api/api";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function PricingPage() {
   const navigate = useNavigate();
+
+  const [searchParams] = useSearchParams();
+
+  const courseId = searchParams.get("course");
   
   async function handleSubscriptionPayment() {
     
@@ -17,6 +21,7 @@ export default function PricingPage() {
         {
           amount: 149,
           subscription_type: "monthly",
+          course_id: courseId,
         },
       );
 

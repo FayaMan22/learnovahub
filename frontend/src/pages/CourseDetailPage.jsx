@@ -32,26 +32,18 @@ export default function CourseDetailPage() {
   }
 
   function handleEnroll() {
-
     if (!token) {
-        alert("Please login first.");
-        return;
+      alert("Please login first.");
+      return;
     }
 
-    api
-        .post(`/courses/${courseId}/enroll`)
-        .then((response) => {
-        alert(response.data.message);
-        })
-        .catch((error) => {
-        console.log(error);
-
-        alert(
-            error.response?.data?.error ||
-            "Enrollment failed"
-        );
-        });
+    if (user?.role !== "learner") {
+      alert("Only learners can enroll in courses.");
+      return;
     }
+
+    navigate(`/pricing?course=${courseId}`);
+  }
 
   return (
     <section className="page-section">

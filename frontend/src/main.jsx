@@ -37,6 +37,7 @@ import MyCoursesPage from "./pages/MyCoursesPage.jsx";
 import AnnouncementsPage from "./pages/AnnouncementsPage.jsx";
 import TeacherLearnersPage from "./pages/TeacherLearnersPage.jsx";
 import TeacherLearnerDetailPage from "./pages/TeacherLearnerDetailPage.jsx";
+import AdminSubscriptionsPage from "./pages/AdminSubscriptionsPage.jsx";
 
 
 const router = createBrowserRouter([
@@ -169,6 +170,14 @@ const router = createBrowserRouter([
         element: (
           <AdminRoute>
             <AdminLessonsPage />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "admin/subscriptions",
+        element: (
+          <AdminRoute>
+            <AdminSubscriptionsPage />
           </AdminRoute>
         ),
       },

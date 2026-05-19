@@ -47,45 +47,73 @@ export default function TeacherLearnerDetailPage() {
         ← Back to My Learners
       </button>
 
-      <div className="card">
-        <h2>Learner Information</h2>
+      <div className="card learner-info-card">
 
-        <p>Email: {learner.email}</p>
-      </div>
+        {learner.profile_pic_url ? (
+            <img
+            src={learner.profile_pic_url}
+            alt={learner.full_name}
+            className="learner-detail-avatar"
+            />
+        ) : (
+            <div className="learner-detail-avatar-placeholder">
+            {learner.full_name?.charAt(0)}
+            </div>
+        )}
+
+        <div className="learner-info-text">
+            <h2>{learner.full_name}</h2>
+            <p>{learner.email}</p>
+        </div>
+
+        </div>
 
       <h2>Course Progress</h2>
 
       <div className="grid-auto">
 
         {learner.courses.map((course) => (
-          <div key={course.id} className="card">
+          <div key={course.id} className="card learner-progress-card">
 
             <h2>{course.title}</h2>
 
-            <p>
-              Lessons Completed:
-              {" "}
-              {course.completed_lessons}
-              /
-              {course.total_lessons}
-            </p>
+            <div className="progress-stats">
 
-            <p>
-              Progress:
-              {" "}
-              {course.completion_percentage}%
-            </p>
+                <div className="progress-stat">
+                <span className="stat-label">
+                    Lessons Completed
+                </span>
 
-            <div className="progress-bar-container">
-              <div
-                className="progress-bar-fill"
-                style={{
-                  width: `${course.completion_percentage}%`
-                }}
-              />
+                <span className="stat-value">
+                    {course.completed_lessons}
+                    {" / "}
+                    {course.total_lessons}
+                </span>
+                </div>
+
+                <div className="progress-stat">
+                <span className="stat-label">
+                    Progress
+                </span>
+
+                <span className="stat-value">
+                    {course.completion_percentage}
+                    %
+                </span>
+                </div>
+
             </div>
 
-          </div>
+            <div className="progress-bar-container">
+                <div
+                className="progress-bar-fill"
+                style={{
+                    width: `${course.completion_percentage}%`
+                }}
+                />
+            </div>
+
+            </div>
         ))}
 
       </div>
