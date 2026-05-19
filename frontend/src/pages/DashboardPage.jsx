@@ -124,8 +124,10 @@ export default function DashboardPage() {
             interactive video lessons.
           </p>
 
-          <button onClick={() => navigate("/lessons")}>
-            View Lessons
+          <button
+            className="btn btn-primary" 
+            onClick={() => navigate("/my-courses")}>
+            View My Lessons
           </button>
         </div>
 

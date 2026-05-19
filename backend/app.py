@@ -1767,6 +1767,49 @@ def get_course_detail(course_id):
         "lessons": lesson_list
     }), 200
 
+@app.route("/my-courses", methods=["GET"])
+@jwt_required()
+def get_my_courses():
+
+    learner_id = int(get_jwt_identity())
+
+    enrollments = Enrollment.query.filter_by(
+        learner_id=learner_id
+    ).all()
+
+    course_list = []
+
+    for enrollment in enrollments:
+
+        course = enrollment.course
+
+        lesson_count = Lesson.query.filter_by(
+            course_id=course.id
+        ).count()
+
+        course_list.append({
+            "id": course.id,
+            "title": course.title,
+            "description": course.description,
+            "price": course.price,
+
+            "teacher_name": (
+                course.teacher.full_name
+                if course.teacher
+                else "Unknown"
+            ),
+
+            "lesson_count": lesson_count,
+
+            "enrolled_at": (
+                enrollment.enrolled_at.isoformat()
+                if enrollment.enrolled_at
+                else None
+            )
+        })
+
+    return jsonify(course_list), 200
+
 # === DATABASE INITIALIZATION ===
 with app.app_context():
     db.create_all()

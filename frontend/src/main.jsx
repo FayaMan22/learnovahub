@@ -33,6 +33,7 @@ import TeacherQuizPage from "./pages/TeacherQuizPage.jsx";
 import TeacherCoursesPage from "./pages/TeacherCoursesPage.jsx";
 import CoursesPage from "./pages/CoursesPage.jsx";
 import CourseDetailPage from "./pages/CourseDetailPage.jsx";
+import MyCoursesPage from "./pages/MyCoursesPage.jsx";
 
 
 const router = createBrowserRouter([
@@ -79,6 +80,10 @@ const router = createBrowserRouter([
       {
         path: "courses/:courseId",
         element: <CourseDetailPage />,
+      },
+      {
+        path: "my-courses",
+        element: <MyCoursesPage />,
       },
       {
         path: "lessons/:id/quiz",

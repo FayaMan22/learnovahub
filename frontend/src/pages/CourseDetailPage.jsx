@@ -58,6 +58,13 @@ export default function CourseDetailPage() {
       <div className="course-hero card">
         <h1>{course.title}</h1>
 
+        <button
+          className="btn btn-secondary back-course-btn"
+          onClick={() => navigate("/courses")}
+        >
+          ← Back to Courses
+        </button>
+
         <p className="course-description">
             {course.description}
         </p>
