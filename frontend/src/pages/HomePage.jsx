@@ -1,21 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import api from "../api/api";
-import { useEffect, useState } from "react";
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const [message, setMessage] = useState("");
-  
-  useEffect(() => {
-    api
-      .get("/")
-      .then((response) => {
-        setMessage(response.data.message);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
 
   return (
     <>
@@ -24,20 +10,21 @@ export default function HomePage() {
           <h1>Learn Smarter with LearnovaHub</h1>
 
           <p>
-            Interactive Mathematics lessons, videos, quizzes,
-            worksheets, and learner support designed to help
-            students succeed.
+            Explore teacher-led online courses with video lessons,
+            quizzes, worksheets, progress tracking, and learning
+            support across different subjects.
           </p>
 
           <div className="hero-buttons">
-            <button onClick={() => navigate("/lessons")}>
-              Start Learning
+            <button onClick={() => navigate("/courses")}>
+              Browse Courses
             </button>
+
             <button
               className="secondary-btn"
-              onClick={() => navigate("/pricing")}
+              onClick={() => navigate("/register")}
             >
-              View Pricing
+              Create Account
             </button>
           </div>
         </div>
@@ -55,40 +42,50 @@ export default function HomePage() {
 
         <div className="feature-grid">
           <div className="feature-card">
-            <h3>Video Lessons</h3>
+            <h3>Teacher-Led Courses</h3>
             <p>
-              Learn through clear and engaging mathematics
-              video tutorials.
+              Learn through structured courses created by teachers
+              across different subjects and grades.
             </p>
           </div>
 
           <div className="feature-card">
-            <h3>Interactive Quizzes</h3>
+            <h3>Video Lessons & Resources</h3>
             <p>
-              Practice instantly with auto-marked quizzes
-              and exercises.
+              Access lessons, worksheets, revision materials, and
+              learning content in one organized space.
             </p>
           </div>
 
           <div className="feature-card">
-            <h3>Downloadable Worksheets</h3>
+            <h3>Quizzes & Progress Tracking</h3>
             <p>
-              Access worksheets, revision packs, and exam
-              preparation resources.
+              Test your understanding, complete lessons, and monitor
+              your learning progress over time.
             </p>
           </div>
         </div>
       </section>
 
       <section className="subjects">
-        <h2>Current Subjects</h2>
+        <h2>Built for Learners and Teachers</h2>
 
-        <div className="subject-card">
-          <h3>Grade 9 Mathematics</h3>
-          <p>
-            Algebra, Geometry, Functions, Number Patterns,
-            Data Handling, and more.
-          </p>
+        <div className="feature-grid">
+          <div className="subject-card">
+            <h3>For Learners</h3>
+            <p>
+              Enroll in courses, follow lessons step by step, attempt
+              quizzes, and continue learning from your dashboard.
+            </p>
+          </div>
+
+          <div className="subject-card">
+            <h3>For Teachers</h3>
+            <p>
+              Create courses, upload lessons, manage quizzes, and track
+              learner progress from a dedicated teacher dashboard.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -96,12 +93,12 @@ export default function HomePage() {
         <h2>Start Your Learning Journey Today</h2>
 
         <p>
-          Join LearnovaHub and gain access to premium
-          mathematics lessons and learner support.
+          Join LearnovaHub and access organized online courses built
+          to support learning, teaching, and progress tracking.
         </p>
 
-        <button onClick={() => navigate("/register")}>
-          Join Now
+        <button onClick={() => navigate("/courses")}>
+          View Available Courses
         </button>
       </section>
     </>
