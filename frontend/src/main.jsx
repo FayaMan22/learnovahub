@@ -166,14 +166,6 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "admin/lessons",
-        element: (
-          <AdminRoute>
-            <AdminLessonsPage />
-          </AdminRoute>
-        ),
-      },
-      {
         path: "admin/subscriptions",
         element: (
           <AdminRoute>

@@ -213,10 +213,6 @@ export default function Navbar() {
               <Link to="/admin/learners" onClick={closeMenus}>
                 Learner Management
               </Link>
-
-              <Link to="/admin/lessons" onClick={closeMenus}>
-                Lesson Management
-              </Link>
             </>
           )}
           
@@ -326,7 +322,6 @@ export default function Navbar() {
                   <>
                     <Link to="/admin" onClick={closeMenus}>Admin Dashboard</Link>
                     <Link to="/admin/learners" onClick={closeMenus}>Learner Management</Link>
-                    <Link to="/admin/lessons" onClick={closeMenus}>Lesson Management</Link>
                     <Link to="/admin" onClick={closeMenus}>Announcements</Link>
                     <Link to="/admin" onClick={closeMenus}>Subscriptions</Link>
                   </>

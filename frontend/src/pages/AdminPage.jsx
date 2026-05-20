@@ -226,22 +226,6 @@ export default function AdminPage() {
         </div>
 
         <div className="dashboard-card">
-          <h2>Lesson Management</h2>
-
-          <p>
-            Create, edit, and organize lessons
-            across the platform.
-          </p>
-
-          <button
-            className="btn btn-success"
-            onClick={() => navigate("/admin/lessons")}
-          >
-            Manage Lessons
-          </button>
-        </div>
-
-        <div className="dashboard-card">
           <h2>Subscriptions</h2>
 
           <p>
