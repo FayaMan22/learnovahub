@@ -75,14 +75,18 @@ export default function Navbar() {
   const [readNotifications, setReadNotifications] =
     useState([]);
 
+  const readKey = user
+    ? `readNotifications_${user.id}`
+    : "readNotifications_guest";
+  
   useEffect(() => {
     const storedReads =
       JSON.parse(
-        localStorage.getItem("readNotifications")
+        localStorage.getItem(readKey)
       ) || [];
 
     setReadNotifications(storedReads);
-  }, []);
+  }, [readKey]);
 
   const unreadCount = notifications.filter(
     (notification) =>
@@ -264,7 +268,7 @@ export default function Navbar() {
                           setReadNotifications(updatedReads);
 
                           localStorage.setItem(
-                            "readNotifications",
+                            readKey,
                             JSON.stringify(updatedReads)
                           );
 
