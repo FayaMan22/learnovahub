@@ -1014,6 +1014,7 @@ def payfast_notify():
 # NOTIFICATION ROUTES 
 #===========================
 @app.route("/notifications", methods=["GET"])
+@jwt_required()
 def get_notifications():
 
     user_id = int(get_jwt_identity())
@@ -1037,6 +1038,7 @@ def get_notifications():
             "title": notification.title,
             "message": notification.message,
             "link": notification.link,
+            "target_role": notification.target_role,
             "created_at": notification.created_at.isoformat()
         })
 

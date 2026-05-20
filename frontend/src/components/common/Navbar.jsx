@@ -59,6 +59,10 @@ export default function Navbar() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   
   useEffect(() => {
+    if (!token){
+      return;
+    }
+    
     api.get("/notifications")
       .then((response) => {
         setNotifications(response.data);
@@ -66,7 +70,7 @@ export default function Navbar() {
       .catch((error) => {
         console.log(error);
       });
-  }, []);
+  }, [token]);
 
   const [readNotifications, setReadNotifications] =
     useState([]);
