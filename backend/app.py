@@ -1050,7 +1050,8 @@ def create_notification():
     notification = Notification(
         title=data.get("title"),
         message=data.get("message"),
-        link=data.get("link")
+        link=data.get("link"),
+        target_role=data.get("target_role", "all")
     )
 
     db.session.add(notification)
