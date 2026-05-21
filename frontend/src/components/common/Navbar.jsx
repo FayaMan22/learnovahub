@@ -100,7 +100,7 @@ export default function Navbar() {
       return;
     }
 
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
 
     const formData = new FormData();
 
@@ -122,7 +122,7 @@ export default function Navbar() {
           profile_pic_url: response.data.profile_pic_url,
         };
 
-        localStorage.setItem(
+        sessionStorage.setItem(
           "user",
           JSON.stringify(updatedUser)
         );

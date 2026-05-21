@@ -43,7 +43,7 @@ export default function LessonDetailPage() {
   if (!lesson) {
     return <h2>Loading lesson...</h2>;
   }
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(sessionStorage.getItem("user"));
 
   if (lesson.is_premium && !user?.is_subscribed) {
     return (
