@@ -160,6 +160,7 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+      
       <div className="admin-card" ref={announcementRef}>
         <div className="admin-card">
           <h2>Create Announcement</h2>
@@ -210,7 +211,7 @@ export default function AdminPage() {
       <div className="grid-auto">
 
         <div className="dashboard-card">
-          <h2>Learner Management</h2>
+          <h2>User Management</h2>
 
           <p>
             Manage learners, subscriptions,
@@ -221,7 +222,7 @@ export default function AdminPage() {
             className="btn btn-primary"
             onClick={() => navigate("/admin/learners")}
           >
-            Open Learners
+            Open Users
           </button>
         </div>
 

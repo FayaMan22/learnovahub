@@ -23,32 +23,17 @@ export default function AdminLearnersPage() {
     fetchLearners();
   }, []);
 
-  function promoteToTeacher(userId) {
+  function updateUserRole(userId, role) {
 
-    api
-      .patch(`/admin/users/${userId}/role`, {
-        role: "teacher",
-      })
-      .then(() => {
-        fetchLearners();
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
-
-  function removeTeacherRole(userId) {
-
-    api
-      .patch(`/admin/users/${userId}/role`, {
-        role: "learner",
-      })
-      .then(() => {
-        fetchLearners();
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    api.patch(`/admin/users/${userId}/role`, {
+      role,
+    })
+    .then(() => {
+      fetchUsers();
+    })
+    .catch((error) => {
+      console.log(error);
+    });
   }
 
   return (
@@ -97,26 +82,30 @@ export default function AdminLearnersPage() {
                 Role: {learner.role}
               </p>
 
-              <div className="lesson-actions">
-                {learner.role !== "teacher" ?(
-                  <button
-                    className="btn btn-success"
-                    onClick={() =>
-                    promoteToTeacher(learner.id)
+              <div className="user-actions">
+                <button
+                  onClick={() =>
+                    updateUserRole(user.id, "learner")
                   }
-                  >
-                    Promote to Teacher 
-                  </button>
-                ) : (
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() =>
-                      removeTeacherRole(learner.id)
-                    }
-                    >
-                      Remove Teacher
-                    </button> 
-                )}
+                >
+                  Make Learner
+                </button>
+
+                <button
+                  onClick={() =>
+                    updateUserRole(user.id, "teacher")
+                  }
+                >
+                  Make Teacher
+                </button>
+
+                <button
+                  onClick={() =>
+                    updateUserRole(user.id, "admin")
+                  }
+                >
+                  Make Admin
+                </button>
               </div>
 
               <button

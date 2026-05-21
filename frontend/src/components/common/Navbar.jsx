@@ -211,7 +211,7 @@ export default function Navbar() {
               </Link>
 
               <Link to="/admin/learners" onClick={closeMenus}>
-                Learner Management
+                User Management
               </Link>
             </>
           )}
@@ -321,7 +321,7 @@ export default function Navbar() {
                 {user?.role === "admin" ? (
                   <>
                     <Link to="/admin" onClick={closeMenus}>Admin Dashboard</Link>
-                    <Link to="/admin/learners" onClick={closeMenus}>Learner Management</Link>
+                    <Link to="/admin/learners" onClick={closeMenus}>User Management</Link>
                     <Link to="/admin" onClick={closeMenus}>Announcements</Link>
                     <Link to="/admin" onClick={closeMenus}>Subscriptions</Link>
                   </>
