@@ -63,7 +63,7 @@ export default function TeacherDashboardPage() {
       )}
 
       <div className="grid-auto">
-        <div className="card">
+        <div className="dashboard-card">
           <h2>My Lessons</h2>
           <p>Create, edit, delete, search, and sort your lessons.</p>
 
@@ -75,7 +75,7 @@ export default function TeacherDashboardPage() {
           </button>
         </div>
 
-        <div className="card">
+        <div className="dashboard-card">
           <h2>Lessons Without Quizzes</h2>
           <p>Quickly identify lessons that need quiz questions</p>
 
@@ -87,7 +87,7 @@ export default function TeacherDashboardPage() {
           </button>
         </div>
 
-        <div className="card">
+        <div className="dashboard-card">
           <h2>My Learners</h2>
           <p>Track learners enrolled in your subjects.</p>
 
@@ -99,7 +99,7 @@ export default function TeacherDashboardPage() {
           </button>
         </div>
 
-        <div className="card">
+        <div className="dashboard-card">
           <h2>My Quizzes</h2>
           <p>Create and review assessments.</p>
 
