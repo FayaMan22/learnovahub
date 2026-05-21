@@ -6,14 +6,13 @@ export default function AdminLearnersPage() {
 
   const [learners, setLearners] = useState([]);
 
-  const [updatingRole, setUpdatingRole] =
-  useState(null);
+  const [updatingRole, setUpdatingRole] = useState(null);
 
   const navigate = useNavigate();
 
   function fetchLearners() {
     api
-      .get("/admin/learners")
+      .get("/admin/users")
       .then((response) => {
         setLearners(response.data);
       })
@@ -28,12 +27,10 @@ export default function AdminLearnersPage() {
 
   function updateUserRole(userId, role) {
 
-    setUpdatingRole(userId);
+    setUpdatingRole(`${userId}-${role}`);
 
     api
-    .patch(`/admin/users/${userId}/role`, {
-      role,
-    })
+    .patch(`/admin/users/${userId}/role`, { role })
     .then(() => {
       fetchUsers();
     })
@@ -94,34 +91,35 @@ export default function AdminLearnersPage() {
               <div className="user-actions">
 
                 <button
-                  disabled={updatingRole === learner.id}
+                  disabled={updatingRole === `${learner.id}-learner`}
                   onClick={() =>
-                    updateUserRole(user.id, "learner")
+                    updateUserRole(learner.id, "learner")
                   }
                 >
-                  {updatingRole === learner.id
+                  {updatingRole === `${learner.id}-learner`
                     ? "Updating ..."
                     : "Make Learner"}
                 </button>
 
                 <button
-                  disabled={updatingRole === learner.id}
+                  disabled={updatingRole === `${learner.id}-teacher`}
                   onClick={() =>
                     updateUserRole(learner.id, "teacher")
                   }
                 >
-                  {updatingRole === learner.id
+                  {updatingRole === `${learner.id}-teacher`
                     ? "Updating..."
                     : "Make Teacher"}
                 </button>
                 
+
                 <button
-                  disabled={updatingRole === learner.id}
+                  disabled={updatingRole === `${learner.id}-admin`}
                   onClick={() =>
-                    updateUserRole(user.id, "admin")
+                    updateUserRole(learner.id, "admin")
                   }
                 >
-                  {updatingRole === learner.id
+                  {updatingRole === `${learner.id}-admin`
                     ? "Updating ..."
                     : "Make Admin"}
                 </button>

@@ -9,17 +9,17 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
 
   const [token, setToken] = useState(
-    localStorage.getItem("token")
+    sessionStorage.getItem("token")
   );
 
   const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("user"))
+    JSON.parse(sessionStorage.getItem("user"))
   );
 
   function loginUser(tokenValue, userData) {
-    localStorage.setItem("token", tokenValue);
+    sessionStorage.setItem("token", tokenValue);
 
-    localStorage.setItem(
+    sessionStorage.setItem(
       "user",
       JSON.stringify(userData)
     );
@@ -29,8 +29,8 @@ export function AuthProvider({ children }) {
   }
 
   function logoutUser() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
 
     setToken(null);
     setUser(null);
