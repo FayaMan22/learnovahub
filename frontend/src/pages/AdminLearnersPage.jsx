@@ -6,6 +6,9 @@ export default function AdminLearnersPage() {
 
   const [learners, setLearners] = useState([]);
 
+  const [updatingRole, setUpdatingRole] =
+  useState(null);
+
   const navigate = useNavigate();
 
   function fetchLearners() {
@@ -25,7 +28,10 @@ export default function AdminLearnersPage() {
 
   function updateUserRole(userId, role) {
 
-    api.patch(`/admin/users/${userId}/role`, {
+    setUpdatingRole(userId);
+
+    api
+    .patch(`/admin/users/${userId}/role`, {
       role,
     })
     .then(() => {
@@ -33,6 +39,9 @@ export default function AdminLearnersPage() {
     })
     .catch((error) => {
       console.log(error);
+    })
+    .finally(() => {
+      setUpdatingRole(null);
     });
   }
 
@@ -83,38 +92,41 @@ export default function AdminLearnersPage() {
               </p>
 
               <div className="user-actions">
+
                 <button
+                  disabled={updatingRole === learner.id}
                   onClick={() =>
                     updateUserRole(user.id, "learner")
                   }
                 >
-                  Make Learner
+                  {updatingRole === learner.id
+                    ? "Updating ..."
+                    : "Make Learner"}
                 </button>
 
                 <button
+                  disabled={updatingRole === learner.id}
                   onClick={() =>
-                    updateUserRole(user.id, "teacher")
+                    updateUserRole(learner.id, "teacher")
                   }
                 >
-                  Make Teacher
+                  {updatingRole === learner.id
+                    ? "Updating..."
+                    : "Make Teacher"}
                 </button>
-
+                
                 <button
+                  disabled={updatingRole === learner.id}
                   onClick={() =>
                     updateUserRole(user.id, "admin")
                   }
                 >
-                  Make Admin
+                  {updatingRole === learner.id
+                    ? "Updating ..."
+                    : "Make Admin"}
                 </button>
-              </div>
 
-              <button
-                onClick={() =>
-                  navigate(`/admin/learners/${learner.id}`)
-                }
-              >
-                View Learner
-              </button>
+              </div>
 
             </div>
 

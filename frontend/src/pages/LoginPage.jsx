@@ -70,7 +70,7 @@ export default function LoginPage() {
             placeholder="Email Address"
             value={formData.email}
             onChange={handleChange}
-            autoComplete="off"
+            autoComplete="on"
             required
           />
 
