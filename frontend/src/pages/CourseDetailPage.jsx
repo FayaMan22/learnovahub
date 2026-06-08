@@ -61,6 +61,21 @@ export default function CourseDetailPage() {
             {course.description}
         </p>
 
+        {course.learning_outcomes && (
+          <div className="course-overview-box">
+            <h2>What You'll Learn</h2>
+
+            <ul className="course-outcomes-list">
+              {course.learning_outcomes
+                .split("\n")
+                .filter((item) => item.trim() !== "")
+                .map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+            </ul>
+          </div>
+        )}
+
         <div className="course-meta">
             <span>
             Teacher: {course.teacher_name}

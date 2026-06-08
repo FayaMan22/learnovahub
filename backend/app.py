@@ -311,6 +311,11 @@ class Course(db.Model):
         db.Text,
         nullable=True
     )
+    
+    learning_outcomes = db.Column(
+        db.Text,
+        nullable=True
+    )
 
     price = db.Column(
         db.Float,
@@ -1752,6 +1757,7 @@ def get_teacher_courses():
             "id": course.id,
             "title": course.title,
             "description": course.description,
+            "learning_outcomes": course.learning_outcomes,
             "price": course.price,
             "teacher_id": course.teacher_id,
             "lesson_count": lesson_count,
@@ -1782,6 +1788,7 @@ def create_teacher_course():
     course = Course(
         title=data.get("title"),
         description=data.get("description"),
+        learning_outcomes=data.get("learning_outcomes", "")
         price=data.get("price", 0),
         teacher_id=teacher_id
     )
@@ -1812,6 +1819,10 @@ def update_teacher_course(course_id):
     course.description = data.get(
         "description",
         course.description
+    )
+    course.learning_outcomes = data.get(
+        "learning_outcomes",
+        course.learning_outcomes
     )
     course.price = data.get("price", course.price)
 
@@ -2040,6 +2051,7 @@ def get_courses():
             "id": course.id,
             "title": course.title,
             "description": course.description,
+            "learning_outcomes": course.learning_outcomes,
             "price": course.price,
             "teacher_name": (
                 course.teacher.full_name
@@ -2077,6 +2089,7 @@ def get_course_detail(course_id):
         "id": course.id,
         "title": course.title,
         "description": course.description,
+        "learning_outcomes": course.learning_outcomes,
         "price": course.price,
         "teacher_name": (
             course.teacher.full_name
@@ -2110,6 +2123,7 @@ def get_my_courses():
             "id": course.id,
             "title": course.title,
             "description": course.description,
+            "learning_outcomes": course.learning_outcomes,
             "price": course.price,
 
             "teacher_name": (

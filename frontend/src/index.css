@@ -2100,3 +2100,21 @@ main {
   max-height: 170px;
   overflow: hidden;
 }
+
+.course-overview-box {
+  margin-top: 24px;
+  padding: 20px;
+  border-radius: 14px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.course-overview-box h2 {
+  margin-bottom: 14px;
+  font-size: 22px;
+}
+
+.course-outcomes-list {
+  padding-left: 22px;
+  line-height: 1.8;
+}

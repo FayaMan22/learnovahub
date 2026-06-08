@@ -11,6 +11,7 @@ export default function TeacherCoursesPage() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
+    learning_outcomes: "",
     price: "",
   });
 
@@ -42,6 +43,7 @@ function handleEditClick(course) {
   setFormData({
     title: course.title,
     description: course.description,
+    learning_outcomes: course.learning_outcomes || "",
     price: course.price,
   });
   window.scrollTo({
@@ -141,6 +143,13 @@ function handleCancelEdit() {
           name="description"
           placeholder="Course description"
           value={formData.description}
+          onChange={handleChange}
+        />
+
+        <textarea
+          name="learning_outcomes"
+          placeholder="What will learners learn? Write one outcome per line."
+          value={formData.learning_outcomes}
           onChange={handleChange}
         />
 
