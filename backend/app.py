@@ -1788,7 +1788,7 @@ def create_teacher_course():
     course = Course(
         title=data.get("title"),
         description=data.get("description"),
-        learning_outcomes=data.get("learning_outcomes", "")
+        learning_outcomes=data.get("learning_outcomes", ""),
         price=data.get("price", 0),
         teacher_id=teacher_id
     )
