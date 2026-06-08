@@ -30,6 +30,17 @@ export default function TeacherCoursesPage() {
     fetchCourses();
   }, []);
 
+  function resetForm() {
+    setFormData({
+      title: "",
+      description: "",
+      learning_outcomes: "",
+      price: "",
+    });
+
+    setEditingCourseId(null);
+  }
+
   function handleChange(e) {
     setFormData({
       ...formData,
@@ -37,30 +48,30 @@ export default function TeacherCoursesPage() {
     });
   }
 
-function handleEditClick(course) {
-  setEditingCourseId(course.id);
+  function handleEditClick(course) {
+    setEditingCourseId(course.id);
 
-  setFormData({
-    title: course.title,
-    description: course.description,
-    learning_outcomes: course.learning_outcomes || "",
-    price: course.price,
-  });
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth",
-  });
-}
+    setFormData({
+      title: course.title,
+      description: course.description,
+      learning_outcomes: course.learning_outcomes || "",
+      price: course.price,
+    });
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }
 
-function handleCancelEdit() {
-  setEditingCourseId(null);
+  function handleCancelEdit() {
+    setEditingCourseId(null);
 
-  setFormData({
-    title: "",
-    description: "",
-    price: "",
-  });
-}
+    setFormData({
+      title: "",
+      description: "",
+      price: "",
+    });
+  }
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -78,6 +89,7 @@ function handleCancelEdit() {
         )
         .then(() => {
           fetchCourses();
+          resetForm();
           handleCancelEdit();
         })
         .catch((error) => {
