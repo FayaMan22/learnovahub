@@ -64,13 +64,7 @@ export default function TeacherCoursesPage() {
   }
 
   function handleCancelEdit() {
-    setEditingCourseId(null);
-
-    setFormData({
-      title: "",
-      description: "",
-      price: "",
-    });
+    resetForm();
   }
 
   function handleSubmit(e) {
@@ -90,7 +84,6 @@ export default function TeacherCoursesPage() {
         .then(() => {
           fetchCourses();
           resetForm();
-          handleCancelEdit();
         })
         .catch((error) => {
           console.log(error);
@@ -103,7 +96,7 @@ export default function TeacherCoursesPage() {
       .post("/teacher/courses", payload)
       .then(() => {
         fetchCourses();
-        handleCancelEdit();
+        resetForm();
       })
       .catch((error) => {
         console.log(error);
