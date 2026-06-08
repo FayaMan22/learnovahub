@@ -25,8 +25,8 @@ CORS(
     resources={
         r"/*": {
             "origins": [
-                "http://localhost:5173",
-                "https://learnovahub.vercel.app"
+                "https://learnovahub.co.za",
+                "https://www.learnovahub.co.za"
             ],
             "allow_headers": [
                 "Content-Type",
@@ -358,6 +358,82 @@ class Enrollment(db.Model):
     course = db.relationship(
         "Course",
         backref="enrollments"
+    )
+
+class Assignment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    course_id = db.Column(
+        db.Integer,
+        db.ForeignKey("course.id"),
+        nullable=False
+    )
+
+    lesson_id = db.Column(
+        db.Integer,
+        db.ForeignKey("lesson.id"),
+        nullable=True
+    )
+
+    teacher_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id"),
+        nullable=False
+    )
+
+    title = db.Column(db.String(150), nullable=False)
+    instructions = db.Column(db.Text, nullable=False)
+
+    due_date = db.Column(db.DateTime, nullable=True)
+
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
+
+    course = db.relationship("Course", backref="assignments")
+    lesson = db.relationship("Lesson", backref="assignments")
+    teacher = db.relationship("User", backref="assignments")
+
+class AssignmentSubmission(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    assignment_id = db.Column(
+        db.Integer,
+        db.ForeignKey("assignment.id"),
+        nullable=False
+    )
+
+    learner_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id"),
+        nullable=False
+    )
+
+    answer_text = db.Column(db.Text, nullable=True)
+    file_url = db.Column(db.Text, nullable=True)
+
+    status = db.Column(
+        db.String(30),
+        default="submitted"
+    )
+
+    mark = db.Column(db.Float, nullable=True)
+    feedback = db.Column(db.Text, nullable=True)
+
+    submitted_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
+
+    assignment = db.relationship(
+        "Assignment",
+        backref="submissions"
+    )
+
+    learner = db.relationship(
+        "User",
+        backref="assignment_submissions"
     )
 
 #===========================
