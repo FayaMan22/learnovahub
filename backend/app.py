@@ -1993,6 +1993,62 @@ def get_teacher_learner_detail(learner_id):
         "profile_pic_url": learner.profile_pic_url
     }), 200
 
+@app.route("/teacher/assignments", methods=["POST"])
+@jwt_required()
+def create_assignment():
+    teacher_id = int(get_jwt_identity())
+    data = request.get_json()
+
+    assignment = Assignment(
+        course_id=data.get("course_id"),
+        lesson_id=data.get("lesson_id"),
+        teacher_id=teacher_id,
+        title=data.get("title"),
+        instructions=data.get("instructions"),
+        due_date=datetime.fromisoformat(data["due_date"])
+        if data.get("due_date")
+        else None
+    )
+
+    db.session.add(assignment)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Assignment created successfully",
+        "assignment_id": assignment.id
+    }), 201
+
+@app.route("/teacher/courses/<int:course_id>/assignments", methods=["GET"])
+@jwt_required()
+def get_teacher_course_assignments(course_id):
+    teacher_id = int(get_jwt_identity())
+
+    assignments = Assignment.query.filter_by(
+        course_id=course_id,
+        teacher_id=teacher_id
+    ).order_by(Assignment.created_at.desc()).all()
+
+    return jsonify([
+        {
+            "id": assignment.id,
+            "course_id": assignment.course_id,
+            "lesson_id": assignment.lesson_id,
+            "title": assignment.title,
+            "instructions": assignment.instructions,
+            "due_date": (
+                assignment.due_date.isoformat()
+                if assignment.due_date
+                else None
+            ),
+            "created_at": (
+                assignment.created_at.isoformat()
+                if assignment.created_at
+                else None
+            ),
+            "submission_count": len(assignment.submissions)
+        }
+        for assignment in assignments
+    ]), 200
 
 # =========================
 # LEARNER ROUTES
