@@ -2081,7 +2081,7 @@ def get_assignment_submissions(assignment_id):
             "mark": submission.mark,
             "total_marks": submission.assignment.total_marks,
             "feedback": submission.feedback,
-            "learner_profile_picture": submission.profile_picture_url,
+            "learner_profile_picture": submission.profile_pic_url,
             "submitted_at": (
                 submission.submitted_at.isoformat()
                 if submission.submitted_at
