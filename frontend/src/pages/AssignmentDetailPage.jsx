@@ -61,7 +61,9 @@ export default function AssignmentDetailPage() {
       <div className="card assignment-detail-card">
         <h1>{assignment.title}</h1>
 
-        <p>{assignment.instructions}</p>
+        <div className="assignment-instructions">
+          {assignment.instructions}
+        </div>
 
         <p>
           Due:{" "}

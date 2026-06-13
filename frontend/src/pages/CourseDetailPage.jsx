@@ -111,35 +111,65 @@ export default function CourseDetailPage() {
 
         {user?.role === "learner" && assignments.length > 0 && (
           <>
-            <h2 className="section-title">Course Assignments</h2>
+            <h2 className="section-title">
+              Course Assignments
+            </h2>
 
             <div className="course-lessons-grid">
               {assignments.map((assignment) => (
-                <div key={assignment.id} className="card lesson-preview-card">
-                  <h2>{assignment.title}</h2>
+                <div
+                  key={assignment.id}
+                  className="card assignment-card"
+                >
+                  <div className="assignment-card-header">
+                    <div>
+                      <p className="assignment-label">
+                        Assignment
+                      </p>
 
-                  <p>{assignment.instructions}</p>
+                      <h2>{assignment.title}</h2>
+                    </div>
 
-                  <p>
-                    Due:{" "}
-                    {assignment.due_date
-                      ? new Date(assignment.due_date).toLocaleDateString()
-                      : "No due date"}
-                  </p>
+                    <span
+                      className={
+                        assignment.submitted
+                          ? "assignment-status submitted"
+                          : "assignment-status pending"
+                      }
+                    >
+                      {assignment.submitted
+                        ? "Submitted"
+                        : "Pending"}
+                    </span>
+                  </div>
 
-                  <p>
-                    Status:{" "}
-                    {assignment.submitted ? "Submitted" : "Not submitted"}
-                  </p>
+                  <div className="assignment-instructions">
+                    {assignment.instructions}
+                  </div>
 
-                  <button
-                    className="btn btn-primary"
-                    onClick={() =>
-                      navigate(`/assignments/${assignment.id}`)
-                    }
-                  >
-                    {assignment.submitted ? "View Submission" : "Submit Assignment"}
-                  </button>
+                  <div className="assignment-footer">
+                    <span>
+                      Due:{" "}
+                      {assignment.due_date
+                        ? new Date(
+                            assignment.due_date
+                          ).toLocaleDateString()
+                        : "No due date"}
+                    </span>
+
+                    <button
+                      className="btn btn-primary"
+                      onClick={() =>
+                        navigate(
+                          `/assignments/${assignment.id}`
+                        )
+                      }
+                    >
+                      {assignment.submitted
+                        ? "View Submission"
+                        : "Submit Assignment"}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

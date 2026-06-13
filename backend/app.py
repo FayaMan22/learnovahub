@@ -2053,6 +2053,61 @@ def get_teacher_course_assignments(course_id):
         for assignment in assignments
     ]), 200
 
+@app.route("/teacher/assignments/<int:assignment_id>/submissions", methods=["GET"])
+@jwt_required()
+def get_assignment_submissions(assignment_id):
+    teacher_id = int(get_jwt_identity())
+
+    assignment = Assignment.query.get_or_404(assignment_id)
+
+    if assignment.teacher_id != teacher_id:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    submissions = AssignmentSubmission.query.filter_by(
+        assignment_id=assignment_id
+    ).order_by(AssignmentSubmission.submitted_at.desc()).all()
+
+    return jsonify([
+        {
+            "id": submission.id,
+            "assignment_id": submission.assignment_id,
+            "learner_id": submission.learner_id,
+            "learner_name": submission.learner.full_name,
+            "answer_text": submission.answer_text,
+            "file_url": submission.file_url,
+            "status": submission.status,
+            "mark": submission.mark,
+            "feedback": submission.feedback,
+            "submitted_at": (
+                submission.submitted_at.isoformat()
+                if submission.submitted_at
+                else None
+            )
+        }
+        for submission in submissions
+    ]), 200
+
+@app.route("/teacher/submissions/<int:submission_id>/mark", methods=["PATCH"])
+@jwt_required()
+def mark_assignment_submission(submission_id):
+    teacher_id = int(get_jwt_identity())
+    data = request.get_json()
+
+    submission = AssignmentSubmission.query.get_or_404(submission_id)
+
+    if submission.assignment.teacher_id != teacher_id:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    submission.mark = data.get("mark")
+    submission.feedback = data.get("feedback")
+    submission.status = "marked"
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Submission marked successfully"
+    }), 200
+
 # =========================
 # LEARNER ROUTES
 # =========================

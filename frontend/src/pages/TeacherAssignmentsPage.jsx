@@ -144,21 +144,40 @@ export default function TeacherAssignmentsPage() {
 
       <div className="grid-auto">
         {assignments.map((assignment) => (
-          <div key={assignment.id} className="card">
-            <h2>{assignment.title}</h2>
+          <div key={assignment.id} className="card assignment-card">
+            <div className="assignment-card-header">
+              <div>
+                <p className="assignment-label">Assignment</p>
+                <h2>{assignment.title}</h2>
+              </div>
 
-            <p>{assignment.instructions}</p>
+              <span className="assignment-status submitted">
+                {assignment.submission_count} Submission
+                {assignment.submission_count === 1 ? "" : "s"}
+              </span>
+            </div>
 
-            <p>
-              Due:{" "}
-              {assignment.due_date
-                ? new Date(assignment.due_date).toLocaleDateString()
-                : "No due date"}
-            </p>
+            <div className="assignment-instructions">
+              {assignment.instructions}
+            </div>
 
-            <p>
-              Submissions: {assignment.submission_count}
-            </p>
+            <div className="assignment-footer">
+              <span>
+                Due:{" "}
+                {assignment.due_date
+                  ? new Date(assignment.due_date).toLocaleDateString()
+                  : "No due date"}
+              </span>
+
+              <button
+                className="btn btn-primary"
+                onClick={() =>
+                  navigate(`/teacher/assignments/${assignment.id}/submissions`)
+                }
+              >
+                View Submissions
+              </button>
+            </div>
           </div>
         ))}
       </div>
