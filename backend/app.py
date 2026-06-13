@@ -2240,6 +2240,79 @@ def get_course_assignments_for_learner(course_id):
 
     return jsonify(assignment_list), 200
 
+@app.route("/assignments/<int:assignment_id>", methods=["GET"])
+@jwt_required()
+def get_assignment_detail(assignment_id):
+
+    assignment = Assignment.query.get_or_404(
+        assignment_id
+    )
+
+    learner_id = int(get_jwt_identity())
+
+    submission = AssignmentSubmission.query.filter_by(
+        assignment_id=assignment.id,
+        learner_id=learner_id
+    ).first()
+
+    return jsonify({
+        "id": assignment.id,
+        "title": assignment.title,
+        "instructions": assignment.instructions,
+        "due_date": (
+            assignment.due_date.isoformat()
+            if assignment.due_date
+            else None
+        ),
+        "submitted": submission is not None,
+        "answer_text": (
+            submission.answer_text
+            if submission
+            else ""
+        ),
+        "mark": (
+            submission.mark
+            if submission
+            else None
+        ),
+        "feedback": (
+            submission.feedback
+            if submission
+            else None
+        )
+    }), 200
+
+@app.route("/assignments/<int:assignment_id>/submit", methods=["POST"])
+@jwt_required()
+def submit_assignment(assignment_id):
+
+    learner_id = int(get_jwt_identity())
+
+    data = request.get_json()
+
+    existing = AssignmentSubmission.query.filter_by(
+        assignment_id=assignment_id,
+        learner_id=learner_id
+    ).first()
+
+    if existing:
+        return jsonify({
+            "error": "Assignment already submitted"
+        }), 400
+
+    submission = AssignmentSubmission(
+        assignment_id=assignment_id,
+        learner_id=learner_id,
+        answer_text=data.get("answer_text")
+    )
+
+    db.session.add(submission)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Assignment submitted successfully"
+    }), 201
+
 # === DATABASE INITIALIZATION ===
 with app.app_context():
     db.create_all()

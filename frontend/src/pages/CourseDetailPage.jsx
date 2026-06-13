@@ -12,16 +12,22 @@ export default function CourseDetailPage() {
 
   const [course, setCourse] = useState(null);
 
+  const [assignments, setAssignments] = useState([]);
+
   useEffect(() => {
+    if (!token || user?.role !== "learner") {
+      return;
+    }
+
     api
-      .get(`/courses/${courseId}`)
+      .get(`/courses/${courseId}/assignments`)
       .then((response) => {
-        setCourse(response.data);
+        setAssignments(response.data);
       })
       .catch((error) => {
         console.log(error);
       });
-  }, [courseId]);
+  }, [courseId, token, user]);
 
   if (!course) {
     return (
@@ -74,6 +80,43 @@ export default function CourseDetailPage() {
                 ))}
             </ul>
           </div>
+        )}
+
+        {user?.role === "learner" && assignments.length > 0 && (
+          <>
+            <h2 className="section-title">Course Assignments</h2>
+
+            <div className="course-lessons-grid">
+              {assignments.map((assignment) => (
+                <div key={assignment.id} className="card lesson-preview-card">
+                  <h2>{assignment.title}</h2>
+
+                  <p>{assignment.instructions}</p>
+
+                  <p>
+                    Due:{" "}
+                    {assignment.due_date
+                      ? new Date(assignment.due_date).toLocaleDateString()
+                      : "No due date"}
+                  </p>
+
+                  <p>
+                    Status:{" "}
+                    {assignment.submitted ? "Submitted" : "Not submitted"}
+                  </p>
+
+                  <button
+                    className="btn btn-primary"
+                    onClick={() =>
+                      navigate(`/assignments/${assignment.id}`)
+                    }
+                  >
+                    {assignment.submitted ? "View Submission" : "Submit Assignment"}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </>
         )}
 
         <div className="course-meta">
