@@ -1,17 +1,25 @@
 import api from "../api/api";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function PricingPage() {
   const navigate = useNavigate();
-
   const [searchParams] = useSearchParams();
 
+  const { token } = useAuth();
+
   const courseId = searchParams.get("course");
-  
+
   async function handleSubscriptionPayment() {
-    
     if (!token) {
       alert("Please login first before subscribing.");
+      navigate("/login");
+      return;
+    }
+
+    if (!courseId) {
+      alert("No course selected. Please choose a course first.");
+      navigate("/courses");
       return;
     }
 
@@ -21,8 +29,8 @@ export default function PricingPage() {
         {
           amount: 149,
           subscription_type: "monthly",
-          course_id: courseId,
-        },
+          course_id: Number(courseId),
+        }
       );
 
       const { payfast_url, payfast_data } = response.data;
@@ -42,53 +50,74 @@ export default function PricingPage() {
 
       document.body.appendChild(form);
       form.submit();
-
     } catch (error) {
       console.log(error);
       alert("Failed to start PayFast payment.");
     }
   }
 
+  function handleFreePreview() {
+    if (courseId) {
+      navigate(`/courses/${courseId}`);
+      return;
+    }
+
+    navigate("/courses");
+  }
+
   return (
     <section className="pricing-page">
       <h1>Choose Your Learning Plan</h1>
+
       <p className="pricing-intro">
-        Start with Grade 9 Mathematics and unlock structured lessons,
-        quizzes, worksheets, and revision support.
+        Unlock structured lessons, quizzes, assignments, worksheets,
+        and revision support for your selected course.
       </p>
+
+      {courseId && (
+        <button
+          className="btn btn-secondary back-btn"
+          onClick={() => navigate(`/courses/${courseId}`)}
+        >
+          ← Back to Course
+        </button>
+      )}
 
       <div className="pricing-grid">
         <div className="pricing-card">
           <h2>Free Preview</h2>
           <h3>R0</h3>
-          <p>Try selected lessons before joining.</p>
+          <p>Explore the course before subscribing.</p>
 
           <ul>
-            <li>Limited video lessons</li>
-            <li>Sample worksheets</li>
-            <li>Basic topic previews</li>
+            <li>View course overview</li>
+            <li>Preview selected lessons</li>
+            <li>See assignments and learning outcomes</li>
           </ul>
 
-          <button onClick={() => navigate("/lessons")}>
-            Start Free
+          <button onClick={handleFreePreview}>
+            Back to Course
           </button>
         </div>
 
         <div className="pricing-card featured-plan">
-          <h2>Grade 9 Maths</h2>
+          <h2>Monthly Access</h2>
           <h3>R149 / month</h3>
-          <p>Full access to Grade 9 Mathematics content.</p>
+          <p>
+            Get full access to the selected course and continue
+            learning at your own pace.
+          </p>
 
           <ul>
-            <li>All video lessons</li>
+            <li>All course lessons</li>
             <li>Interactive quizzes</li>
-            <li>Downloadable worksheets</li>
-            <li>Revision exercises</li>
+            <li>Teacher-created assignments</li>
+            <li>Progress tracking</li>
             <li>Learner support</li>
           </ul>
 
           <button onClick={handleSubscriptionPayment}>
-            Subscribe Monthly
+            Subscribe and Continue
           </button>
         </div>
 
@@ -109,7 +138,7 @@ export default function PricingPage() {
               alert("Exam Booster package coming soon.")
             }
           >
-            Get Booster
+            Coming Soon
           </button>
         </div>
       </div>

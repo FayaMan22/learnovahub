@@ -15,6 +15,17 @@ export default function CourseDetailPage() {
   const [assignments, setAssignments] = useState([]);
 
   useEffect(() => {
+    api
+      .get(`/courses/${courseId}`)
+      .then((response) => {
+        setCourse(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [courseId]);
+
+  useEffect(() => {
     if (!token || user?.role !== "learner") {
       return;
     }
@@ -27,15 +38,15 @@ export default function CourseDetailPage() {
       .catch((error) => {
         console.log(error);
       });
-  }, [courseId, token, user]);
+  }, [courseId, token, user]);;
 
-  if (!course) {
-    return (
-      <section className="page-section">
-        <p>Loading course...</p>
-      </section>
-    );
-  }
+    if (!course) {
+      return (
+        <section className="page-section">
+          <p>Loading course...</p>
+        </section>
+      );
+    }
 
   function handleEnroll() {
     if (!token) {

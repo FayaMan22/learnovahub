@@ -1008,7 +1008,10 @@ def create_payfast_data():
     payfast_data = {
         "merchant_id": os.getenv("PAYFAST_MERCHANT_ID"),
         "merchant_key": os.getenv("PAYFAST_MERCHANT_KEY"),
-        "return_url": f"{os.getenv('FRONTEND_URL')}/payment-success",
+        "return_url": (
+            f"{os.getenv('FRONTEND_URL')}/payment-success"
+            f"?course={course_id}"
+        ),
         "cancel_url": f"{os.getenv('FRONTEND_URL')}/payment-cancelled",
         "notify_url": f"{os.getenv('BACKEND_URL')}/payments/notify",
         "name_first": user.full_name.split()[0],
