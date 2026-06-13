@@ -2225,3 +2225,133 @@ main {
   white-space: pre-wrap;
   line-height: 1.8;
 }
+.submission-card {
+  padding: 26px;
+  border-radius: 18px;
+}
+
+.submission-meta {
+  margin: 16px 0;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.marking-panel {
+  margin-top: 24px;
+  padding: 20px;
+  border-radius: 16px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.marking-panel h3 {
+  margin-bottom: 16px;
+  color: #111827;
+}
+
+.marking-panel label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: #374151;
+}
+
+.marking-panel input,
+.marking-panel textarea {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 15px;
+}
+
+.marking-panel textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+.marking-panel .btn {
+  margin-top: 10px;
+}
+
+.assignment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.assignment-meta {
+  margin-bottom: 20px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.submission-result-card {
+  margin-top: 24px;
+}
+
+.submitted-answer {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 18px;
+  white-space: pre-wrap;
+  margin-bottom: 20px;
+}
+
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.result-box {
+  background: #f9fafb;
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+}
+
+.result-box span {
+  display: block;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.result-box strong {
+  font-size: 24px;
+}
+
+.feedback-box {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.feedback-box h3 {
+  margin-bottom: 10px;
+}
+
+.assignment-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.total-marks-label {
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.score-summary {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}

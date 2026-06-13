@@ -391,6 +391,7 @@ class Assignment(db.Model):
 
     title = db.Column(db.String(150), nullable=False)
     instructions = db.Column(db.Text, nullable=False)
+    total_marks = db.Column(db.Float, nullable=True)
 
     due_date = db.Column(db.DateTime, nullable=True)
 
@@ -2038,6 +2039,7 @@ def get_teacher_course_assignments(course_id):
             "lesson_id": assignment.lesson_id,
             "title": assignment.title,
             "instructions": assignment.instructions,
+            "total_marks": assignment.total_marks,
             "due_date": (
                 assignment.due_date.isoformat()
                 if assignment.due_date
@@ -2077,6 +2079,7 @@ def get_assignment_submissions(assignment_id):
             "file_url": submission.file_url,
             "status": submission.status,
             "mark": submission.mark,
+            "total_marks": submission.assignment.total_marks,
             "feedback": submission.feedback,
             "submitted_at": (
                 submission.submitted_at.isoformat()
@@ -2280,6 +2283,7 @@ def get_course_assignments_for_learner(course_id):
             "lesson_id": assignment.lesson_id,
             "title": assignment.title,
             "instructions": assignment.instructions,
+            "total_marks": assignment.total_marks,
             "due_date": (
                 assignment.due_date.isoformat()
                 if assignment.due_date
@@ -2317,6 +2321,7 @@ def get_assignment_detail(assignment_id):
         "id": assignment.id,
         "title": assignment.title,
         "instructions": assignment.instructions,
+        "total_marks": assignment.total_marks,
         "due_date": (
             assignment.due_date.isoformat()
             if assignment.due_date

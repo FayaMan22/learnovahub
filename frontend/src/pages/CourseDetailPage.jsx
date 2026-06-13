@@ -78,6 +78,18 @@ export default function CourseDetailPage() {
     navigate(`/pricing?course=${courseId}`);
   }
 
+  function getAssignmentStatus(assignment) {
+    if (assignment.mark !== null) {
+      return "Marked";
+    }
+
+    if (assignment.submitted) {
+      return "Submitted";
+    }
+
+    return "Pending";
+  }
+
   return (
     <section className="page-section">
       <div className="course-hero card">
@@ -155,6 +167,12 @@ export default function CourseDetailPage() {
                             assignment.due_date
                           ).toLocaleDateString()
                         : "No due date"}
+                    </span>
+
+                    <span
+                      className={`assignment-status ${getAssignmentStatus(assignment).toLowerCase()}`}
+                    >
+                      {getAssignmentStatus(assignment)}
                     </span>
 
                     <button

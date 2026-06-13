@@ -130,6 +130,14 @@ export default function TeacherAssignmentsPage() {
           onChange={handleChange}
         />
 
+        <input
+          type="number"
+          name="total_marks"
+          placeholder="Total marks"
+          value={formData.total_marks}
+          onChange={handleChange}
+        />
+
         <button className="btn btn-success" type="submit">
           Create Assignment
         </button>

@@ -40,6 +40,7 @@ import TeacherLearnerDetailPage from "./pages/TeacherLearnerDetailPage.jsx";
 import AdminSubscriptionsPage from "./pages/AdminSubscriptionsPage.jsx";
 import TeacherAssignmentsPage from "./pages/TeacherAssignmentsPage";
 import AssignmentDetailPage from "./pages/AssignmentDetailPage.jsx";
+import TeacherAssignmentSubmissionsPage from "./pages/TeacherAssignmentSubmissionsPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -212,6 +213,14 @@ const router = createBrowserRouter([
           <ProtectedRoute>
             <AssignmentDetailPage />
           </ProtectedRoute>
+        ),
+      },
+      {
+        path: "teacher/assignments/:assignmentId/submissions",
+        element: (
+          <TeacherRoute>
+            <TeacherAssignmentSubmissionsPage />
+          </TeacherRoute>
         ),
       },
     ],

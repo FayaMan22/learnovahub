@@ -59,46 +59,86 @@ export default function AssignmentDetailPage() {
       </button>
 
       <div className="card assignment-detail-card">
-        <h1>{assignment.title}</h1>
+        <div className="assignment-header">
+          <div>
+            <p className="assignment-label">
+              Assignment
+            </p>
+
+            <h1>{assignment.title}</h1>
+          </div>
+
+          <span
+            className={
+              assignment.submitted
+                ? "assignment-status submitted"
+                : "assignment-status pending"
+            }>
+              {assignment.submitted
+                ? "Submitted"
+                : "Pending"
+              }
+            </span>
+        </div>
+        
+        <div className="assignment-meta">
+          Due:{" "}
+          {assignment.due_date
+            ? new Date(
+              assignment.due_date
+            ).toLocaleString()
+            : "No due date"}
+        </div>
 
         <div className="assignment-instructions">
           {assignment.instructions}
         </div>
 
-        <p>
-          Due:{" "}
-          {assignment.due_date
-            ? new Date(assignment.due_date).toLocaleDateString()
-            : "No due date"}
-        </p>
-
         {assignment.submitted ? (
-          <div className="submission-status-box">
-            <h2>Submitted</h2>
+          <div className="submission-result-card">
+            <h2>Your Submission</h2>
 
-            <p>
-              <strong>Your Answer:</strong>
-            </p>
+            <div className="submitted-answer">
+              {assignment.answer_text}
+            </div>
 
-            <p>{assignment.answer_text}</p>
+            <div className="result-grid">
+              <div className="result-box">
+                <span>Mark</span>
 
-            <p>
-              <strong>Mark:</strong>{" "}
-              {assignment.mark !== null
-                ? assignment.mark
-                : "Not marked yet"}
-            </p>
+                <strong>
+                  {assignment.mark !== null
+                    ? assignment.mark
+                    : "--"}
+                </strong>
+              </div>
 
-            <p>
-              <strong>Feedback:</strong>{" "}
-              {assignment.feedback || "No feedback yet"}
-            </p>
+              <div className="result-box">
+                <span>Status</span>
+
+                <strong>
+                  {assignment.mark !== null
+                    ? "Marked"
+                    : "Awaiting Marking"}
+                </strong>
+              </div>
+
+              <div className="feedback-box">
+                <h3>Teacher Feedback</h3>
+
+                <p>
+                  {assignment.feedback ||
+                    "Your teacher has not provide feedback yet."}
+                </p>
+              </div>
+            </div>
           </div>
         ) : (
           <form className="lesson-form" onSubmit={handleSubmit}>
             <h2>Submit Your Answer</h2>
 
             <textarea
+              rows="10"
               value={answerText}
               onChange={(e) => setAnswerText(e.target.value)}
               placeholder="Type your answer here..."
