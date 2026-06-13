@@ -38,6 +38,7 @@ import AnnouncementsPage from "./pages/AnnouncementsPage.jsx";
 import TeacherLearnersPage from "./pages/TeacherLearnersPage.jsx";
 import TeacherLearnerDetailPage from "./pages/TeacherLearnerDetailPage.jsx";
 import AdminSubscriptionsPage from "./pages/AdminSubscriptionsPage.jsx";
+import TeacherAssignmentsPage from "./pages/TeacherAssignmentsPage";
 
 
 const router = createBrowserRouter([
@@ -194,6 +195,14 @@ const router = createBrowserRouter([
         element: (
           <TeacherRoute>
             <TeacherLearnerDetailPage />
+          </TeacherRoute>
+        ),
+      },
+      {
+        path: "teacher/assignments",
+        element: (
+          <TeacherRoute>
+            <TeacherAssignmentsPage />
           </TeacherRoute>
         ),
       },

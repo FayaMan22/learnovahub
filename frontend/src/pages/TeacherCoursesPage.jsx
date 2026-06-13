@@ -211,6 +211,15 @@ export default function TeacherCoursesPage() {
               </button>
 
               <button
+                className="btn btn-success"
+                onClick={() =>
+                  navigate(`/teacher/assignments?course=${course.id}`)
+                }
+              >
+                Assignments
+              </button>
+
+              <button
                 className="btn btn-secondary"
                 onClick={() => handleEditClick(course)}
               >

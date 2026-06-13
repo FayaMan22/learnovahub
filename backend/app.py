@@ -2199,6 +2199,47 @@ def get_my_courses():
 
     return jsonify(course_list), 200
 
+@app.route("/courses/<int:course_id>/assignments", methods=["GET"])
+@jwt_required()
+def get_course_assignments_for_learner(course_id):
+    assignments = Assignment.query.filter_by(
+        course_id=course_id
+    ).order_by(Assignment.created_at.desc()).all()
+
+    assignment_list = []
+
+    learner_id = int(get_jwt_identity())
+
+    for assignment in assignments:
+        submission = AssignmentSubmission.query.filter_by(
+            assignment_id=assignment.id,
+            learner_id=learner_id
+        ).first()
+
+        assignment_list.append({
+            "id": assignment.id,
+            "course_id": assignment.course_id,
+            "lesson_id": assignment.lesson_id,
+            "title": assignment.title,
+            "instructions": assignment.instructions,
+            "due_date": (
+                assignment.due_date.isoformat()
+                if assignment.due_date
+                else None
+            ),
+            "created_at": (
+                assignment.created_at.isoformat()
+                if assignment.created_at
+                else None
+            ),
+            "submitted": submission is not None,
+            "submission_status": submission.status if submission else None,
+            "mark": submission.mark if submission else None,
+            "feedback": submission.feedback if submission else None,
+        })
+
+    return jsonify(assignment_list), 200
+
 # === DATABASE INITIALIZATION ===
 with app.app_context():
     db.create_all()
