@@ -102,13 +102,17 @@ export default function AssignmentDetailPage() {
               {assignment.answer_text}
             </div>
 
+            <div className="result-badge">
+              ✓ Assignment Marked
+            </div>
+
             <div className="result-grid">
               <div className="result-box">
-                <span>Mark</span>
+                <span>Score</span>
 
                 <strong>
                   {assignment.mark !== null
-                    ? assignment.mark
+                    ? `${assignment.mark}/${assignment.total_marks ?? "-"}`
                     : "--"}
                 </strong>
               </div>

@@ -41,7 +41,10 @@ export default function TeacherAssignmentSubmissionsPage() {
     api
       .patch(`/teacher/submissions/${submissionId}/mark`, {
         mark: Number(submission.mark),
-        feedback: submission.feedback,
+        feedback: submission.feedback
+          ? submission.feedback.charAt(0).toUpperCase() +
+            submission.feedback.slice(1)
+          : "",
       })
       .then(() => {
         alert("Submission marked successfully.");
@@ -78,11 +81,23 @@ export default function TeacherAssignmentSubmissionsPage() {
         {submissions.map((submission) => (
           <div key={submission.id} className="card submission-card">
             <div className="assignment-card-header">
-              <div>
-                <p className="assignment-label">Submission</p>
-                <h2>{submission.learner_name}</h2>
-              </div>
+              <div className="submission-learner-info">
+                <img
+                  onScroll={
+                    submission.learner_profile_picture ||
+                    "https://ui-avatars.com/api/?name=" +
+                    encodeURIComponent(submission.learner_name)
+                  }
+                  alt={submission.learner_name}
+                  className="submission-avatar"
+                />
 
+                <div>
+                  <p className="assignment-label">Submission</p>
+                  <h2>{submission.learner_name}</h2>
+                </div>
+              </div>
+              
               <span
                 className={
                   submission.status === "marked"
@@ -110,23 +125,13 @@ export default function TeacherAssignmentSubmissionsPage() {
             <div className="marking-panel">
                 <h3>Assessment</h3>
 
-                {submission.total_marks && (
-                    <div className="score-summary">
-                        Score:
-                        {" "}
-                        {submission.mark || 0}
-                        /
-                        {submission.total_marks}
-                    </div>
-                )}
+                
+                <div className="score-summary">
+                    Score: {submission.mark ?? 0}/{submission.total_marks ?? "-"}
+                </div>
 
                 <label>
-                    Mark
-                    {submission.total_marks && (
-                      <span className="total-marks-label">
-                        {" "} / {submission.total_marks}
-                      </span>
-                    )}
+                    Mark Awarded  
                     <input
                         type="number"
                         placeholder="Enter mark"
@@ -135,6 +140,11 @@ export default function TeacherAssignmentSubmissionsPage() {
                             handleChange(submission.id, "mark", e.target.value)
                         }/>  
                 </label>
+
+                <div className="total-marks-display">
+                  Out of: {submission.total_marks ?? "-"}
+                </div>
+
 
                 <label>
                     Feedback

@@ -2323,7 +2323,8 @@ main {
 }
 
 .result-box strong {
-  font-size: 24px;
+  font-size: 30px;
+  font-weight: 400;
 }
 
 .feedback-box {
@@ -2331,6 +2332,8 @@ main {
   border: 1px solid #bfdbfe;
   border-radius: 14px;
   padding: 18px;
+  margin-top: 20px;
+  width: 100%;
 }
 
 .feedback-box h3 {
@@ -2354,4 +2357,36 @@ main {
     font-size: 18px;
     font-weight: 700;
     margin-bottom: 16px;
+}
+
+.total-marks-display {
+  margin-top: -6px;
+  margin-bottom: 16px;
+  font-weight: 700;
+  color: #6b7280;
+}
+
+.result-badge {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.submission-learner-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.submission-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e5e7eb;
+  background: #f3f4f6;
 }
