@@ -2316,6 +2316,40 @@ def submit_assignment(assignment_id):
         "message": "Assignment submitted successfully"
     }), 201
 
+@app.route("/courses/<int:course_id>/enroll-free", methods=["POST"])
+@jwt_required()
+def enroll_free_course(course_id):
+    learner_id = int(get_jwt_identity())
+
+    course = Course.query.get_or_404(course_id)
+
+    if course.price and course.price > 0:
+        return jsonify({
+            "error": "This course requires payment"
+        }), 403
+
+    existing_enrollment = Enrollment.query.filter_by(
+        learner_id=learner_id,
+        course_id=course_id
+    ).first()
+
+    if existing_enrollment:
+        return jsonify({
+            "message": "Already enrolled"
+        }), 200
+
+    enrollment = Enrollment(
+        learner_id=learner_id,
+        course_id=course_id
+    )
+
+    db.session.add(enrollment)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Successfully enrolled in free course"
+    }), 201
+
 # === DATABASE INITIALIZATION ===
 with app.app_context():
     db.create_all()

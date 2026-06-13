@@ -48,7 +48,7 @@ export default function CourseDetailPage() {
       );
     }
 
-  function handleEnroll() {
+  async function handleEnroll() {
     if (!token) {
       alert("Please login first.");
       return;
@@ -56,6 +56,22 @@ export default function CourseDetailPage() {
 
     if (user?.role !== "learner") {
       alert("Only learners can enroll in courses.");
+      return;
+    }
+
+    if (Number(course.price) === 0) {
+      try {
+        await api.post(`/courses/${courseId}/enroll-free`);
+        alert("You have been enrolled successfully.");
+        navigate("/my-courses");
+      } catch (error) {
+        console.log(error);
+        alert(
+          error.response?.data?.error ||
+            "Failed to enroll in course."
+        );
+      }
+
       return;
     }
 
