@@ -83,15 +83,16 @@ export default function TeacherAssignmentSubmissionsPage() {
             <div className="assignment-card-header">
               <div className="submission-learner-info">
                 <img
-                  onScroll={
+                  scr={
                     submission.learner_profile_picture ||
-                    "https://ui-avatars.com/api/?name=" +
-                    encodeURIComponent(submission.learner_name)
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                      submission.learner_name
+                    )}`
                   }
                   alt={submission.learner_name}
                   className="submission-avatar"
                 />
-
+                
                 <div>
                   <p className="assignment-label">Submission</p>
                   <h2>{submission.learner_name}</h2>
