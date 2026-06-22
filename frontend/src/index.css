@@ -2390,3 +2390,21 @@ main {
   border: 2px solid #e5e7eb;
   background: #f3f4f6;
 }
+.legal-page {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.legal-card {
+  padding: 32px;
+  line-height: 1.8;
+}
+
+.legal-card h1 {
+  margin-bottom: 20px;
+}
+
+.legal-card h2 {
+  margin-top: 24px;
+  margin-bottom: 8px;
+}

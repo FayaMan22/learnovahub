@@ -83,7 +83,7 @@ export default function TeacherAssignmentSubmissionsPage() {
             <div className="assignment-card-header">
               <div className="submission-learner-info">
                 <img
-                  scr={
+                  src={
                     submission.learner_profile_picture ||
                     `https://ui-avatars.com/api/?name=${encodeURIComponent(
                       submission.learner_name

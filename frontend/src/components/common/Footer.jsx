@@ -13,6 +13,8 @@ export default function Footer() {
             Empowering learners and teachers
             through structured online learning.
           </p>
+          <p>Email: support@learnovahub.co.za</p>
+          <p>Website: www.learnovahub.co.za</p>
         </div>
 
         <div>
@@ -31,6 +33,26 @@ export default function Footer() {
           <p>Quizzes & Worksheets</p>
           <p>Progress Tracking</p>
           <p>Role-Based Learning</p>
+        </div>
+
+        <div>
+          <h3>Legal</h3>
+
+          <Link to="/terms">
+            Terms & Conditions
+          </Link>
+
+          <Link to="/refund-policy">
+            Refund Policy
+          </Link>
+
+          <Link to="/cancellation-policy">
+            Cancellation Policy
+          </Link>
+
+          <Link to="/service-delivery">
+            Service Delivery Policy
+          </Link>
         </div>
 
       </div>

@@ -41,6 +41,10 @@ import AdminSubscriptionsPage from "./pages/AdminSubscriptionsPage.jsx";
 import TeacherAssignmentsPage from "./pages/TeacherAssignmentsPage";
 import AssignmentDetailPage from "./pages/AssignmentDetailPage.jsx";
 import TeacherAssignmentSubmissionsPage from "./pages/TeacherAssignmentSubmissionsPage.jsx";
+import PaymentCancelledPage from "./pages/PaymentCancelledPage.jsx";
+import RefundPolicyPage from "./pages/RefundPolicyPage.jsx";
+import ServiceDeliveryPage from "./pages/ServiceDeliveryPage.jsx";
+import TermsPage from "./pages/TermsPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -222,6 +226,22 @@ const router = createBrowserRouter([
             <TeacherAssignmentSubmissionsPage />
           </TeacherRoute>
         ),
+      },
+      {
+        path: "/terms",
+        element: <TermsPage />
+      },
+      {
+        path: "/refund-policy",
+        element: <RefundPolicyPage />
+      },
+      {
+        path: "/cancellation-policy",
+        element: <CancellationPolicyPage />
+      },
+      {
+        path: "/service-delivery",
+        element: <ServiceDeliveryPage />
       },
     ],
   },
