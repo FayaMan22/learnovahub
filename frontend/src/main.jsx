@@ -41,7 +41,7 @@ import AdminSubscriptionsPage from "./pages/AdminSubscriptionsPage.jsx";
 import TeacherAssignmentsPage from "./pages/TeacherAssignmentsPage";
 import AssignmentDetailPage from "./pages/AssignmentDetailPage.jsx";
 import TeacherAssignmentSubmissionsPage from "./pages/TeacherAssignmentSubmissionsPage.jsx";
-import PaymentCancelledPage from "./pages/PaymentCancelledPage.jsx";
+import CancellationPolicyPage from "./pages/CancellationPolicyPage.jsx";
 import RefundPolicyPage from "./pages/RefundPolicyPage.jsx";
 import ServiceDeliveryPage from "./pages/ServiceDeliveryPage.jsx";
 import TermsPage from "./pages/TermsPage.jsx";
