@@ -1548,64 +1548,62 @@ def delete_teacher_lesson(lesson_id):
 @app.route("/teacher/analytics", methods=["GET"])
 @jwt_required()
 def teacher_analytics():
-
     teacher_id = int(get_jwt_identity())
 
-    user = User.query.get_or_404(teacher_id)
-
-    if user.role != "teacher":
-        return jsonify({
-            "error": "Teacher access required"
-        }), 403
-
-    total_lessons = Lesson.query.filter_by(
-        teacher_id=teacher_id
-    ).count()
-
-    premium_lessons = Lesson.query.filter_by(
-        teacher_id=teacher_id,
-        is_premium=True
-    ).count()
-
-    free_lessons = Lesson.query.filter_by(
-        teacher_id=teacher_id,
-        is_premium=False
-    ).count()
-
-    teacher_lessons = Lesson.query.filter_by(
+    courses = Course.query.filter_by(
         teacher_id=teacher_id
     ).all()
 
-    lesson_ids = [
-        lesson.id
-        for lesson in teacher_lessons
+    course_ids = [course.id for course in courses]
+
+    total_lessons = Lesson.query.filter(
+        Lesson.course_id.in_(course_ids)
+    ).count() if course_ids else 0
+
+    total_assignments = Assignment.query.filter(
+        Assignment.teacher_id == teacher_id
+    ).count()
+
+    total_learners = Enrollment.query.filter(
+        Enrollment.course_id.in_(course_ids)
+    ).count() if course_ids else 0
+
+    submissions = AssignmentSubmission.query.join(
+        Assignment,
+        AssignmentSubmission.assignment_id == Assignment.id
+    ).filter(
+        Assignment.teacher_id == teacher_id
+    ).all()
+
+    pending_marking = len([
+        submission for submission in submissions
+        if submission.status != "marked"
+    ])
+
+    marked_submissions = len([
+        submission for submission in submissions
+        if submission.status == "marked"
+    ])
+
+    marks = [
+        submission.mark for submission in submissions
+        if submission.mark is not None
     ]
 
-    total_quiz_questions = QuizQuestion.query.filter(
-        QuizQuestion.lesson_id.in_(lesson_ids)
-    ).count() if lesson_ids else 0
-
-    lessons_with_quizzes = 0
-
-    for lesson in teacher_lessons:
-        quiz_count = QuizQuestion.query.filter_by(
-            lesson_id=lesson.id
-        ).count()
-
-        if quiz_count > 0:
-            lessons_with_quizzes += 1
-
-    lessons_without_quizzes = (
-        total_lessons - lessons_with_quizzes
+    average_score = (
+        round(sum(marks) / len(marks), 1)
+        if marks
+        else 0
     )
 
     return jsonify({
+        "total_courses": total_courses,
         "total_lessons": total_lessons,
-        "premium_lessons": premium_lessons,
-        "free_lessons": free_lessons,
-        "total_quiz_questions": total_quiz_questions,
-        "lessons_with_quizzes": lessons_with_quizzes,
-        "lessons_without_quizzes": lessons_without_quizzes
+        "total_learners": total_learners,
+        "total_assignments": total_assignments,
+        "pending_marking": pending_marking,
+        "marked_submissions": marked_submissions,
+        "average_score": average_score
     }), 200
 
 @app.route("/teacher/lessons/<int:lesson_id>/quiz", methods=["GET"])
