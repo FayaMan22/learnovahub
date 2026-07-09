@@ -1,11 +1,27 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/api";
+import AnalyticsCard from "../components/dashboard/AnalyticsCard";
+import DashboardHero from "../components/dashboard/DashboardHero";
+import QuickActions from "../components/dashboard/QuickActions";
+import AnalyticsGrid from "../components/dashboard/AnalyticsGrid";
+import AttentionPanel from "../components/dashboard/AttentionPanel";
+import RecentActivity from "../components/dashboard/RecentActivity";
 
 export default function TeacherDashboardPage() {
   const navigate = useNavigate();
 
   const [analytics, setAnalytics] = useState(null);
+
+  const hour = new Date().getHours();
+
+  let greeting = "Good Evening";
+
+  if (hour < 12) {
+    greeting = "Good Morning";
+  } else if (hour < 18) {
+    greeting = "Good Afternoon";
+  }
 
   useEffect(() => {
     api
@@ -20,94 +36,25 @@ export default function TeacherDashboardPage() {
 
   return (
     <section className="page-section">
-      <h1>Teacher Dashboard</h1>
+      <DashboardHero
+        greeting={greeting}
+        analytics={analytics}
+      />
 
-      <p>
-        Manage your subjects, lessons, videos, quizzes, and learner progress.
-      </p>
+      <AnalyticsGrid
+        analytics={analytics}
+      />
 
-      {analytics && (
-        <div className="analytics-grid">
+      <QuickActions />
 
-          <div className="analytics-card">
-            <h2>{analytics.total_lessons}</h2>
-            <p>My Lessons</p>
-          </div>
+      <AttentionPanel 
+        analytics={analytics} 
+      />
 
-          <div className="analytics-card">
-            <h2>{analytics.premium_lessons}</h2>
-            <p>Premium Lessons</p>
-          </div>
+      <RecentActivity 
+        analytics={analytics} 
+      />
 
-          <div className="analytics-card">
-            <h2>{analytics.free_lessons}</h2>
-            <p>Free Lessons</p>
-          </div>
-
-          <div className="analytics-card">
-            <h2>{analytics.total_quiz_questions}</h2>
-            <p>Quiz Questions</p>
-          </div>
-
-          <div className="analytics-card">
-            <h2>{analytics.lessons_with_quizzes}</h2>
-            <p>Lessons With Quizzes</p>
-          </div>
-
-          <div className="analytics-card">
-            <h2>{analytics.lessons_without_quizzes}</h2>
-            <p>Lessons Without Quizzes</p>
-          </div>
-
-        </div>
-      )}
-
-      <div className="grid-auto">
-        <div className="dashboard-card">
-          <h2>My Lessons</h2>
-          <p>Create, edit, delete, search, and sort your lessons.</p>
-
-          <button
-            className="btn btn-primary"
-            onClick={() => navigate("/teacher/lessons")}
-          >
-            Manage My Lessons
-          </button>
-        </div>
-
-        <div className="dashboard-card">
-          <h2>Lessons Without Quizzes</h2>
-          <p>Quickly identify lessons that need quiz questions</p>
-
-          <button
-            className="btn btn-success"
-            onClick={() => navigate("/teacher/lessons?filter=withoutQuiz")}
-          >
-            Add Quizzes
-          </button>
-        </div>
-
-        <div className="dashboard-card">
-          <h2>My Learners</h2>
-          <p>Track learners enrolled in your subjects.</p>
-
-          <button 
-            className="btn btn-primary"
-            onClick={() => navigate("/teacher/learners")}
-          >
-            View Learners
-          </button>
-        </div>
-
-        <div className="dashboard-card">
-          <h2>My Quizzes</h2>
-          <p>Create and review assessments.</p>
-
-          <button className="btn btn-secondary">
-            Coming Soon
-          </button>
-        </div>
-      </div>
     </section>
   );
 }
