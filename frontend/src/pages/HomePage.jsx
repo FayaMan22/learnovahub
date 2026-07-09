@@ -1,6 +1,9 @@
 import { useNavigate } from "react-router-dom";
+import usePageTitle from "../hooks/usePageTitle";
 
 export default function HomePage() {
+  usePageTitle("Home");
+  
   const navigate = useNavigate();
 
   return (

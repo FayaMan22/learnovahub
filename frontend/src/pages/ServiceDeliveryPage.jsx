@@ -1,4 +1,7 @@
+import usePageTitle from "../hooks/usePageTitle";
+
 export default function ServiceDeliveryPage() {
+  usePageTitle("Service Delivery");
   return (
     <section className="page-section legal-page">
       <div className="card legal-card">

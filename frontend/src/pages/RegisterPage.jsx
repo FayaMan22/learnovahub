@@ -1,7 +1,10 @@
 import { useState } from "react";
 import api from "../api/api";
+import usePageTitle from "../hooks/usePageTitle";
 
 export default function RegisterPage() {
+  usePageTitle("Register");
+  
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",

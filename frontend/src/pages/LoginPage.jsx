@@ -2,8 +2,11 @@ import { useState } from "react";
 import api from "../api/api";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import usePageTitle from "../hooks/usePageTitle";
 
 export default function LoginPage() {
+  usePageTitle("Login");
+  
   const navigate = useNavigate();
   
   const [isLoading, setIsLoading] = useState(false);

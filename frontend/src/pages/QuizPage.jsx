@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import api from "../api/api";
 import { useParams } from "react-router-dom";
+import usePageTitle from "../hooks/usePageTitle";
 
 export default function QuizPage() {
+  usePageTitle("Quiz");
   const { id } = useParams();
 
   const [questions, setQuestions] = useState([]);

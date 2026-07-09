@@ -1,6 +1,8 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
+import usePageTitle from "../hooks/usePageTitle";
 
 export default function PaymentSuccessPage() {
+  usePageTitle("Payment Success");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 

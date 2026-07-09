@@ -7,8 +7,11 @@ import QuickActions from "../components/dashboard/QuickActions";
 import AnalyticsGrid from "../components/dashboard/AnalyticsGrid";
 import AttentionPanel from "../components/dashboard/AttentionPanel";
 import RecentActivity from "../components/dashboard/RecentActivity";
+import usePageTitle from "../hooks/usePageTitle";
 
 export default function TeacherDashboardPage() {
+  usePageTitle("Teacher Dashboard");
+  
   const navigate = useNavigate();
 
   const [analytics, setAnalytics] = useState(null);

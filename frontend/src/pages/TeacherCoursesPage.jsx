@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import api from "../api/api";
 import { useNavigate } from "react-router-dom";
+import usePageTitle from "../hooks/usePageTitle";
 
 export default function TeacherCoursesPage() {
+  usePageTitle("Teacher Courses");
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
 

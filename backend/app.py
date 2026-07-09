@@ -1555,7 +1555,7 @@ def teacher_analytics():
     ).all()
 
     course_ids = [course.id for course in courses]
-
+    total_courses = len(courses)
     total_lessons = Lesson.query.filter(
         Lesson.course_id.in_(course_ids)
     ).count() if course_ids else 0

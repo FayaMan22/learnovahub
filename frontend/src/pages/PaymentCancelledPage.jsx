@@ -1,4 +1,7 @@
+import usePageTitle from "../hooks/usePageTitle";
+
 export default function PaymentCancelledPage() {
+  usePageTitle("Payment Cancellation");
   return (
     <section className="payment-page">
       <div className="payment-card cancelled-card">

@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import api from "../api/api";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import usePageTitle from "../hooks/usePageTitle";
 
 export default function LessonsPage() {
+  usePageTitle("Lessons");
   const [lessons, setLessons] = useState([]);
   const navigate = useNavigate();
   const [completedLessons, setCompletedLessons] = useState([]);

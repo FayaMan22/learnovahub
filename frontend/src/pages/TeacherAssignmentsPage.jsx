@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../api/api";
+import usePageTitle from "../hooks/usePageTitle";
 
 export default function TeacherAssignmentsPage() {
+  usePageTitle("Teacher Assignment");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 

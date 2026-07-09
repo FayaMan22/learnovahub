@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import api from "../api/api";
 import { useNavigate, useParams } from "react-router-dom";
+import usePageTitle from "../hooks/usePageTitle";
 
 export default function AnnouncementsPage() {
+  usePageTitle("Announcement");
+  
   const [announcements, setAnnouncements] = useState([]);
   const navigate = useNavigate();
   const { announcementId } = useParams();

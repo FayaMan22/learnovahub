@@ -38,7 +38,7 @@ export default function AnalyticsGrid({ analytics }) {
 
       <AnalyticsCard
         icon="⭐"
-        value={`${analytics.average_score}%`}
+        value={`${analytics.average_score ?? 0}%`}
         label="Average Score"
       />
 

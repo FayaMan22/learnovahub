@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import api from "../api/api";
 import { useNavigate } from "react-router-dom";
+import usePageTitle from "../hooks/usePageTitle";
 
 
 
 export default function AdminPage() {
+  usePageTitle("Admin Dashboard");
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const announcementRef = useRef(null);
