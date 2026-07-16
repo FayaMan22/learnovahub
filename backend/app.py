@@ -1,20 +1,25 @@
 from datetime import datetime, timedelta, timezone
-from time import perf_counter
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-from dotenv import load_dotenv
-import os
-import bcrypt
-from urllib.parse import urlencode, quote_plus
-import hashlib
 from functools import wraps
+from urllib.parse import quote_plus, urlencode
+
+import bcrypt
 import cloudinary
 import cloudinary.uploader
+import hashlib
+import os
 import re
+
+from dotenv import load_dotenv
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+from flask_jwt_extended import (
+    create_access_token,
+    get_jwt_identity,
+    jwt_required
+)
 from sqlalchemy import text
-from routes.system_health_routes import system_health_bp
+
+from extensions import db, jwt
 
 
 
@@ -51,7 +56,11 @@ CORS(
     }
 )
 
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+    "DATABASE_URL",
+    "sqlite:///learnovahub_local.db"
+)
+
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
 
@@ -65,9 +74,27 @@ cloudinary.config(
 #===========================
 # EXTENSIONS 
 #===========================
-db = SQLAlchemy(app)
-jwt = JWTManager(app)
+db.init_app(app)
+jwt.init_app(app)
+
+from models import (
+    Assignment,
+    AssignmentSubmission,
+    Course,
+    Enrollment,
+    Lesson,
+    LessonCompletion,
+    Notification,
+    Payment,
+    QuizQuestion,
+    QuizResult,
+    User,
+)
+
+from routes.system_health_routes import system_health_bp
+
 app.register_blueprint(system_health_bp)
+
 #===========================
 # DECORATORS 
 #===========================
@@ -88,368 +115,6 @@ def admin_required(fn):
         return fn(*args, **kwargs)
 
     return wrapper
-
-#===========================
-# MODELS 
-#===========================
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-
-    full_name = db.Column(
-        db.String(120),
-        nullable=False
-    )
-
-    email = db.Column(
-        db.String(120),
-        unique=True,
-        nullable=False
-    )
-
-    password = db.Column(
-        db.String(255),
-        nullable=False
-    )
-
-    role = db.Column(
-        db.String(20),
-        default="learner"
-    )
-
-    is_subscribed = db.Column(
-        db.Boolean,
-        default=False
-    )
-
-    subscription_type = db.Column(
-        db.String(50),
-        nullable=True
-    )
-
-    profile_pic_url = db.Column(
-        db.String(255),
-        nullable=True
-    )
-
-    subscription_expires_at = db.Column(
-        db.DateTime,
-        nullable=True
-    )
-
-    lessons = db.relationship(
-        "Lesson",
-        backref="teacher",
-        lazy=True
-    )
-
-class Lesson(db.Model):
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    title = db.Column(db.String(200), nullable=False)
-
-    topic = db.Column(db.String(100), nullable=False)
-
-    description = db.Column(db.Text)
-
-    video_url = db.Column(db.String(500))
-
-    worksheet_url = db.Column(db.String(500))
-
-    is_premium = db.Column(db.Boolean, default=True)
-
-    course_id = db.Column(
-        db.Integer,
-        db.ForeignKey("course.id"),
-        nullable=True
-    )
-
-    course = db.relationship(
-        "Course",
-        backref="lessons"
-    )
-
-    teacher_id = db.Column(
-        db.Integer,
-        db.ForeignKey("user.id"),
-        nullable=True
-    )
-
-class QuizQuestion(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-
-    lesson_id = db.Column(
-        db.Integer,
-        db.ForeignKey("lesson.id"),
-        nullable=False
-    )
-
-    question = db.Column(db.Text, nullable=False)
-
-    option_a = db.Column(db.String(255), nullable=False)
-    option_b = db.Column(db.String(255), nullable=False)
-    option_c = db.Column(db.String(255), nullable=False)
-    option_d = db.Column(db.String(255), nullable=False)
-
-    correct_answer = db.Column(db.String(1), nullable=False)
-
-    lesson = db.relationship(
-        "Lesson",
-        backref="quiz_questions"
-    )
-
-class QuizResult(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-
-    user_id = db.Column(
-        db.Integer,
-        db.ForeignKey("user.id"),
-        nullable=False
-    )
-
-    lesson_id = db.Column(
-        db.Integer,
-        db.ForeignKey("lesson.id"),
-        nullable=False
-    )
-
-    score = db.Column(db.Integer, nullable=False)
-
-    total_questions = db.Column(db.Integer, nullable=False)
-
-    user = db.relationship("User", backref="quiz_results")
-    lesson = db.relationship("Lesson", backref="quiz_results")
-
-class Payment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-
-    user_id = db.Column(
-        db.Integer,
-        db.ForeignKey("user.id"),
-        nullable=False
-    )
-
-    amount = db.Column(db.Float, nullable=False)
-
-    status = db.Column(
-        db.String(30),
-        default="pending"
-    )
-
-    payment_method = db.Column(
-        db.String(50),
-        default="payfast"
-    )
-
-    subscription_type = db.Column(
-        db.String(50),
-        nullable=False
-    )
-
-    user = db.relationship("User", backref="payments")
-
-class Notification(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-
-    title = db.Column(
-        db.String(255),
-        nullable=False
-    )
-
-    message = db.Column(
-        db.Text,
-        nullable=False
-    )
-
-    link =db.Column(
-        db.String(255)
-    )
-
-    created_at = db.Column(
-        db.DateTime,
-        default=datetime.utcnow
-    )
-
-    target_role = db.Column(
-        db.String(20),
-        default="all"
-    )
-
-class LessonCompletion(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-
-    user_id = db.Column(
-        db.Integer,
-        db.ForeignKey("user.id"),
-        nullable=False
-    )
-
-    lesson_id = db.Column(
-        db.Integer,
-        db.ForeignKey("lesson.id"),
-        nullable=False
-    )
-
-    completed_at = db.Column(
-        db.DateTime,
-        default=datetime.utcnow
-    )
-
-    user = db.relationship(
-        "User",
-        backref="completed_lessons"
-    )
-
-    lesson = db.relationship(
-        "Lesson",
-        backref="lesson_completions"
-    )
-
-class Course(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-
-    title = db.Column(
-        db.String(150),
-        nullable=False
-    )
-
-    description = db.Column(
-        db.Text,
-        nullable=True
-    )
-    
-    learning_outcomes = db.Column(
-        db.Text,
-        nullable=True
-    )
-
-    price = db.Column(
-        db.Float,
-        default=0
-    )
-
-    teacher_id = db.Column(
-        db.Integer,
-        db.ForeignKey("user.id"),
-        nullable=False
-    )
-
-    created_at = db.Column(
-        db.DateTime,
-        default=datetime.utcnow
-    )
-
-    teacher = db.relationship(
-        "User",
-        backref="courses"
-    )
-
-class Enrollment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-
-    learner_id = db.Column(
-        db.Integer,
-        db.ForeignKey("user.id"),
-        nullable=False
-    )
-
-    course_id = db.Column(
-        db.Integer,
-        db.ForeignKey("course.id"),
-        nullable=False
-    )
-
-    enrolled_at = db.Column(
-        db.DateTime,
-        default=datetime.utcnow
-    )
-
-    learner = db.relationship(
-        "User",
-        backref="enrollments"
-    )
-
-    course = db.relationship(
-        "Course",
-        backref="enrollments"
-    )
-
-class Assignment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-
-    course_id = db.Column(
-        db.Integer,
-        db.ForeignKey("course.id"),
-        nullable=False
-    )
-
-    lesson_id = db.Column(
-        db.Integer,
-        db.ForeignKey("lesson.id"),
-        nullable=True
-    )
-
-    teacher_id = db.Column(
-        db.Integer,
-        db.ForeignKey("user.id"),
-        nullable=False
-    )
-
-    title = db.Column(db.String(150), nullable=False)
-    instructions = db.Column(db.Text, nullable=False)
-    total_marks = db.Column(db.Float, nullable=True)
-
-    due_date = db.Column(db.DateTime, nullable=True)
-
-    created_at = db.Column(
-        db.DateTime,
-        default=datetime.utcnow
-    )
-
-    course = db.relationship("Course", backref="assignments")
-    lesson = db.relationship("Lesson", backref="assignments")
-    teacher = db.relationship("User", backref="assignments")
-
-class AssignmentSubmission(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-
-    assignment_id = db.Column(
-        db.Integer,
-        db.ForeignKey("assignment.id"),
-        nullable=False
-    )
-
-    learner_id = db.Column(
-        db.Integer,
-        db.ForeignKey("user.id"),
-        nullable=False
-    )
-
-    answer_text = db.Column(db.Text, nullable=True)
-    file_url = db.Column(db.Text, nullable=True)
-
-    status = db.Column(
-        db.String(30),
-        default="submitted"
-    )
-
-    mark = db.Column(db.Float, nullable=True)
-    feedback = db.Column(db.Text, nullable=True)
-
-    submitted_at = db.Column(
-        db.DateTime,
-        default=datetime.utcnow
-    )
-
-    assignment = db.relationship(
-        "Assignment",
-        backref="submissions"
-    )
-
-    learner = db.relationship(
-        "User",
-        backref="assignment_submissions"
-    )
 
 #===========================
 # HOME ROUTE 
@@ -2416,89 +2081,87 @@ def enroll_free_course(course_id):
         "message": "Successfully enrolled in free course"
     }), 201
 
-# === DATABASE INITIALIZATION ===
-with app.app_context():
-    db.create_all()
-
-# === SEED DATA ===
-with app.app_context():
-
-    if Lesson.query.count() == 0:
-
-        lesson1 = Lesson(
-            title="Algebra Basics",
-            topic="Algebra",
-            description="Introduction to algebraic expressions and equations.",
-            video_url="https://www.youtube.com/watch?v=NybHckSEQBI",
-            worksheet_url="#",
-            is_premium=False
-        )
-
-        lesson2 = Lesson(
-            title="Geometry and Angles",
-            topic="Geometry",
-            description="Understanding angles, lines, and geometric properties.",
-            video_url="https://www.youtube.com/watch?v=302eJ3TzJQU",
-            worksheet_url="#",
-            is_premium=True
-        )
-
-        lesson3 = Lesson(
-            title="Functions and Graphs",
-            topic="Functions",
-            description="Learn how to interpret and draw graphs.",
-            video_url="https://www.youtube.com/watch?v=kvgsnq7HqA0",
-            worksheet_url="#",
-            is_premium=True
-        )
-
-        db.session.add_all([
-            lesson1,
-            lesson2,
-            lesson3
-        ])
-
-        db.session.commit()
-    if QuizQuestion.query.count() == 0:
-
-        question1 = QuizQuestion(
-            lesson_id=1,
-            question="What is the value of x in 2x + 4 = 10?",
-            option_a="2",
-            option_b="3",
-            option_c="4",
-            option_d="5",
-            correct_answer="B"
-        )
-
-        question2 = QuizQuestion(
-            lesson_id=1,
-            question="Simplify: 3a + 2a",
-            option_a="5",
-            option_b="6a",
-            option_c="5a",
-            option_d="a",
-            correct_answer="C"
-        )
-
-        question3 = QuizQuestion(
-            lesson_id=2,
-            question="Angles on a straight line add up to?",
-            option_a="90°",
-            option_b="180°",
-            option_c="360°",
-            option_d="45°",
-            correct_answer="B"
-        )
-
-        db.session.add_all([
-            question1,
-            question2,
-            question3
-        ])
-
-        db.session.commit()
-
 # === RUN APP ===
 if __name__ == "__main__":
+
+    with app.app_context():
+        db.create_all()
+
+        if Lesson.query.count() == 0:
+
+            lesson1 = Lesson(
+                title="Algebra Basics",
+                topic="Algebra",
+                description="Introduction to algebraic expressions and equations.",
+                video_url="https://www.youtube.com/watch?v=NybHckSEQBI",
+                worksheet_url="#",
+                is_premium=False
+            )
+
+            lesson2 = Lesson(
+                title="Geometry and Angles",
+                topic="Geometry",
+                description="Understanding angles, lines, and geometric properties.",
+                video_url="https://www.youtube.com/watch?v=302eJ3TzJQU",
+                worksheet_url="#",
+                is_premium=True
+            )
+
+            lesson3 = Lesson(
+                title="Functions and Graphs",
+                topic="Functions",
+                description="Learn how to interpret and draw graphs.",
+                video_url="https://www.youtube.com/watch?v=kvgsnq7HqA0",
+                worksheet_url="#",
+                is_premium=True
+            )
+
+            db.session.add_all([
+                lesson1,
+                lesson2,
+                lesson3
+            ])
+
+            db.session.commit()
+
+        if QuizQuestion.query.count() == 0:
+
+            question1 = QuizQuestion(
+                lesson_id=1,
+                question="What is the value of x in 2x + 4 = 10?",
+                option_a="2",
+                option_b="3",
+                option_c="4",
+                option_d="5",
+                correct_answer="B"
+            )
+
+            question2 = QuizQuestion(
+                lesson_id=1,
+                question="Simplify: 3a + 2a",
+                option_a="5",
+                option_b="6a",
+                option_c="5a",
+                option_d="a",
+                correct_answer="C"
+            )
+
+            question3 = QuizQuestion(
+                lesson_id=2,
+                question="Angles on a straight line add up to?",
+                option_a="90°",
+                option_b="180°",
+                option_c="360°",
+                option_d="45°",
+                correct_answer="B"
+            )
+
+            db.session.add_all([
+                question1,
+                question2,
+                question3
+            ])
+
+            db.session.commit()
+
     app.run(debug=True)

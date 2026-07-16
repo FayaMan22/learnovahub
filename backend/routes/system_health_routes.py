@@ -1,5 +1,4 @@
 # system_health_routes.py
-
 import os
 from datetime import datetime, timezone
 from time import perf_counter
