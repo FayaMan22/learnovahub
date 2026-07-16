@@ -1,4 +1,5 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from time import perf_counter
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
@@ -12,6 +13,10 @@ from functools import wraps
 import cloudinary
 import cloudinary.uploader
 import re
+from sqlalchemy import text
+from system_health_routes import system_health_bp
+
+
 
 #===========================
 # APP CONFIG 
@@ -50,6 +55,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
 
+
 cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
     api_key=os.getenv("CLOUDINARY_API_KEY"),
@@ -61,7 +67,7 @@ cloudinary.config(
 #===========================
 db = SQLAlchemy(app)
 jwt = JWTManager(app)
-
+app.register_blueprint(system_health_bp)
 #===========================
 # DECORATORS 
 #===========================
