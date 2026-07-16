@@ -14,7 +14,7 @@ import cloudinary
 import cloudinary.uploader
 import re
 from sqlalchemy import text
-from system_health_routes import system_health_bp
+from routes.system_health_routes import system_health_bp
 
 
 
