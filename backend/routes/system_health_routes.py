@@ -36,36 +36,38 @@ def get_system_health():
         "service": "Backend API",
         "check_type": "connectivity",
         "status": "pass",
-        "message": "LearnovaHub backend is running.",
+        "message": "LearnovaHub backend is responding.",
+        "response_time_ms": 0
     })
 
+    database_start = perf_counter()
+
     try:
-        started_at = perf_counter()
+        db.session.execute(db.text("SELECT 1"))
 
-        db.session.execute(text("SELECT 1")).scalar()
-
-        response_time_ms = round(
-            (perf_counter() - started_at) * 1000,
+        database_response_time = round(
+            (perf_counter() - database_start) * 1000,
             2
         )
-
-        if response_time_ms > 1000:
-            database_status = "warning"
-            database_message = "Database is responding slowly."
-        else:
-            database_status = "pass"
-            database_message = "Database connection is working."
 
         checks.append({
             "id": "database",
             "service": "Database",
             "check_type": "connectivity",
-            "status": database_status,
-            "message": database_message,
-            "response_time_ms": response_time_ms,
+            "status": "pass",
+            "message": "Database connection successful.",
+            "response_time_ms": database_response_time
         })
+
     except Exception:
-        db.session.rollback()
+        current_app.logger.exception(
+            "Database system-health check failed."
+        )
+
+        database_response_time = round(
+            (perf_counter() - database_start) * 1000,
+            2
+        )
 
         checks.append({
             "id": "database",
@@ -73,7 +75,7 @@ def get_system_health():
             "check_type": "connectivity",
             "status": "fail",
             "message": "Database connection failed.",
-            "response_time_ms": None,
+            "response_time_ms": database_response_time
         })
 
         app.logger.exception(
@@ -85,18 +87,24 @@ def get_system_health():
         os.getenv("CLOUDINARY_API_KEY"),
         os.getenv("CLOUDINARY_API_SECRET"),
     ])
-
-    checks.append({
-        "id": "cloudinary",
-        "service": "Cloudinary",
-        "check_type": "configuration",
-        "status": "pass" if cloudinary_ready else "warning",
-        "message": (
-            "Cloudinary configuration is available."
-            if cloudinary_ready
-            else "Cloudinary configuration is incomplete."
-        ),
-    })
+    if cloudinary_ready:
+        checks.append({
+            "id": "cloudinary",
+            "service": "Cloudinary",
+            "check_type": "configuration",
+            "status": "pass",
+            "message": "Cloudinary configuration is available.",
+            "response_time_ms": None
+        })
+    else:
+        checks.append({
+            "id": "cloudinary",
+            "service": "Cloudinary",
+            "check_type": "configuration",
+            "status": "warning",
+            "message": "Cloudinary configuration is missing.",
+            "response_time_ms": None
+        })
 
     payfast_ready = all([
         os.getenv("PAYFAST_MERCHANT_ID"),
@@ -104,34 +112,48 @@ def get_system_health():
         os.getenv("PAYFAST_URL"),
     ])
 
-    checks.append({
-        "id": "payfast",
-        "service": "PayFast",
-        "check_type": "configuration",
-        "status": "pass" if payfast_ready else "warning",
-        "message": (
-            "PayFast configuration is available."
-            if payfast_ready
-            else "PayFast configuration is incomplete."
-        ),
-    })
+    if payfast_ready:
+        checks.append({
+            "id": "payfast",
+            "service": "PayFast",
+            "check_type": "configuration",
+            "status": "pass",
+            "message": "PayFast configuration is available.",
+            "response_time_ms": None
+        })
+    else:
+        checks.append({
+            "id": "payfast",
+            "service": "PayFast",
+            "check_type": "configuration",
+            "status": "warning",
+            "message": "PayFast configuration is incomplete.",
+            "response_time_ms": None
+        })
 
     platform_urls_ready = all([
         os.getenv("FRONTEND_URL"),
         os.getenv("BACKEND_URL"),
     ])
 
-    checks.append({
-        "id": "platform_urls",
-        "service": "Platform URLs",
-        "check_type": "configuration",
-        "status": "pass" if platform_urls_ready else "warning",
-        "message": (
-            "Frontend and backend URLs are configured."
-            if platform_urls_ready
-            else "Frontend or backend URL is missing."
-        ),
-    })
+    if platform_urls_ready:
+        checks.append({
+            "id": "platform_urls",
+            "service": "Platform URLs",
+            "check_type": "configuration",
+            "status": "pass",
+            "message": "Frontend and backend URLs are configured.",
+            "response_time_ms": None
+        })
+    else:
+        {
+            "id": "platform_url",
+            "service": "Platform URL",
+            "check_type": "configuration",
+            "status": "pass",
+            "message": "Platform URL is configured.",
+            "response_time_ms": None
+        }
 
     passed_checks = sum(
         check["status"] == "pass"

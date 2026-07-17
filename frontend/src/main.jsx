@@ -45,6 +45,7 @@ import CancellationPolicyPage from "./pages/CancellationPolicyPage.jsx";
 import RefundPolicyPage from "./pages/RefundPolicyPage.jsx";
 import ServiceDeliveryPage from "./pages/ServiceDeliveryPage.jsx";
 import TermsPage from "./pages/TermsPage.jsx";
+import AdminSystemHealthPage from "./pages/AdminSystemHealthPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -176,6 +177,14 @@ const router = createBrowserRouter([
         element: (
           <AdminRoute>
             <AdminSubscriptionsPage />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "admin/system-health",
+        element: (
+          <AdminRoute>
+            <AdminSystemHealthPage />
           </AdminRoute>
         ),
       },

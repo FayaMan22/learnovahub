@@ -22,4 +22,27 @@ api.interceptors.request.use(
   }
 );
 
+api.interceptors.response.use(
+  (response) => response,
+
+  (error) => {
+    const status = error.response?.status;
+
+    const message =
+      error.response?.data?.msg ||
+      error.response?.data?.error ||
+      "";
+
+    if (
+      status === 401) {
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("user");
+
+      window.location.href = "/login";
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 export default api;

@@ -213,6 +213,9 @@ export default function Navbar() {
               <Link to="/admin/learners" onClick={closeMenus}>
                 User Management
               </Link>
+              <Link to="/admin/system-health" onClick={closeMenus}>
+                System Health
+              </Link>
             </>
           )}
           
