@@ -1,8 +1,8 @@
 import { Navigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 export default function AdminRoute({ children }) {
-  const token = sessionStorage.getItem("token");
-  const user = JSON.parse(sessionStorage.getItem("user"));
+  const { token, user } = useAuth();
 
   if (!token) {
     return <Navigate to="/login" replace />;
