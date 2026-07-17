@@ -2,15 +2,28 @@ import { useEffect, useRef, useState } from "react";
 import api from "../api/api";
 import { useNavigate } from "react-router-dom";
 import usePageTitle from "../hooks/usePageTitle";
-
+import "../styles/admin.css";
+import DashboardStatCard from "../components/common/DashboardStatCard";
+import {
+  FaUsers,
+  FaUserGraduate,
+  FaUserShield,
+  FaCreditCard,
+  FaBook,
+  FaClipboardCheck,
+  FaChartLine,
+  FaMoneyCheckAlt,
+} from "react-icons/fa";
+import SystemHealthSummary from "../components/dashboard/SystemHealthSummary";
+import QuickActionCard from "../components/dashboard/QuickActionCard";
 
 
 export default function AdminPage() {
   usePageTitle("Admin Dashboard");
   const navigate = useNavigate();
-  const [users, setUsers] = useState([]);
   const announcementRef = useRef(null);
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
   const [analytics, setAnalytics] = useState(null);
   const [notificationData, setNotificationData] = useState({
     title: "",
@@ -20,9 +33,19 @@ export default function AdminPage() {
   });
 
   useEffect(() => {
-    fetchUsers();
     fetchAnalytics();
   }, []);
+
+  useEffect(() => {
+    if (!message) return;
+
+    const timer = setTimeout(() => {
+      setMessage("");
+      setMessageType("");
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [message]);
 
   function handleNotificationChange(e) {
     setNotificationData({
@@ -41,6 +64,7 @@ export default function AdminPage() {
       )
       .then((response) => {
         setMessage(response.data.message);
+        setMessageType("success");
 
         setNotificationData({
           title: "",
@@ -51,6 +75,7 @@ export default function AdminPage() {
       })
       .catch(() => {
         setMessage("Failed to create notification");
+        setMessageType("error");
       });
   } 
 
@@ -62,34 +87,6 @@ export default function AdminPage() {
       })
       .catch(() => {
         console.log("Failed to fetch users");
-      });
-  }
-
-  function activateSubscription(userId) {
-    api
-      .patch(`/admin/users/${userId}/subscription`, {
-        is_subscribed: true,
-        subscription_type: "monthly",
-      })
-      .then(() => {
-        fetchUsers();
-      })
-      .catch(() => {
-        console.log("Failed to update subscription");
-      });
-  }
-
-  function deactivateSubscription(userId) {
-    api
-      .patch(`/admin/users/${userId}/subscription`, {
-        is_subscribed: false,
-        subscription_type: null,
-      })
-      .then(() => {
-        fetchUsers();
-      })
-      .catch(() => {
-        console.log("Failed to update subscription");
       });
   }
 
@@ -121,50 +118,59 @@ export default function AdminPage() {
 
       {analytics && (
         <div className="analytics-grid">
-          <div className="analytics-card">
-            <h2>{analytics.total_users}</h2>
-            <p>Total Users</p>
-          </div>
+          <DashboardStatCard
+            title="Total Users"
+            value={analytics.total_users}
+            icon={<FaUsers />}
+          />
 
-          <div className="analytics-card">
-            <h2>{analytics.total_learners}</h2>
-            <p>Total Learners</p>
-          </div>
+          <DashboardStatCard
+            title="Learners"
+            value={analytics.total_learners}
+            icon={<FaUserGraduate />}
+          />
 
-          <div className="analytics-card">
-            <h2>{analytics.total_admins}</h2>
-            <p>Total Admins</p>
-          </div>
+          <DashboardStatCard
+            title="Admins"
+            value={analytics.total_admins}
+            icon={<FaUserShield />}
+          />
 
-          <div className="analytics-card">
-            <h2>{analytics.active_subscribers}</h2>
-            <p>Active Subscribers</p>
-          </div>
+          <DashboardStatCard
+            title="Subscribers"
+            value={analytics.active_subscribers}
+            icon={<FaCreditCard />}
+          />
 
-          <div className="analytics-card">
-            <h2>{analytics.total_lessons}</h2>
-            <p>Total Lessons</p>
-          </div>
+          <DashboardStatCard
+            title="Lessons"
+            value={analytics.total_lessons}
+            icon={<FaBook />}
+          />
 
-          <div className="analytics-card">
-            <h2>{analytics.total_quiz_attempts}</h2>
-            <p>Quiz Attempts</p>
-          </div>
+          <DashboardStatCard
+            title="Quiz Attempts"
+            value={analytics.total_quiz_attempts}
+            icon={<FaClipboardCheck />}
+          />
 
-          <div className="analytics-card">
-            <h2>{analytics.average_score}%</h2>
-            <p>Average Quiz Score</p>
-          </div>
+          <DashboardStatCard
+            title="Average Score"
+            value={`${analytics.average_score}%`}
+            icon={<FaChartLine />}
+          />
 
-          <div className="analytics-card">
-            <h2>{analytics.successful_payments}</h2>
-            <p>Successful Payments</p>
-          </div>
+          <DashboardStatCard
+            title="Payments"
+            value={analytics.successful_payments}
+            icon={<FaMoneyCheckAlt />}
+          />
         </div>
       )}
+
+      <SystemHealthSummary />
       
       <div className="admin-card" ref={announcementRef}>
-        <div className="admin-card">
           <h2>Create Announcement</h2>
 
           <form className="admin-form" onSubmit={handleNotificationSubmit}>
@@ -205,66 +211,37 @@ export default function AdminPage() {
             />
 
             <button type="submit">Post Announcement</button>
+
+            {message && (
+              <p className={`form-message ${messageType}`}>
+                {message}
+              </p>
+            )}
           </form>
-        </div>
       </div>
       
 
       <div className="grid-auto">
+        <QuickActionCard
+          title="User Management"
+          description="Manage learners, subscriptions, progress and course access."
+          buttonText="Open Users"
+          to="/admin/learners"
+        />
 
-        <div className="dashboard-card">
-          <h2>User Management</h2>
+        <QuickActionCard
+          title="Subscriptions"
+          description="Monitor learner subscriptions and payment activity."
+          buttonText="Manage Subscriptions"
+          to="/admin/subscriptions"
+        />
 
-          <p>
-            Manage learners, subscriptions,
-            progress, and course access.
-          </p>
-
-          <button
-            className="btn btn-primary"
-            onClick={() => navigate("/admin/learners")}
-          >
-            Open Users
-          </button>
-        </div>
-
-        <div className="dashboard-card">
-          <h2>Subscriptions</h2>
-
-          <p>
-            Monitor learner subscriptions
-            and payment activity.
-          </p>
-
-          <button
-            className="btn btn-secondary"
-            onClick={() => navigate("/admin/subscriptions")}
-          >
-            Manage Subscriptions
-          </button>
-        </div>
-
-        <div className="dashboard-card">
-          <h2>Announcements</h2>
-
-          <p>
-            Publish announcements and updates
-            to learners and teachers.
-          </p>
-
-          <button
-            className="btn btn-primary"
-            onClick={() =>
-              announcementRef.current?.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-              })
-            }
-          >
-            Create Announcement
-          </button>
-        </div>
-
+        <QuickActionCard
+          title="System Health"
+          description="View platform health, services and configuration status."
+          buttonText="Open System Health"
+          to="/admin/system-health"
+        />
       </div>
 
     </section>
