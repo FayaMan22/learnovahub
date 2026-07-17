@@ -26,7 +26,6 @@ import PaymentCancelledPage from "./pages/PaymentCancelledPage.jsx";
 import ProgressPage from "./pages/ProgressPage.jsx";
 import AdminLearnersPage from "./pages/AdminLearnersPage.jsx";
 import AdminLearnerDetailPage from "./pages/AdminLearnerDetailPage";
-import AdminLessonsPage from "./pages/AdminLessonsPage";
 import TeacherDashboardPage from "./pages/TeacherDashboardPage.jsx";
 import TeacherLessonsPage from "./pages/TeacherLessonsPage.jsx";
 import TeacherQuizPage from "./pages/TeacherQuizPage.jsx";
@@ -46,6 +45,8 @@ import RefundPolicyPage from "./pages/RefundPolicyPage.jsx";
 import ServiceDeliveryPage from "./pages/ServiceDeliveryPage.jsx";
 import TermsPage from "./pages/TermsPage.jsx";
 import AdminSystemHealthPage from "./pages/AdminSystemHealthPage.jsx";
+import NotFoundPage from "./pages/NotFoundPage.jsx";
+
 
 const router = createBrowserRouter([
   {
@@ -86,7 +87,11 @@ const router = createBrowserRouter([
       },
       {
         path: "lessons/:id",
-        element: <LessonDetailPage />,
+        element: (
+          <ProtectedRoute>
+            <LessonDetailPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "courses/:courseId",
@@ -94,11 +99,19 @@ const router = createBrowserRouter([
       },
       {
         path: "my-courses",
-        element: <MyCoursesPage />,
+        element: (
+          <ProtectedRoute>
+            <MyCoursesPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "lessons/:id/quiz",
-        element: <QuizPage />,
+        element: (
+          <ProtectedRoute>
+            <QuizPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "admin",
@@ -190,11 +203,19 @@ const router = createBrowserRouter([
       },
       {
         path: "announcements",
-        element: <AnnouncementsPage />,
+        element: (
+          <ProtectedRoute>
+            <AnnouncementsPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "announcements/:announcementId",
-        element: <AnnouncementsPage />,
+        element: (
+          <ProtectedRoute>
+            <AnnouncementsPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "teacher/learners",
@@ -237,20 +258,24 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/terms",
+        path: "terms",
         element: <TermsPage />
       },
       {
-        path: "/refund-policy",
+        path: "refund-policy",
         element: <RefundPolicyPage />
       },
       {
-        path: "/cancellation-policy",
+        path: "cancellation-policy",
         element: <CancellationPolicyPage />
       },
       {
-        path: "/service-delivery",
+        path: "service-delivery",
         element: <ServiceDeliveryPage />
+      },
+      {
+        path: "*",
+        element: <NotFoundPage />,
       },
     ],
   },
