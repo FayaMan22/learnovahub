@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { FaBell, FaUserCircle, FaBars, FaTimes, FaFileSignature } from "react-icons/fa";
+import { FaBell, FaUserCircle, FaBars, FaTimes} from "react-icons/fa";
 import { useState, useRef, useEffect } from "react";
 import api from "../../api/api";
 import { useAuth } from "../../context/AuthContext";
@@ -99,8 +99,6 @@ export default function Navbar() {
     if (!file) {
       return;
     }
-
-    const token = sessionStorage.getItem("token");
 
     const formData = new FormData();
 
@@ -252,7 +250,7 @@ export default function Navbar() {
                       <div
                         key={notification.id}
                         className={readNotifications.includes(notification.id)
-                          ? "notifications-item read"
+                          ? "notification-item read"
                           : "notification-item unread"
                         }
                         onClick={() => {
