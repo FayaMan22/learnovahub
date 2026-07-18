@@ -25,6 +25,7 @@ export default function AdminPage() {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
   const [analytics, setAnalytics] = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
   const [notificationData, setNotificationData] = useState({
     title: "",
     message: "",
@@ -91,6 +92,7 @@ export default function AdminPage() {
   }
 
   function fetchAnalytics() {
+    setAnalyticsLoading(true);
     api
       .get("/admin/analytics")
       .then((response) => {
@@ -98,6 +100,9 @@ export default function AdminPage() {
       })
       .catch((error) => {
         console.log(error);
+      })
+      .finally(() => {
+        setAnalyticsLoading(false);
       });
   }
 
@@ -115,57 +120,65 @@ export default function AdminPage() {
         </button>
 
       </div>
-
-      {analytics && (
+      {analyticsLoading ? (
         <div className="analytics-grid">
-          <DashboardStatCard
-            title="Total Users"
-            value={analytics.total_users}
-            icon={<FaUsers />}
-          />
-
-          <DashboardStatCard
-            title="Learners"
-            value={analytics.total_learners}
-            icon={<FaUserGraduate />}
-          />
-
-          <DashboardStatCard
-            title="Admins"
-            value={analytics.total_admins}
-            icon={<FaUserShield />}
-          />
-
-          <DashboardStatCard
-            title="Subscribers"
-            value={analytics.active_subscribers}
-            icon={<FaCreditCard />}
-          />
-
-          <DashboardStatCard
-            title="Lessons"
-            value={analytics.total_lessons}
-            icon={<FaBook />}
-          />
-
-          <DashboardStatCard
-            title="Quiz Attempts"
-            value={analytics.total_quiz_attempts}
-            icon={<FaClipboardCheck />}
-          />
-
-          <DashboardStatCard
-            title="Average Score"
-            value={`${analytics.average_score}%`}
-            icon={<FaChartLine />}
-          />
-
-          <DashboardStatCard
-            title="Payments"
-            value={analytics.successful_payments}
-            icon={<FaMoneyCheckAlt />}
-          />
+          {Array.from({ length: 8 }).map((_, index) => (
+            <div key={index} className="stat-card-skeleton" />
+          ))}
         </div>
+      
+      ) : (
+        analytics && (
+          <div className="analytics-grid">
+            <DashboardStatCard
+              title="Total Users"
+              value={analytics.total_users}
+              icon={<FaUsers />}
+            />
+
+            <DashboardStatCard
+              title="Learners"
+              value={analytics.total_learners}
+              icon={<FaUserGraduate />}
+            />
+
+            <DashboardStatCard
+              title="Admins"
+              value={analytics.total_admins}
+              icon={<FaUserShield />}
+            />
+
+            <DashboardStatCard
+              title="Subscribers"
+              value={analytics.active_subscribers}
+              icon={<FaCreditCard />}
+            />
+
+            <DashboardStatCard
+              title="Lessons"
+              value={analytics.total_lessons}
+              icon={<FaBook />}
+            />
+
+            <DashboardStatCard
+              title="Quiz Attempts"
+              value={analytics.total_quiz_attempts}
+              icon={<FaClipboardCheck />}
+            />
+
+            <DashboardStatCard
+              title="Average Score"
+              value={`${analytics.average_score}%`}
+              icon={<FaChartLine />}
+            />
+
+            <DashboardStatCard
+              title="Payments"
+              value={analytics.successful_payments}
+              icon={<FaMoneyCheckAlt />}
+            />
+          </div>
+        )
       )}
 
       <SystemHealthSummary />
