@@ -1,21 +1,19 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import api from "../api/api";
-import AnalyticsCard from "../components/dashboard/AnalyticsCard";
-import DashboardHero from "../components/dashboard/DashboardHero";
+import TeacherDashboardHero from "../components/dashboard/TeacherDashboardHero";
 import QuickActions from "../components/dashboard/QuickActions";
 import AnalyticsGrid from "../components/dashboard/AnalyticsGrid";
 import AttentionPanel from "../components/dashboard/AttentionPanel";
 import RecentActivity from "../components/dashboard/RecentActivity";
 import usePageTitle from "../hooks/usePageTitle";
+import "../styles/teacher-dashboard.css";
 
 export default function TeacherDashboardPage() {
   usePageTitle("Teacher Dashboard");
-  
-  const navigate = useNavigate();
 
   const [analytics, setAnalytics] = useState(null);
-
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const hour = new Date().getHours();
 
   let greeting = "Good Evening";
@@ -32,14 +30,33 @@ export default function TeacherDashboardPage() {
       .then((response) => {
         setAnalytics(response.data);
       })
-      .catch((error) => {
-        console.log(error);
+      .catch(() => {
+        setError("Unable to load teacher dashboard.");
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
 
+  if (loading) {
+    return (
+      <section className="teacher-dashboard">
+        <p>Loading dashboard...</p>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="teacher-dashboard">
+        <p className="dashboard-error">{error}</p>
+      </section>
+    );
+  }
+
   return (
-    <section className="page-section">
-      <DashboardHero
+    <section className="teacher-dashboard">
+      <TeacherDashboardHero
         greeting={greeting}
         analytics={analytics}
       />

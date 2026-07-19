@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../api/api";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import usePageTitle from "../hooks/usePageTitle";
+import "../styles/teacher-lessons.css";
 
 export default function TeacherLessonsPage() {
   usePageTitle("Teacher Lessons");
@@ -10,6 +11,12 @@ export default function TeacherLessonsPage() {
   const [lessons, setLessons] = useState([]);
   const [courses, setCourses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [lessonToDelete, setLessonToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [showLessonForm, setShowLessonForm] = useState(false);
   const [filterStatus, setFilterStatus] = useState(
     searchParams.get("filter") || "all"
   );
@@ -29,26 +36,34 @@ export default function TeacherLessonsPage() {
     course_id: "",
   });
 
-  function fetchCourses() {
-    api
-      .get("/teacher/courses")
-      .then((response) => {
-        setCourses(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  function showToast(message, type = "success") {
+    setToast({ message, type });
+
+    window.setTimeout(() => {
+      setToast(null);
+    }, 4000);
   }
 
-  function fetchTeacherLessons() {
-    api
-      .get("/teacher/lessons")
-      .then((response) => {
-        setLessons(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  async function fetchCourses() {
+    try {
+      const response = await api.get("/teacher/courses");
+      setCourses(response.data);
+    } catch (error) {
+      console.error(error);
+      showToast("Unable to load your courses.", "error");
+    }
+  }
+
+  async function fetchTeacherLessons() {
+    try {
+      const response = await api.get("/teacher/lessons");
+      setLessons(response.data);
+    } catch (error) {
+      console.error(error);
+      showToast("Unable to load your lessons.", "error");
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -65,39 +80,42 @@ export default function TeacherLessonsPage() {
     });
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
+    setSubmitting(true);
 
-    if (editingLessonId) {
-      api
-        .patch(
+    try {
+      if (editingLessonId) {
+        await api.patch(
           `/teacher/lessons/${editingLessonId}`,
           formData
-        )
-        .then(() => {
-          fetchTeacherLessons();
-          handleCancelEdit();
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+        );
 
-      return;
+        showToast("Lesson updated successfully.");
+      } else {
+        await api.post("/teacher/lessons", formData);
+        showToast("Lesson created successfully.");
+      }
+
+      await fetchTeacherLessons();
+      handleCancelEdit();
+    } catch (error) {
+      console.error(error);
+
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Unable to save the lesson.";
+
+      showToast(message, "error");
+    } finally {
+      setSubmitting(false);
     }
-
-    api
-      .post("/teacher/lessons", formData)
-      .then(() => {
-        fetchTeacherLessons();
-        handleCancelEdit();
-      })
-      .catch((error) => {
-        console.log(error);
-      });
   }
 
   function handleEditClick(lesson) {
     setEditingLessonId(lesson.id);
+    setShowLessonForm(true);
 
     setFormData({
       title: lesson.title,
@@ -116,6 +134,7 @@ export default function TeacherLessonsPage() {
 
   function handleCancelEdit() {
     setEditingLessonId(null);
+    setShowLessonForm(false);
 
     setFormData({
       title: "",
@@ -123,27 +142,42 @@ export default function TeacherLessonsPage() {
       description: "",
       video_url: "",
       worksheet_url: "",
-      is_premium: true,
+      is_premium: false,
+      course_id: "",
     });
   }
 
-  function handleDeleteLesson(lessonId) {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this lesson?"
-    );
-
-    if (!confirmDelete) {
+  function handleDeleteLesson(lesson) {
+    setLessonToDelete(lesson);
+  }
+  
+  async function confirmDeleteLesson() {
+    if (!lessonToDelete) {
       return;
     }
 
-    api
-      .delete(`/teacher/lessons/${lessonId}`)
-      .then(() => {
-        fetchTeacherLessons();
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    setDeleting(true);
+
+    try {
+      await api.delete(
+        `/teacher/lessons/${lessonToDelete.id}`
+      );
+
+      showToast("Lesson deleted successfully.");
+      setLessonToDelete(null);
+      await fetchTeacherLessons();
+    } catch (error) {
+      console.error(error);
+
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Unable to delete the lesson.";
+
+      showToast(message, "error");
+    } finally {
+      setDeleting(false);
+    }
   }
 
   const filteredLessons = lessons
@@ -196,14 +230,40 @@ export default function TeacherLessonsPage() {
 
   return (
     <section className="page-section">
-      <h1>My Lessons</h1>
+      {toast && (
+        <div
+          className={`teacher-toast ${toast.type}`}
+          role="status"
+        >
+          {toast.message}
+        </div>
+      )}
+      <div className="teacher-lessons-header">
+        <div>
+          <button
+            className="btn btn-secondary back-btn"
+            onClick={() => navigate("/teacher")}
+          >
+            ← Back to Dashboard
+          </button>
 
-      <button
-        className="btn btn-secondary back-btn"
-        onClick={() => navigate("/teacher")}
-      >
-        ← Back to Teacher Dashboard
-      </button>
+          <h1>Teacher Lessons</h1>
+
+          <p>
+            Create, organise and manage lessons for your courses.
+          </p>
+        </div>
+
+        <button
+          className="btn btn-primary"
+          onClick={() => {
+            setEditingLessonId(null);
+            setShowLessonForm((current) => !current);
+          }}
+        >
+          {showLessonForm ? "Close Form" : "+ New Lesson"}
+        </button>
+      </div>
 
       {selectedCourseId && (
         <div className="card course-filter-banner">
@@ -219,104 +279,121 @@ export default function TeacherLessonsPage() {
           </button>
         </div>
       )}
+      {showLessonForm && (
+        <form className="lesson-form" onSubmit={handleSubmit}>
+          <h2>
+            {editingLessonId ? "Edit Lesson" : "Create New Lesson"}
+          </h2>
 
-      <form className="lesson-form card" onSubmit={handleSubmit}>
-        <h2>Create Teacher Lesson</h2>
-
-        <input
-          type="text"
-          name="title"
-          placeholder="Lesson title"
-          value={formData.title}
-          onChange={handleChange}
-          required
-        />
-
-        <input
-          type="text"
-          name="topic"
-          placeholder="Topic"
-          value={formData.topic}
-          onChange={handleChange}
-          required
-        />
-
-        <select
-          name="course_id"
-          value={formData.course_id}
-          onChange={handleChange}
-        >
-          <option value="">
-            Select course / subject
-          </option>
-
-          {courses.map((course) => (
-            <option
-              key={course.id}
-              value={course.id}
-            >
-              {course.title}
-            </option>
-          ))}
-        </select>
-
-        <textarea
-          name="description"
-          placeholder="Lesson description"
-          value={formData.description}
-          onChange={handleChange}
-          required
-        />
-
-        <input
-          type="text"
-          name="video_url"
-          placeholder="Video URL"
-          value={formData.video_url}
-          onChange={handleChange}
-        />
-
-        <input
-          type="text"
-          name="worksheet_url"
-          placeholder="Worksheet URL"
-          value={formData.worksheet_url}
-          onChange={handleChange}
-        />
-
-        <label>
-          <input
-            type="checkbox"
-            name="is_premium"
-            checked={formData.is_premium}
-            onChange={handleChange}
-          />
-          Premium lesson
-        </label>
-
-        <button className="btn btn-success" type="submit">
-          {editingLessonId ? "Update Lesson" : "Create Lesson"}
-        </button>
-
-        {editingLessonId && (
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={handleCancelEdit}
-        >
-          Cancel
-        </button>
-        )}
-      </form>
-      
-      <div className="lesson-toolbar card">
           <input
             type="text"
-            placeholder="Search by title or topic..."
+            name="title"
+            placeholder="Lesson title"
+            value={formData.title}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            type="text"
+            name="topic"
+            placeholder="Topic"
+            value={formData.topic}
+            onChange={handleChange}
+            required
+          />
+
+          <select
+            name="course_id"
+            value={formData.course_id}
+            onChange={handleChange}
+          >
+            <option value="">
+              Select course / subject
+            </option>
+
+            {courses.map((course) => (
+              <option
+                key={course.id}
+                value={course.id}
+              >
+                {course.title}
+              </option>
+            ))}
+          </select>
+
+          <textarea
+            name="description"
+            placeholder="Lesson description"
+            value={formData.description}
+            onChange={handleChange}
+            required
+          />
+
+          <input
+            type="text"
+            name="video_url"
+            placeholder="Video URL"
+            value={formData.video_url}
+            onChange={handleChange}
+          />
+
+          <input
+            type="text"
+            name="worksheet_url"
+            placeholder="Worksheet URL"
+            value={formData.worksheet_url}
+            onChange={handleChange}
+          />
+
+          <label>
+            <input
+              type="checkbox"
+              name="is_premium"
+              checked={formData.is_premium}
+              onChange={handleChange}
+            />
+            Premium lesson
+          </label>
+
+          <button
+            className="btn btn-success"
+            type="submit"
+            disabled={submitting}
+          >
+            {submitting
+              ? editingLessonId
+                ? "Updating..."
+                : "Creating..."
+              : editingLessonId
+                ? "Update Lesson"
+                : "Create Lesson"}
+          </button>
+
+          {editingLessonId && (
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleCancelEdit}
+            disabled={submitting}
+          >
+            Cancel
+          </button>
+          )}
+        </form>
+      )}
+      
+      <div className="lesson-toolbar card">
+        <div className="toolbar-search">
+          <input
+            type="text"
+            placeholder="Search lessons..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+        </div>
 
+        <div className="toolbar-filters">
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -327,16 +404,23 @@ export default function TeacherLessonsPage() {
             <option value="premium">Premium</option>
             <option value="free">Free</option>
           </select>
+
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
           >
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>
-            <option value="titleAsc">Title A-Z</option>
-            <option value="titleDesc">Title Z-A</option>
+            <option value="titleAsc">Title A–Z</option>
+            <option value="titleDesc">Title Z–A</option>
           </select>
-      </div> 
+        </div>
+      </div>
+
+      <div className="lesson-summary">
+        <strong>{filteredLessons.length}</strong>{" "}
+        {filteredLessons.length === 1 ? "lesson" : "lessons"} found
+      </div>
 
       {filteredLessons.length === 0 && (
           <div className="card empty-state">
@@ -346,67 +430,166 @@ export default function TeacherLessonsPage() {
             </p>
           </div>
         )}
-
+      
+      {loading ? (
         <div className="grid-auto">
-          {filteredLessons.map((lesson) => (
-            <div key={lesson.id} className="card lesson-card">
-              <h2>{lesson.title}</h2>
-              <p>{lesson.topic}</p>
+          {[1, 2, 3].map((item) => (
+            <div
+              key={item}
+              className="card lesson-card lesson-skeleton"
+            >
+              <div className="skeleton-line skeleton-title" />
+              <div className="skeleton-line skeleton-short" />
+              <div className="skeleton-line" />
+              <div className="skeleton-line" />
+              <div className="skeleton-line skeleton-medium" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <>
+          {filteredLessons.length === 0 ? (
+            <div className="card empty-state">
+              <h2>No Lessons found</h2>
               <p>
-                Course:
-                {" "}
-                {lesson.course_title || "Unassigned"}
+                Try adjusting your search or filters, or create a new lesson.
               </p>
-              <p>{lesson.description}</p>
-              <p>{lesson.is_premium ? "Premium" : "Free"}</p>
-              <p>
-                Quiz Questions:
-                {" "}
-                {lesson.quiz_question_count}
-              </p>
+            </div>
+          ) : (
+            <div className="grid-auto">
+              {filteredLessons.map((lesson) => (
+                <div key={lesson.id} className="card lesson-card">
+                  <div className="lesson-card-header">
+                    <h2>{lesson.title}</h2>
+                    
+                    <span className={`lesson-badge ${
+                      lesson.is_premium ? "premium" : "free"
+                      }`}
+                    >
+                      {lesson.is_premium ? "Premium" : "Free"}
+                    </span>
+                  </div>
+                  <p className="lesson-topic">{lesson.topic}</p>
 
-              <p>
-                Status:
-                {" "}
-                {lesson.quiz_question_count > 0
-                  ? "Has Quiz"
-                  : "No Quiz Yet"}
-              </p>
-            <div className="lesson-actions">
+                  <p className="lesson-course">
+                    <strong>Course:</strong>{" "}
+                    {lesson.course_title || "Unassigned"}
+                  </p>
 
+                  <p className="lesson-description">
+                    {lesson.description}
+                  </p>
+
+                  <div className="lesson-meta">
+                    <span>
+                      {lesson.quiz_question_count} Quiz Question
+                      {lesson.quiz_question_count !== 1 ? "s" : ""}
+                    </span>
+
+                    <span
+                      className={`lesson-status ${
+                        lesson.quiz_question_count > 0
+                          ? "ready"
+                          : "pending"
+                      }`}
+                    >
+                      {lesson.quiz_question_count > 0
+                        ? "Quiz Ready"
+                        : "No Quiz"}
+                    </span>
+                  </div>
+                    
+                  <div className="lesson-actions">
+
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => handleEditClick(lesson)}
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => handleDeleteLesson(lesson)}
+                    >
+                      Delete
+                    </button>
+
+                    <button
+                      className={
+                        lesson.quiz_question_count > 0
+                          ? "btn btn-primary"
+                          : "btn btn-success"
+                      }
+                        onClick={() =>
+                        navigate(`/teacher/lessons/${lesson.id}/quiz`)
+                      }
+                    >
+                      {lesson.quiz_question_count > 0
+                        ? "Manage Quiz"
+                        : "Create Quiz"}
+                    </button>
+
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {lessonToDelete && (
+        <div
+          className="modal-backdrop"
+          role="presentation"
+          onClick={() => {
+            if (!deleting) {
+              setLessonToDelete(null);
+            }
+          }}
+        >
+          <div
+            className="delete-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-lesson-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="delete-modal-icon">!</div>
+
+            <h2 id="delete-lesson-title">Delete lesson?</h2>
+
+            <p>
+              You are about to permanently delete{" "}
+              <strong>{lessonToDelete.title}</strong>.
+            </p>
+
+            <p className="delete-modal-warning">
+              This action cannot be undone.
+            </p>
+
+            <div className="delete-modal-actions">
               <button
-                className="btn btn-primary"
-                onClick={() => handleEditClick(lesson)}
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setLessonToDelete(null)}
+                disabled={deleting}
               >
-                Edit
+                Cancel
               </button>
 
               <button
+                type="button"
                 className="btn btn-danger"
-                onClick={() => handleDeleteLesson(lesson.id)}
+                onClick={confirmDeleteLesson}
+                disabled={deleting}
               >
-                Delete
+                {deleting ? "Deleting..." : "Delete Lesson"}
               </button>
-
-              <button
-                className={
-                  lesson.quiz_question_count > 0
-                    ? "btn btn-primary"
-                    : "btn btn-success"
-                }
-                onClick={() =>
-                  navigate(`/teacher/lessons/${lesson.id}/quiz`)
-                }
-              >
-                {lesson.quiz_question_count > 0
-                  ? "Manage Quiz"
-                  : "Create Quiz"}
-              </button>
-
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </section>
   );
 }

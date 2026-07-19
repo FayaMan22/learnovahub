@@ -2351,62 +2351,7 @@ main {
   margin-top: 24px;
   margin-bottom: 8px;
 }
-.teacher-dashboard-hero {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
-  margin-bottom: 36px;
-}
 
-.dashboard-highlight {
-  min-width: 220px;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: white;
-  padding: 24px;
-  border-radius: 18px;
-  text-align: center;
-  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.25);
-}
-
-.dashboard-highlight span {
-  font-size: 0.9rem;
-  opacity: 0.9;
-}
-
-.dashboard-highlight h2 {
-  font-size: 3rem;
-  margin: 10px 0;
-}
-
-.analytics-card {
-    background: white;
-    border-radius: 18px;
-    padding: 24px;
-    text-align: center;
-    transition: all .25s ease;
-    box-shadow: 0 8px 24px rgba(0,0,0,.06);
-}
-
-.analytics-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 16px 36px rgba(37,99,235,.15);
-}
-
-.analytics-card span {
-    font-size: 2rem;
-}
-
-.analytics-card h2 {
-    font-size: 2.3rem;
-    margin: 12px 0 6px;
-    color: #2563eb;
-}
-
-.analytics-card p {
-    color: #6b7280;
-    font-weight: 600;
-}
 .dashboard-section {
   margin-top: 36px;
 }
@@ -2414,39 +2359,4 @@ main {
 .dashboard-section-title {
   margin-bottom: 18px;
   font-size: 24px;
-}
-
-.attention-panel {
-  background: white;
-  border-radius: 18px;
-  padding: 24px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-}
-
-.attention-list {
-  display: grid;
-  gap: 14px;
-}
-
-.attention-item {
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
-  padding: 16px;
-  border-radius: 14px;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-}
-
-.attention-item span {
-  font-size: 24px;
-}
-
-.attention-item h3 {
-  margin: 0 0 6px;
-}
-
-.attention-item p {
-  margin: 0;
-  color: #6b7280;
 }

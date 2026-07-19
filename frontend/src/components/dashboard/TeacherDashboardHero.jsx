@@ -1,8 +1,16 @@
-export default function DashboardHero({ greeting, analytics }) {
+import { useAuth } from "../../context/AuthContext";
+
+export default function TeacherDashboardHero({ greeting, analytics }) {
+  const { user } = useAuth();
+  
   return (
     <div className="teacher-dashboard-hero">
       <div>
-        <h1>{greeting}, Teacher 👋</h1>
+        <h1>{greeting}, {user?.full_name} 👋</h1>
+
+        <span className="role-badge">
+          Teacher Dashboard
+        </span>
 
         <p>
           Welcome back to LearnovaHub. Here's what's happening

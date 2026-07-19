@@ -1,79 +1,45 @@
-import { useNavigate } from "react-router-dom";
+import { faBookOpen, faChalkboardTeacher, faFileAlt, faUsers } from "@fortawesome/free-solid-svg-icons";
+
+import QuickActionCard from "./QuickActionCard";
 
 export default function QuickActions() {
-  const navigate = useNavigate();
-
   return (
-    <div className="dashboard-section">
-
-      <h2 className="dashboard-section-title">
-        Quick Actions
-      </h2>
+    <section className="dashboard-section">
+      <h2 className="dashboard-section-title">Quick Actions</h2>
 
       <div className="grid-auto">
+        <QuickActionCard
+          title="Manage Courses"
+          description="Add and organise courses in your teaching catalogue."
+          icon={faChalkboardTeacher}
+          buttonText="Manage Courses"
+          to="/teacher/courses"
+        />
 
-        <div className="dashboard-card">
-          <h3>Create Course</h3>
+        <QuickActionCard
+          title="Manage Lessons"
+          description="Build and organise lessons for your courses."
+          icon={faBookOpen}
+          buttonText="Manage Lessons"
+          to="/teacher/lessons"
+        />
 
-          <p>
-            Add a new course to your teaching catalogue.
-          </p>
+        <QuickActionCard
+          title="Manage Assignments"
+          description="Create assignments and review learner submissions."
+          icon={faFileAlt}
+          buttonText="Manage Assignments"
+          to="/teacher/assignments"
+        />
 
-          <button
-            className="btn btn-primary"
-            onClick={() => navigate("/teacher/courses")}
-          >
-            Manage Courses
-          </button>
-        </div>
-
-        <div className="dashboard-card">
-          <h3>Create Lesson</h3>
-
-          <p>
-            Build and organise lessons for your courses.
-          </p>
-
-          <button
-            className="btn btn-primary"
-            onClick={() => navigate("/teacher/lessons")}
-          >
-            Manage Lessons
-          </button>
-        </div>
-
-        <div className="dashboard-card">
-          <h3>Create Assignment</h3>
-
-          <p>
-            Assess learner understanding with assignments.
-          </p>
-
-          <button
-            className="btn btn-success"
-            onClick={() => navigate("/teacher/assignments")}
-          >
-            Manage Assignments
-          </button>
-        </div>
-
-        <div className="dashboard-card">
-          <h3>My Learners</h3>
-
-          <p>
-            View learner progress and engagement.
-          </p>
-
-          <button
-            className="btn btn-secondary"
-            onClick={() => navigate("/teacher/learners")}
-          >
-            View Learners
-          </button>
-        </div>
-
+        <QuickActionCard
+          title="View Learners"
+          description="Monitor learner progress and engagement."
+          icon={faUsers}
+          buttonText="View Learners"
+          to="/teacher/learners"
+        />
       </div>
-
-    </div>
+    </section>
   );
-}
+} 

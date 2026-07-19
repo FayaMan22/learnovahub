@@ -1,4 +1,14 @@
-import AnalyticsCard from "./AnalyticsCard";
+import DashboardStatCard from "../common/DashboardStatCard";
+
+import {
+  FaBook,
+  FaClipboardList,
+  FaUserGraduate,
+  FaTasks,
+  FaClock,
+  FaCheckCircle,
+  FaChartLine,
+} from "react-icons/fa";
 
 export default function AnalyticsGrid({ analytics }) {
   if (!analytics) return null;
@@ -6,40 +16,46 @@ export default function AnalyticsGrid({ analytics }) {
   return (
     <div className="analytics-grid">
 
-      <AnalyticsCard
-        icon="📚"
+      <DashboardStatCard
+        title="My Courses"
         value={analytics.total_courses}
-        label="My Courses"
+        icon={<FaBook />}
       />
 
-      <AnalyticsCard
-        icon="📖"
+      <DashboardStatCard
+        title="My Lessons"
         value={analytics.total_lessons}
-        label="My Lessons"
+        icon={<FaClipboardList />}
       />
 
-      <AnalyticsCard
-        icon="👨‍🎓"
+      <DashboardStatCard
+        title="Learners"
         value={analytics.total_learners}
-        label="My Learners"
+        icon={<FaUserGraduate />}
       />
 
-      <AnalyticsCard
-        icon="📝"
+      <DashboardStatCard
+        title="Assignments"
         value={analytics.total_assignments}
-        label="Assignments"
+        icon={<FaTasks />}
       />
 
-      <AnalyticsCard
-        icon="⏳"
+      <DashboardStatCard
+        title="Pending"
         value={analytics.pending_marking}
-        label="Pending Marking"
+        icon={<FaClock />}
       />
 
-      <AnalyticsCard
-        icon="⭐"
-        value={`${analytics.average_score ?? 0}%`}
-        label="Average Score"
+      <DashboardStatCard
+        title="Marked"
+        value={analytics.marked_submissions}
+        icon={<FaCheckCircle />}
+      />
+
+      <DashboardStatCard
+        title="Average Score"
+        value={`${analytics.average_score}%`}
+        icon={<FaChartLine />}
       />
 
     </div>
