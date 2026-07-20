@@ -3,6 +3,11 @@ import api from "../api/api";
 import { useNavigate } from "react-router-dom";
 import usePageTitle from "../hooks/usePageTitle";
 import "../styles/teacher-courses.css";
+import DeleteConfirmationModal from "../components/common/DeleteConfirmationModal";
+import Toast from "../components/common/Toast";
+import PageHeader from "../components/common/PageHeader";
+import EmptyState from "../components/common/EmptyState";
+
 
 export default function TeacherCoursesPage() {
   usePageTitle("Teacher Courses");
@@ -132,10 +137,6 @@ export default function TeacherCoursesPage() {
 
   function showToast(message, type = "success") {
     setToast({ message, type });
-
-    setTimeout(() => {
-        setToast(null);
-    }, 4000);
   }
 
   async function confirmDeleteCourse() {
@@ -164,29 +165,21 @@ export default function TeacherCoursesPage() {
 
   return (
     <section className="page-section">
-      <div className="teacher-courses-header">
-        <div>
-          <button
-            className="btn btn-secondary"
-            onClick={() => navigate("/teacher")}
-          >
-            ← Back to Dashboard
-          </button>
 
-          <h1>Teacher Courses</h1>
+      <Toast
+        toast={toast}
+        onClose={() => setToast(null)}
+      />
 
-          <p>
-            Create and organize the courses you teach.
-          </p>
-        </div>
+      <PageHeader
+        title="Teacher Courses"
+        subtitle="Create and organize the courses you teach."
+        backTo="/teacher"
+        backText="Back to Dashboard"
+        actionText={showCourseForm ? "Close Form" : "+ New Course"}
+        onAction={() => setShowCourseForm(!showCourseForm)}
+      />
 
-        <button
-          className="btn btn-primary"
-          onClick={() => setShowCourseForm(!showCourseForm)}
-        >
-          {showCourseForm ? "Close Form" : "+ New Course"}
-        </button>
-      </div>
       {showCourseForm && (
         <form className="course-form card" onSubmit={handleSubmit}>
           <h2>
@@ -253,34 +246,23 @@ export default function TeacherCoursesPage() {
       )}
       
       {!loading && courses.length === 0 && (
-        <div className="card course-empty-state">
-          <div className="course-empty-icon">📚</div>
+        <EmptyState
+          icon="📚"
+          title="You haven’t created any courses yet"
+          description="Create your first course to start adding lessons, quizzes, assignments, and learning outcomes for your learners."
+          buttonText="+ Create Your First Course"
+          onButtonClick={() => {
+            resetForm();
+            setShowCourseForm(true);
 
-          <h2>You haven’t created any courses yet</h2>
-
-          <p>
-            Create your first course to start adding lessons, quizzes,
-            assignments, and learning outcomes for your learners.
-          </p>
-
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => {
-              resetForm();
-              setShowCourseForm(true);
-
-              setTimeout(() => {
-                window.scrollTo({
-                  top: 0,
-                  behavior: "smooth",
-                });
-              }, 100);
-            }}
-          >
-            + Create Your First Course
-          </button>
-        </div>
+            setTimeout(() => {
+              window.scrollTo({
+                top: 0,
+                behavior: "smooth",
+              });
+            }, 100);
+          }}
+        />
       )}
 
       <div className="grid-auto">
@@ -351,50 +333,16 @@ export default function TeacherCoursesPage() {
         ))}
       </div>
 
-      {courseToDelete && (
-        <div
-          className="modal-backdrop"
-          onClick={() => !deleting && setCourseToDelete(null)}
-        >
-          <div
-            className="delete-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="delete-modal-icon">!</div>
-
-            <h2>Delete Course?</h2>
-
-            <p>
-              Are you sure you want to delete{" "}
-              <strong>{courseToDelete.title}</strong>?
-            </p>
-
-            <p className="delete-warning">
-              This action cannot be undone.
-            </p>
-
-            <div className="delete-modal-actions">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => setCourseToDelete(null)}
-                disabled={deleting}
-              >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                className="btn btn-danger"
-                onClick={confirmDeleteCourse}
-                disabled={deleting}
-              >
-                {deleting ? "Deleting..." : "Delete Course"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteConfirmationModal
+        open={Boolean(courseToDelete)}
+        title="Delete Course?"
+        itemName={courseToDelete?.title}
+        warning="This action cannot be undone."
+        confirmText="Delete Course"
+        loading={deleting}
+        onCancel={() => setCourseToDelete(null)}
+        onConfirm={confirmDeleteCourse}
+      />
 
     </section>
   );

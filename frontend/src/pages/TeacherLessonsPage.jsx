@@ -3,6 +3,10 @@ import api from "../api/api";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import usePageTitle from "../hooks/usePageTitle";
 import "../styles/teacher-lessons.css";
+import DeleteConfirmationModal from "../components/common/DeleteConfirmationModal";
+import Toast from "../components/common/Toast";
+import PageHeader from "../components/common/PageHeader";
+import EmptyState from "../components/common/EmptyState";
 
 export default function TeacherLessonsPage() {
   usePageTitle("Teacher Lessons");
@@ -38,10 +42,6 @@ export default function TeacherLessonsPage() {
 
   function showToast(message, type = "success") {
     setToast({ message, type });
-
-    window.setTimeout(() => {
-      setToast(null);
-    }, 4000);
   }
 
   async function fetchCourses() {
@@ -230,40 +230,20 @@ export default function TeacherLessonsPage() {
 
   return (
     <section className="page-section">
-      {toast && (
-        <div
-          className={`teacher-toast ${toast.type}`}
-          role="status"
-        >
-          {toast.message}
-        </div>
-      )}
-      <div className="teacher-lessons-header">
-        <div>
-          <button
-            className="btn btn-secondary back-btn"
-            onClick={() => navigate("/teacher")}
-          >
-            ← Back to Dashboard
-          </button>
 
-          <h1>Teacher Lessons</h1>
+      <Toast
+        toast={toast}
+        onClose={() => setToast(null)}
+      />
 
-          <p>
-            Create, organise and manage lessons for your courses.
-          </p>
-        </div>
-
-        <button
-          className="btn btn-primary"
-          onClick={() => {
-            setEditingLessonId(null);
-            setShowLessonForm((current) => !current);
-          }}
-        >
-          {showLessonForm ? "Close Form" : "+ New Lesson"}
-        </button>
-      </div>
+      <PageHeader
+        title="Teacher Lessons"
+        subtitle="Create, organise and manage lessons for your courses."
+        backTo="/teacher"
+        backText="Back to Dashboard"
+        actionText={showLessonForm ? "Close Form" : "+ New Lesson"}
+        onAction={() => setShowLessonForm(!showLessonForm)}
+      />
 
       {selectedCourseId && (
         <div className="card course-filter-banner">
@@ -421,15 +401,6 @@ export default function TeacherLessonsPage() {
         <strong>{filteredLessons.length}</strong>{" "}
         {filteredLessons.length === 1 ? "lesson" : "lessons"} found
       </div>
-
-      {filteredLessons.length === 0 && (
-          <div className="card empty-state">
-            <h2>No lessons found</h2>
-            <p>
-              Try adjusting your search/filter, or create your first lesson above.
-            </p>
-          </div>
-        )}
       
       {loading ? (
         <div className="grid-auto">
@@ -449,12 +420,23 @@ export default function TeacherLessonsPage() {
       ) : (
         <>
           {filteredLessons.length === 0 ? (
-            <div className="card empty-state">
-              <h2>No Lessons found</h2>
-              <p>
-                Try adjusting your search or filters, or create a new lesson.
-              </p>
-            </div>
+            <EmptyState
+              icon="📖"
+              title="You haven’t created any lessons yet"
+              description="Create your first lesson to begin adding videos, notes, quizzes, and learning resources."
+              buttonText="+ Create Your First Lesson"
+              onButtonClick={() => {
+                handleCancelEdit();
+                setShowLessonForm(true);
+
+                setTimeout(() => {
+                  window.scrollTo({
+                    top: 0,
+                    behavior: "smooth",
+                  });
+                }, 100);
+              }}
+            />
           ) : (
             <div className="grid-auto">
               {filteredLessons.map((lesson) => (
@@ -538,58 +520,16 @@ export default function TeacherLessonsPage() {
         </>
       )}
 
-      {lessonToDelete && (
-        <div
-          className="modal-backdrop"
-          role="presentation"
-          onClick={() => {
-            if (!deleting) {
-              setLessonToDelete(null);
-            }
-          }}
-        >
-          <div
-            className="delete-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="delete-lesson-title"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="delete-modal-icon">!</div>
-
-            <h2 id="delete-lesson-title">Delete lesson?</h2>
-
-            <p>
-              You are about to permanently delete{" "}
-              <strong>{lessonToDelete.title}</strong>.
-            </p>
-
-            <p className="delete-modal-warning">
-              This action cannot be undone.
-            </p>
-
-            <div className="delete-modal-actions">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => setLessonToDelete(null)}
-                disabled={deleting}
-              >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                className="btn btn-danger"
-                onClick={confirmDeleteLesson}
-                disabled={deleting}
-              >
-                {deleting ? "Deleting..." : "Delete Lesson"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteConfirmationModal
+        open={Boolean(lessonToDelete)}
+        title="Delete Lesson?"
+        itemName={lessonToDelete?.title}
+        warning="This action cannot be undone."
+        confirmText="Delete Lesson"
+        loading={deleting}
+        onCancel={() => setLessonToDelete(null)}
+        onConfirm={confirmDeleteLesson}
+      />
     </section>
   );
 }
