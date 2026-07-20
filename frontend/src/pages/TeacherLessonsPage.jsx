@@ -419,7 +419,7 @@ export default function TeacherLessonsPage() {
         </div>
       ) : (
         <>
-          {filteredLessons.length === 0 ? (
+          {!showLessonForm && filteredLessons.length === 0 && (
             <EmptyState
               icon="📖"
               title="You haven’t created any lessons yet"
@@ -437,7 +437,8 @@ export default function TeacherLessonsPage() {
                 }, 100);
               }}
             />
-          ) : (
+          )}
+          {filteredLessons.length > 0 && (
             <div className="grid-auto">
               {filteredLessons.map((lesson) => (
                 <div key={lesson.id} className="card lesson-card">
