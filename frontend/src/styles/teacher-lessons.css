@@ -88,27 +88,6 @@
     margin-top: auto;
 }
 
-.lesson-toolbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.toolbar-search {
-    flex: 1;
-}
-
-.toolbar-search input {
-    width: 100%;
-}
-
-.toolbar-filters {
-    display: flex;
-    gap: 1rem;
-}
-
 .lesson-summary {
     margin-bottom: 1.5rem;
     color: #64748b;
@@ -117,17 +96,6 @@
 
 .lesson-summary strong {
     color: #0f172a;
-}
-
-@media (max-width: 768px) {
-    .lesson-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .toolbar-filters {
-        flex-direction: column;
-    }
 }
 
 .lesson-skeleton {

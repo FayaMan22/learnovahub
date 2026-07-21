@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../api/api";
+import "../styles/teacher-quiz.css";
+import QuizCard from "../components/teacher/QuizCard";
+
 
 
 export default function TeacherQuizPage() {
@@ -206,36 +209,15 @@ export default function TeacherQuizPage() {
         )}
       </form>
 
-      <div className="grid-auto">
-        {questions.map((item) => (
-          <div key={item.id} className="card">
-            <h2>{item.question}</h2>
-
-            <p>A: {item.option_a}</p>
-            <p>B: {item.option_b}</p>
-            <p>C: {item.option_c}</p>
-            <p>D: {item.option_d}</p>
-
-            <p>
-              Correct Answer: {item.correct_answer}
-            </p>
-
-            <div className="lesson-actions">
-              <button
-                className="btn btn-primary"
-                onClick={() => handleEditClick(item)}
-              >
-                Edit Question
-              </button>
-
-              <button
-                className="btn btn-danger"
-                onClick={() => handleDeleteQuestion(item.id)}
-              >
-                Delete Question
-              </button>
-            </div>
-          </div>
+      <div className="quiz-card-grid">
+        {questions.map((item, index) => (
+          <QuizCard
+            key={item.id}
+            question={item}
+            number={index + 1}
+            onEdit={() => handleEditClick(item)}
+            onDelete={() => handleDeleteQuestion(item.id)}
+          />
         ))}
       </div>
     </section>

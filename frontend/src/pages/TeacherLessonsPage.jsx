@@ -7,6 +7,10 @@ import DeleteConfirmationModal from "../components/common/DeleteConfirmationModa
 import Toast from "../components/common/Toast";
 import PageHeader from "../components/common/PageHeader";
 import EmptyState from "../components/common/EmptyState";
+import ListToolbar from "../components/common/ListToolbar";
+import ResultsSummary from "../components/common/ResultsSummary";
+import LessonCard from "../components/teacher/LessonCard";
+
 
 export default function TeacherLessonsPage() {
   usePageTitle("Teacher Lessons");
@@ -208,6 +212,7 @@ export default function TeacherLessonsPage() {
         matchesCourse
       );
     })
+
     .sort((a, b) => {
       if (sortBy === "newest") {
         return b.id - a.id;
@@ -259,6 +264,7 @@ export default function TeacherLessonsPage() {
           </button>
         </div>
       )}
+
       {showLessonForm && (
         <form className="lesson-form" onSubmit={handleSubmit}>
           <h2>
@@ -363,44 +369,40 @@ export default function TeacherLessonsPage() {
         </form>
       )}
       
-      <div className="lesson-toolbar card">
-        <div className="toolbar-search">
-          <input
-            type="text"
-            placeholder="Search lessons..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
+      <ListToolbar
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Search lessons..."
+        filters={[
+          {
+            value: filterStatus,
+            onChange: setFilterStatus,
+            options: [
+              { value: "all", label: "All Lessons" },
+              { value: "withQuiz", label: "With Quiz" },
+              { value: "withoutQuiz", label: "Without Quiz"},
+              { value: "premium", label: "Premium"},
+              { value: "free", label: "Free"},
+            ],
+          },
+          {
+            value: sortBy,
+            onChange: setSortBy,
+            options: [
+              { value: "newest", label: "Newest First" },
+              { value: "oldest", label: "Oldest First" },
+              { value: "titleAsc", label: "Title A-Z" },
+              { value: "titleDesc", label: "Title Z-A" },
+            ],
+          },
+        ]}
+      />
 
-        <div className="toolbar-filters">
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-          >
-            <option value="all">All Lessons</option>
-            <option value="withQuiz">With Quiz</option>
-            <option value="withoutQuiz">Without Quiz</option>
-            <option value="premium">Premium</option>
-            <option value="free">Free</option>
-          </select>
-
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-          >
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="titleAsc">Title A–Z</option>
-            <option value="titleDesc">Title Z–A</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="lesson-summary">
-        <strong>{filteredLessons.length}</strong>{" "}
-        {filteredLessons.length === 1 ? "lesson" : "lessons"} found
-      </div>
+      <ResultsSummary
+        count={filteredLessons.length}
+        singularLabel="lesson"
+        pluralLabel="lessons"
+      />
       
       {loading ? (
         <div className="grid-auto">
@@ -438,86 +440,20 @@ export default function TeacherLessonsPage() {
               }}
             />
           )}
-          {filteredLessons.length > 0 && (
-            <div className="grid-auto">
-              {filteredLessons.map((lesson) => (
-                <div key={lesson.id} className="card lesson-card">
-                  <div className="lesson-card-header">
-                    <h2>{lesson.title}</h2>
-                    
-                    <span className={`lesson-badge ${
-                      lesson.is_premium ? "premium" : "free"
-                      }`}
-                    >
-                      {lesson.is_premium ? "Premium" : "Free"}
-                    </span>
-                  </div>
-                  <p className="lesson-topic">{lesson.topic}</p>
-
-                  <p className="lesson-course">
-                    <strong>Course:</strong>{" "}
-                    {lesson.course_title || "Unassigned"}
-                  </p>
-
-                  <p className="lesson-description">
-                    {lesson.description}
-                  </p>
-
-                  <div className="lesson-meta">
-                    <span>
-                      {lesson.quiz_question_count} Quiz Question
-                      {lesson.quiz_question_count !== 1 ? "s" : ""}
-                    </span>
-
-                    <span
-                      className={`lesson-status ${
-                        lesson.quiz_question_count > 0
-                          ? "ready"
-                          : "pending"
-                      }`}
-                    >
-                      {lesson.quiz_question_count > 0
-                        ? "Quiz Ready"
-                        : "No Quiz"}
-                    </span>
-                  </div>
-                    
-                  <div className="lesson-actions">
-
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => handleEditClick(lesson)}
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      className="btn btn-danger"
-                      onClick={() => handleDeleteLesson(lesson)}
-                    >
-                      Delete
-                    </button>
-
-                    <button
-                      className={
-                        lesson.quiz_question_count > 0
-                          ? "btn btn-primary"
-                          : "btn btn-success"
-                      }
-                        onClick={() =>
-                        navigate(`/teacher/lessons/${lesson.id}/quiz`)
-                      }
-                    >
-                      {lesson.quiz_question_count > 0
-                        ? "Manage Quiz"
-                        : "Create Quiz"}
-                    </button>
-
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="grid-auto">
+            {filteredLessons.map((lesson) => (
+              <LessonCard
+                key={lesson.id}
+                lesson={lesson}
+                onEdit={() => handleEditClick(lesson)}
+                onDelete={() => handleDeleteLesson(lesson)}
+                onManageQuiz={() =>
+                  navigate(`/teacher/lessons/${lesson.id}/quiz`)
+                }
+              />
+            ))}
+          </div>
+        
         </>
       )}
 
